@@ -1,0 +1,6 @@
+rootProject.name = 'reporting-service'
+
+include(':domain')
+include(':persistence')
+include(':service')
+include(':web')
