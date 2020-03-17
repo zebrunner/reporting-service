@@ -1,0 +1,26 @@
+description = 'persistence'
+
+def libraries = rootProject.ext.dependencyManagement
+
+apply plugin: 'java-library'
+
+dependencies {
+
+    implementation project(':domain')
+
+    implementation libraries.persistence_core
+    api libraries.boot_starter_data_jpa
+    implementation libraries.jaxb
+    implementation libraries.jackson_databind
+
+    implementation libraries.liquibase
+    implementation libraries.hibernate_validator
+
+    testImplementation libraries.testNG
+    testImplementation libraries.spring_test
+
+}
+
+test {
+    useTestNG()
+}
