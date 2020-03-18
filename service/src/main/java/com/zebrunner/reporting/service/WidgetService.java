@@ -2,19 +2,15 @@ package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.persistence.dao.mysql.application.WidgetMapper;
 import com.zebrunner.reporting.persistence.utils.SQLTemplateAdapter;
-import com.zebrunner.reporting.domain.db.Attribute;
 import com.zebrunner.reporting.domain.db.Widget;
 import com.zebrunner.reporting.domain.db.WidgetTemplate;
 import com.zebrunner.reporting.service.exception.ProcessingException;
 import com.zebrunner.reporting.service.util.FreemarkerUtil;
-import com.zebrunner.reporting.service.util.SQLExecutor;
 import com.zebrunner.reporting.service.util.URLResolver;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,19 +29,16 @@ public class WidgetService {
     private final FreemarkerUtil freemarkerUtil;
     private final URLResolver urlResolver;
     private final WidgetTemplateService widgetTemplateService;
-    private final SQLExecutor sqlExecutor;
 
-    public WidgetService(WidgetMapper widgetMapper, FreemarkerUtil freemarkerUtil, URLResolver urlResolver, WidgetTemplateService widgetTemplateService, SQLExecutor sqlExecutor) {
+    public WidgetService(WidgetMapper widgetMapper, FreemarkerUtil freemarkerUtil, URLResolver urlResolver, WidgetTemplateService widgetTemplateService) {
         this.widgetMapper = widgetMapper;
         this.freemarkerUtil = freemarkerUtil;
         this.urlResolver = urlResolver;
         this.widgetTemplateService = widgetTemplateService;
-        this.sqlExecutor = sqlExecutor;
     }
 
     public enum DefaultParam {
         SERVICE_URL("serviceUrl"),
-        JENKINS_URL("jenkinsUrl"),
         CURRENT_USER_ID("currentUserId"),
         CURRENT_USER_NAME("currentUserName"),
         HASHCODE("hashcode"),
@@ -115,63 +108,6 @@ public class WidgetService {
             throw new ProcessingException(WIDGET_QUERY_EXECUTION_ERROR, ERR_MSG_INVALID_CHART_QUERY);
         }
         return resultList;
-    }
-
-    /**
-     * Used for old widget versions and table widgets.
-     * Someday we'll remove echarts library completely and refactor this method.
-     */
-
-    @Transactional(readOnly = true)
-    public List<Map<String, Object>> getQueryResultObsolete(
-            List<String> projects,
-            String currentUserId,
-            String dashboardName,
-            String query,
-            List<Attribute> attributes,
-            Long userId,
-            String userName
-    ) {
-        List<Map<String, Object>> resultList;
-        try {
-            query = applyAttributes(attributes, query);
-            query = replacePlaceholders(projects, currentUserId, dashboardName, query, userId, userName);
-            resultList = executeSQL(query);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new ProcessingException(WIDGET_QUERY_EXECUTION_ERROR, ERR_MSG_INVALID_CHART_QUERY);
-        }
-        return resultList;
-    }
-
-    private String applyAttributes(List<Attribute> attributes, String query) {
-        if (attributes != null) {
-            for (Attribute attribute : attributes) {
-                query = query.replaceAll("#\\{" + attribute.getKey() + "\\}", attribute.getValue());
-            }
-        }
-        return query;
-    }
-
-    private String replacePlaceholders(List<String> projects, String currentUserId, String dashboardName, String query, Long userId, String userName) {
-        query = query
-                .replaceAll("#\\{project}", concatProjectNames(projects))
-                .replaceAll("#\\{dashboardName}", !StringUtils.isEmpty(dashboardName) ? dashboardName : "")
-                .replaceAll("#\\{currentUserId}", !StringUtils.isEmpty(currentUserId) ? currentUserId : String.valueOf(userId))
-                .replaceAll("#\\{currentUserName}", String.valueOf(userName))
-                .replaceAll("#\\{zafiraURL}", urlResolver.buildWebURL())
-                .replaceAll("#\\{hashcode}", "0")
-                .replaceAll("#\\{testCaseId}", "0");
-        return query;
-    }
-
-    private String concatProjectNames(List<String> projects) {
-        return !CollectionUtils.isEmpty(projects) ? String.join(",", projects) : "%";
-    }
-
-    @Transactional(readOnly = true)
-    public List<Map<String, Object>> executeSQL(String sql) {
-        return sqlExecutor.getMultiRowResult(sql);
     }
 
     @Transactional(readOnly = true)

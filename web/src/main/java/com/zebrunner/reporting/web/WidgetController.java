@@ -88,19 +88,6 @@ public class WidgetController extends AbstractController {
     }
 
     @ApiResponseStatuses
-    @ApiOperation(value = "Execute SQL", nickname = "executeSQL", httpMethod = "POST", response = List.class)
-    @ApiImplicitParams({@ApiImplicitParam(name = "Authorization", paramType = "header")})
-    @PostMapping("/sql")
-    public List<Map<String, Object>> executeSQL(@RequestBody @Valid SQLAdapter sql,
-                                                @RequestParam(name = "projects", defaultValue = "", required = false) List<String> projects,
-                                                @RequestParam(name = "currentUserId", required = false) String currentUserId,
-                                                @RequestParam(name = "dashboardName", required = false) String dashboardName) {
-        String query = sql.getSql();
-        List<Attribute> attributes = sql.getAttributes();
-        return widgetService.getQueryResultObsolete(projects, currentUserId, dashboardName, query, attributes, getPrincipalId(), getPrincipalName());
-    }
-
-    @ApiResponseStatuses
     @ApiOperation(value = "Get all widgets", nickname = "getAllWidgets", httpMethod = "GET", response = List.class)
     @ApiImplicitParams({@ApiImplicitParam(name = "Authorization", paramType = "header")})
     @GetMapping()
