@@ -87,6 +87,13 @@
 		]]>
 	</select>
 
+	<select id="getWidgetByTitleAndTemplateId" resultMap="WidgetResultMap">
+		<include refid="getWidget" />
+		<![CDATA[
+			WHERE W.TITLE = #{title} AND WT.ID = #{templateId};
+		]]>
+	</select>
+
 	<update id="updateWidget">
 		<![CDATA[
 			UPDATE
