@@ -5,6 +5,7 @@ import com.zebrunner.reporting.persistence.utils.SQLTemplateAdapter;
 import com.zebrunner.reporting.domain.db.Attribute;
 import com.zebrunner.reporting.domain.db.Widget;
 import com.zebrunner.reporting.domain.db.WidgetTemplate;
+import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ProcessingException;
 import com.zebrunner.reporting.service.util.FreemarkerUtil;
 import com.zebrunner.reporting.service.util.SQLExecutor;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.WIDGET_CAN_NOT_BE_CREATED;
 import static com.zebrunner.reporting.service.exception.ProcessingException.ProcessingErrorDetail.WIDGET_QUERY_EXECUTION_ERROR;
 
 @Service
@@ -28,6 +30,7 @@ public class WidgetService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WidgetService.class);
     private static final String ERR_MSG_INVALID_CHART_QUERY = "Invalid chart query";
+    public static final String ERR_MSG_WIDGET_WITH_SUCH_NAME_ALREADY_EXISTS = "Widget with such name already exists for template %d";
 
     private final WidgetMapper widgetMapper;
     private final FreemarkerUtil freemarkerUtil;
@@ -61,9 +64,14 @@ public class WidgetService {
 
     @Transactional(rollbackFor = Exception.class)
     public Widget createWidget(Widget widget) {
-        if (widget.getWidgetTemplate() != null) {
-            WidgetTemplate widgetTemplate = prepareWidgetTemplate(widget);
-            widget.setType(widgetTemplate.getType().name());
+        WidgetTemplate widgetTemplate = widget.getWidgetTemplate();
+        if (widgetTemplate != null) {
+            Widget existingWidget = getWidgetByTitleAndTemplateId(widget.getTitle(), widgetTemplate.getId());
+            if (existingWidget != null) {
+                throw new IllegalOperationException(WIDGET_CAN_NOT_BE_CREATED, String.format(ERR_MSG_WIDGET_WITH_SUCH_NAME_ALREADY_EXISTS, widgetTemplate.getId()));
+            }
+            WidgetTemplate preparedWidgetTemplate = prepareWidgetTemplate(widget);
+            widget.setType(preparedWidgetTemplate.getType().name());
         }
         widgetMapper.createWidget(widget);
         return widget;
@@ -72,6 +80,11 @@ public class WidgetService {
     @Transactional(readOnly = true)
     public Widget getWidgetById(long id) {
         return widgetMapper.getWidgetById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Widget getWidgetByTitleAndTemplateId(String title, long templateId) {
+        return widgetMapper.getWidgetByTitleAndTemplateId(title, templateId);
     }
 
     @Transactional(readOnly = true)
