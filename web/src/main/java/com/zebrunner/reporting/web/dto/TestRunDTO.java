@@ -44,12 +44,12 @@ public class TestRunDTO {
     @NotNull(groups = ValidationGroups.TestRunStartGroup.class)
     @Null(groups = ValidationGroups.TestRunFinishGroup.class)
     @Valid
-    private LaunchContext launchContext;
+    private LaunchContextDTO launchContext;
 
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class LaunchContext {
+    public static class LaunchContextDTO {
 
         @Positive(groups = ValidationGroups.TestRunStartGroup.class)
         @NotNull(groups = ValidationGroups.TestRunStartGroup.class)

@@ -5,7 +5,7 @@
 
     <mapping map-id="com.zebrunner.reporting.web.dto.TestRunDTO$ValidationGroups$TestRunStartGroup" type="one-way" wildcard="false">
         <class-a>com.zebrunner.reporting.web.dto.TestRunDTO</class-a>
-        <class-b>com.zebrunner.reporting.domain.db.TestRun</class-b>
+        <class-b>com.zebrunner.reporting.domain.db.reporting.TestRun</class-b>
 
         <field>
             <a>name</a>
@@ -30,7 +30,7 @@
     </mapping>
 
     <mapping map-id="com.zebrunner.reporting.web.dto.TestRunDTO$ValidationGroups$TestRunStartGroup" type="one-way" wildcard="false">
-        <class-a>com.zebrunner.reporting.domain.db.TestRun</class-a>
+        <class-a>com.zebrunner.reporting.domain.db.reporting.TestRun</class-a>
         <class-b>com.zebrunner.reporting.web.dto.TestRunDTO</class-b>
 
         <field>
@@ -41,7 +41,7 @@
 
     <mapping map-id="com.zebrunner.reporting.web.dto.TestRunDTO$ValidationGroups$TestRunFinishGroup" type="one-way" wildcard="false">
         <class-a>com.zebrunner.reporting.web.dto.TestRunDTO</class-a>
-        <class-b>com.zebrunner.reporting.domain.db.TestRun</class-b>
+        <class-b>com.zebrunner.reporting.domain.db.reporting.TestRun</class-b>
 
         <field>
             <a>endedAt</a>
@@ -50,7 +50,7 @@
     </mapping>
 
     <mapping map-id="com.zebrunner.reporting.web.dto.TestRunDTO$ValidationGroups$TestRunFinishGroup" type="one-way" wildcard="false">
-        <class-a>com.zebrunner.reporting.domain.db.TestRun</class-a>
+        <class-a>com.zebrunner.reporting.domain.db.reporting.TestRun</class-a>
         <class-b>com.zebrunner.reporting.web.dto.TestRunDTO</class-b>
 
         <field>
