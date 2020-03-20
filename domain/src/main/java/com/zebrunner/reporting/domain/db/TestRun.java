@@ -70,7 +70,7 @@ public class TestRun extends AbstractEntity {
             return "";
         }
         String name = "%s %s (%s) on %s %s";
-        String appVersion = isEmpty(config.getAppVersion()) ? config.getAppVersion() + " - " : "";
+        String appVersion = !isEmpty(config.getAppVersion()) ? config.getAppVersion() + " - " : "";
         String platformInfo = buildPlatformInfo();
         return String.format(name, appVersion, testSuite.getName(), testSuite.getFileName(), config.getEnv(), platformInfo).trim();
     }
