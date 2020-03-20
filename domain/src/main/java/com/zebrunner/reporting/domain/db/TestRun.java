@@ -83,9 +83,8 @@ public class TestRun extends AbstractEntity {
         StringBuilder platformInfoBuilder = new StringBuilder();
         platformInfoBuilder.append(config.buildPlatformName());
         if (!"en_US".equals(config.getLocale())) {
-            platformInfoBuilder
-                    .append(" ")
-                    .append(config.getLocale());
+            platformInfoBuilder.append(" ")
+                               .append(config.getLocale());
         }
         platformInfoBuilder.insert(0, "(");
         platformInfoBuilder.append(")");
