@@ -83,5 +83,9 @@
 			<a>reviewed</a>
 			<b>reviewed</b>
 		</field>
+		<field>
+			<a>artifacts</a>
+			<b>artifacts</b>
+		</field>
 	</mapping>
 </mappings>

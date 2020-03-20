@@ -1,21 +1,23 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
 import com.zebrunner.reporting.domain.db.Project;
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestRun;
+import com.zebrunner.reporting.domain.db.TestRunArtifact;
 import com.zebrunner.reporting.domain.dto.BuildParameterType;
 import com.zebrunner.reporting.domain.dto.CommentType;
 import com.zebrunner.reporting.domain.dto.EmailType;
 import com.zebrunner.reporting.domain.dto.QueueTestRunParamsType;
+import com.zebrunner.reporting.domain.dto.TestRunArtifactDTO;
 import com.zebrunner.reporting.domain.dto.TestRunType;
 import com.zebrunner.reporting.domain.dto.TestType;
 import com.zebrunner.reporting.domain.push.TestPush;
 import com.zebrunner.reporting.domain.push.TestRunPush;
 import com.zebrunner.reporting.domain.push.TestRunStatisticPush;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
 import com.zebrunner.reporting.service.LauncherCallbackService;
 import com.zebrunner.reporting.service.TestConfigService;
 import com.zebrunner.reporting.service.TestRunService;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequestMapping(path = "api/tests/runs", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -161,6 +164,25 @@ public class TestRunController extends AbstractController implements TestRunDocu
         return testRunService.search(sc, projectNames, filterId);
     }
 
+    @PostMapping("{id}/artifacts")
+    @Override
+    public Set<TestRunArtifactDTO> attachArtifacts(@PathVariable("id") Long id,
+                                                   @RequestBody @Valid Set<TestRunArtifactDTO> testRunArtifactDTOS) {
+        Set<TestRunArtifact> testRunArtifacts = testRunArtifactDTOS.stream()
+                                                                .map(testRunArtifact -> mapper.map(testRunArtifact, TestRunArtifact.class))
+                                                                .collect(Collectors.toSet());
+        Set<TestRunArtifact> attachedArtifacts = testRunService.attachTestRunArtifacts(testRunArtifacts, id);
+        return attachedArtifacts.stream()
+                                .map(testRunArtifact -> mapper.map(testRunArtifact, TestRunArtifactDTO.class))
+                                .collect(Collectors.toSet());
+    }
+
+    @DeleteMapping("/{id}/artifacts")
+    @Override
+    public void deleteArtifacts(@PathVariable Long id) {
+        testRunService.deleteTestRunArtifacts(id);
+    }
+
     @PostMapping("/rerun/jobs")
     @Override
     public List<TestRunType> rerunJobs(
@@ -260,7 +282,7 @@ public class TestRunController extends AbstractController implements TestRunDocu
     }
 
     @PreAuthorize("hasPermission('TEST_RUNS_CI')")
-    @GetMapping({ "/abort/ci", "/abort/debug" })
+    @GetMapping({"/abort/ci", "/abort/debug"})
     @Override
     public void abortCIJob(
             @RequestParam(value = "id", required = false) Long id,

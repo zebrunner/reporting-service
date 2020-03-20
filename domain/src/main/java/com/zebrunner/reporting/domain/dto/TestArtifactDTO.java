@@ -10,7 +10,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
-public class TestArtifactType extends AbstractType {
+public class TestArtifactDTO extends AbstractType {
     private static final long serialVersionUID = 555233394837989532L;
 
     private String name;
@@ -21,8 +21,8 @@ public class TestArtifactType extends AbstractType {
     @Override
     public boolean equals(Object obj) {
         boolean equals = false;
-        if (obj instanceof TestArtifactType) {
-            equals = this.name.equals(((TestArtifactType) obj).getName());
+        if (obj instanceof TestArtifactDTO) {
+            equals = this.name.equals(((TestArtifactDTO) obj).getName());
         }
         return equals;
     }

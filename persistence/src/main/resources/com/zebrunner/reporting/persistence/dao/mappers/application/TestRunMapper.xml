@@ -763,6 +763,11 @@
                 property="project.modifiedAt"/>
         <result column="TEST_RUN_PROJECT_CREATED_AT"
                 property="project.createdAt"/>
+
+        <collection property="artifacts"
+                    ofType="com.zebrunner.reporting.domain.db.TestRunArtifact"
+                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper.TestRunArtifactResultMap" />
+
     </resultMap>
 
     <resultMap

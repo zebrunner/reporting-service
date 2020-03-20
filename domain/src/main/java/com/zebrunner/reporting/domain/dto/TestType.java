@@ -43,7 +43,7 @@ public class TestType extends AbstractType {
     private String dependsOnMethods;
     private String testClass;
     @Valid
-    private Set<TestArtifactType> artifacts = new HashSet<>();
+    private Set<TestArtifactDTO> artifacts = new HashSet<>();
     private String ciTestId;
     @Valid
     private Set<TagType> tags;

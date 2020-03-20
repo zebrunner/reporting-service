@@ -96,6 +96,7 @@ public class WebConfig implements WebMvcConfigurer {
             "dozer/User-dozer-mapping.xml",
             "dozer/Project-dozer-mapping.xml",
             "dozer/TestArtifact-dozer-mapping.xml",
+            "dozer/TestRunArtifact-dozer-mapping.xml",
             "dozer/Tenancy-dozer-mapping.xml",
             "dozer/Invitation-dozer-mapping.xml",
             "dozer/ScmAccount-dozer-mapping.xml",

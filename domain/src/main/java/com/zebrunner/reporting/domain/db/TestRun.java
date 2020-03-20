@@ -10,7 +10,9 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -57,6 +59,8 @@ public class TestRun extends AbstractEntity {
     private Integer queued;
     private boolean reviewed;
 
+    private Set<TestRunArtifact> artifacts = new HashSet<>();
+
     @Builder
     public TestRun(Long id, String ciRunId) {
         super(id);
@@ -79,8 +83,9 @@ public class TestRun extends AbstractEntity {
         StringBuilder platformInfoBuilder = new StringBuilder();
         platformInfoBuilder.append(config.buildPlatformName());
         if (!"en_US".equals(config.getLocale())) {
-            platformInfoBuilder.append(" ")
-                               .append(config.getLocale());
+            platformInfoBuilder
+                    .append(" ")
+                    .append(config.getLocale());
         }
         platformInfoBuilder.insert(0, "(");
         platformInfoBuilder.append(")");

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+        namespace="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper">
+
+    <insert id="createTestRunArtifact" useGeneratedKeys="true"
+            keyProperty="id">
+		<![CDATA[
+        INSERT INTO TEST_RUN_ARTIFACTS (NAME, LINK, EXPIRES_AT, TEST_RUN_ID)
+        VALUES (#{name},
+                #{link},
+                #{expiresAt},
+                #{testRunId})
+        ]]>
+	</insert>
+
+    <sql id="getTestRunArtifact">
+		<![CDATA[
+        SELECT TA.ID          AS TEST_RUN_ARTIFACT_ID,
+               TA.NAME        AS TEST_RUN_ARTIFACT_NAME,
+               TA.LINK        AS TEST_RUN_ARTIFACT_LINK,
+               TA.TEST_RUN_ID AS TEST_RUN_ARTIFACT_TEST_RUN_ID,
+               TA.EXPIRES_AT  AS TEST_RUN_ARTIFACT_EXPIRES_AT
+        FROM TEST_RUN_ARTIFACTS TA
+        ]]>
+	</sql>
+
+    <select id="getTestRunArtifactById"
+            resultMap="TestRunArtifactResultMap">
+        <include refid="getTestRunArtifact"/>
+        <![CDATA[
+			WHERE TA.ID = #{id};
+		]]>
+    </select>
+
+    <select id="getTestRunArtifactsByTestRunId"
+            resultMap="TestRunArtifactResultMap">
+        <include refid="getTestRunArtifact"/>
+        <![CDATA[
+			WHERE TA.TEST_RUN_ID = #{testRunId};
+		]]>
+    </select>
+
+    <select id="getTestRunArtifactByNameAndTestRunId"
+            resultMap="TestRunArtifactResultMap">
+        <include refid="getTestRunArtifact"/>
+        <![CDATA[
+			WHERE TA.NAME = #{name} AND TA.TEST_RUN_ID = #{testRunId};
+		]]>
+    </select>
+
+    <update id="updateTestRunArtifact">
+        <![CDATA[
+			UPDATE
+			    TEST_RUN_ARTIFACTS
+		]]>
+        <set>
+            <if test="null != name">
+                <![CDATA[
+		               NAME = #{name},
+		            ]]>
+            </if>
+            <if test="null != link">
+                <![CDATA[
+		               LINK = #{link},
+		            ]]>
+            </if>
+            <if test="null != testRunId">
+                <![CDATA[
+		               TEST_RUN_ID = #{testRunId},
+		            ]]>
+            </if>
+            <if test="null != expiresAt">
+                <![CDATA[
+		               EXPIRES_AT = #{expiresAt}
+		            ]]>
+            </if>
+        </set>
+        <![CDATA[
+			WHERE
+			    ID = #{id}
+		]]>
+    </update>
+
+    <sql id="deleteTestRunArtifact">
+		<![CDATA[
+        DELETE
+        FROM TEST_RUN_ARTIFACTS
+        ]]>
+	</sql>
+
+    <delete id="deleteTestRunArtifactById">
+        <include refid="deleteTestRunArtifact"/>
+        <![CDATA[
+			WHERE ID = #{id}
+		]]>
+    </delete>
+
+    <delete id="deleteTestRunArtifactsByTestRunId">
+        <include refid="deleteTestRunArtifact"/>
+        <![CDATA[
+			WHERE TEST_RUN_ID = #{testRunId}
+		]]>
+    </delete>
+
+    <resultMap type="com.zebrunner.reporting.domain.db.TestRunArtifact"
+               id="TestRunArtifactResultMap" autoMapping="false">
+        <id column="TEST_RUN_ARTIFACT_ID" property="id"/>
+        <result column="TEST_RUN_ARTIFACT_NAME" property="name"/>
+        <result column="TEST_RUN_ARTIFACT_LINK" property="link"/>
+        <result column="TEST_RUN_ARTIFACT_TEST_RUN_ID" property="testRunId"/>
+        <result column="TEST_RUN_ARTIFACT_EXPIRES_AT" property="expiresAt"/>
+    </resultMap>
+
+</mapper>
