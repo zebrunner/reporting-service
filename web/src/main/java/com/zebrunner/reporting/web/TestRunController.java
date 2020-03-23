@@ -167,11 +167,11 @@ public class TestRunController extends AbstractController implements TestRunDocu
     @PostMapping("{id}/artifacts")
     @Override
     public Set<TestRunArtifactDTO> attachArtifacts(@PathVariable("id") Long id,
-                                                   @RequestBody @Valid Set<TestRunArtifactDTO> testRunArtifactDTOS) {
-        Set<TestRunArtifact> testRunArtifacts = testRunArtifactDTOS.stream()
+                                                   @RequestBody @Valid Set<TestRunArtifactDTO> testRunArtifacts) {
+        Set<TestRunArtifact> artifacts = testRunArtifacts.stream()
                                                                 .map(artifact -> mapper.map(artifact, TestRunArtifact.class))
                                                                 .collect(Collectors.toSet());
-        Set<TestRunArtifact> attachedArtifacts = testRunService.attachTestRunArtifacts(testRunArtifacts, id);
+        Set<TestRunArtifact> attachedArtifacts = testRunService.attachTestRunArtifacts(artifacts, id);
         return attachedArtifacts.stream()
                                 .map(artifact -> mapper.map(artifact, TestRunArtifactDTO.class))
                                 .collect(Collectors.toSet());
