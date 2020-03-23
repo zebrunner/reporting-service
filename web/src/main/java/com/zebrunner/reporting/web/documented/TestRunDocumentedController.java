@@ -38,7 +38,7 @@ public interface TestRunDocumentedController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
             @ApiImplicitParam(name = "testRunType", paramType = "body", dataType = "TestRunType", required = true, value = "The test run to create"),
-            @ApiImplicitParam(name = "project", paramType = "header", dataType = "string", value = "The test run project")
+            @ApiImplicitParam(name = "Project", paramType = "header", dataType = "string", value = "The test run project")
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the registered test run", response = TestRunType.class),
