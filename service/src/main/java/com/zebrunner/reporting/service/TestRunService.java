@@ -1,17 +1,13 @@
 package com.zebrunner.reporting.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zebrunner.reporting.persistence.dao.mysql.application.TestRunMapper;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.FilterSearchCriteria;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
 import com.zebrunner.reporting.domain.db.Job;
 import com.zebrunner.reporting.domain.db.Project;
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestConfig;
 import com.zebrunner.reporting.domain.db.TestRun;
+import com.zebrunner.reporting.domain.db.TestRunArtifact;
 import com.zebrunner.reporting.domain.db.WorkItem;
 import com.zebrunner.reporting.domain.db.filter.Filter;
 import com.zebrunner.reporting.domain.db.filter.FilterAdapter;
@@ -21,6 +17,11 @@ import com.zebrunner.reporting.domain.dto.QueueTestRunParamsType;
 import com.zebrunner.reporting.domain.dto.TestRunStatistics;
 import com.zebrunner.reporting.domain.dto.filter.Subject;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
+import com.zebrunner.reporting.persistence.dao.mysql.application.TestRunMapper;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.FilterSearchCriteria;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
 import com.zebrunner.reporting.service.email.TestRunResultsEmail;
 import com.zebrunner.reporting.service.exception.ExternalSystemException;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
@@ -33,6 +34,7 @@ import com.zebrunner.reporting.service.project.ProjectService;
 import com.zebrunner.reporting.service.util.DateTimeUtil;
 import com.zebrunner.reporting.service.util.FreemarkerUtil;
 import com.zebrunner.reporting.service.util.URLResolver;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -88,6 +90,9 @@ public class TestRunService implements ProjectReassignable {
     private TestService testService;
 
     @Autowired
+    private TestRunArtifactService testRunArtifactService;
+
+    @Autowired
     private AutomationServerService automationServerService;
 
     @Autowired
@@ -115,9 +120,6 @@ public class TestRunService implements ProjectReassignable {
     private FilterService filterService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private TestSuiteService testSuiteService;
 
     @Autowired
@@ -141,7 +143,7 @@ public class TestRunService implements ProjectReassignable {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun createTestRun(TestRun testRun) {
         testRunMapper.createTestRun(testRun);
         return testRun;
@@ -266,7 +268,7 @@ public class TestRunService implements ProjectReassignable {
         return testRunMapper.getLatestJobTestRunByBranch(branch, job.getId());
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun updateTestRunWithXml(TestRun testRun) {
         Long id = testRun.getId();
         TestRun existingTestRun = getTestRunById(id);
@@ -280,19 +282,38 @@ public class TestRunService implements ProjectReassignable {
         return existingTestRun;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun updateTestRun(TestRun testRun) {
         testRunMapper.updateTestRun(testRun);
         return testRun;
     }
 
+    @Transactional
+    public Set<TestRunArtifact> attachTestRunArtifacts(Set<TestRunArtifact> testRunArtifacts, Long id) {
+        Set<TestRunArtifact> attachedArtifacts = new HashSet<>();
+        if (!CollectionUtils.isEmpty(testRunArtifacts)) {
+            TestRun testRun = getNotNullTestRunById(id);
+            attachedArtifacts = createTestArtifacts(testRunArtifacts, testRun.getId());
+        }
+        return attachedArtifacts;
+    }
+
+    private Set<TestRunArtifact> createTestArtifacts(Set<TestRunArtifact> testArtifacts, Long testRunId) {
+        return testArtifacts.stream()
+                .filter(TestRunArtifact::isValid)
+                .map(artifact -> {
+                    artifact.setTestRunId(testRunId);
+                    return testRunArtifactService.createTestRunArtifact(artifact);
+                }).collect(Collectors.toSet());
+    }
+
     @CacheEvict(value = "environments", allEntries = true)
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteTestRunById(Long id) {
         testRunMapper.deleteTestRunById(id);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun queueTestRun(QueueTestRunParamsType testRunParams, Long userId) {
         // Check if testRun with provided ci_run_id exists in DB (mostly for queued and aborted without execution)
         TestRun testRun = new TestRun();
@@ -360,7 +381,7 @@ public class TestRunService implements ProjectReassignable {
         testRun.setBuildNumber(Integer.valueOf(testRunParams.getBuildNumber()));
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun startTestRun(TestRun testRun) {
         String ciRunId = testRun.getCiRunId();
         TestRun existingTestRun = null;
@@ -445,7 +466,7 @@ public class TestRunService implements ProjectReassignable {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun abortTestRun(TestRun testRun, CommentType abortCause) {
         Long id = testRun.getId();
         String ciRunId = testRun.getCiRunId();
@@ -507,7 +528,7 @@ public class TestRunService implements ProjectReassignable {
         return automationServerService.getBuildParameters(testRun.getJob(), testRun.getBuildNumber());
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void rerunTestRun(Long id, boolean rerunFailures) {
         TestRun testRun = getTestRunByIdFull(id);
         if (testRun == null) {
@@ -548,7 +569,7 @@ public class TestRunService implements ProjectReassignable {
         return isCommentExists && isCommentContainsFailure;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun markAsReviewed(Long id, String comment) {
         TestRun testRun = getTestRunById(id);
         boolean undefinedFailureComment = UNDEFINED_FAILURE_COMMENT.equalsIgnoreCase(comment);
@@ -574,12 +595,12 @@ public class TestRunService implements ProjectReassignable {
         testRunStatisticsService.updateStatistics(testRun.getId(), action);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public List<TestRun> getTestRunsForSmartRerun(JobSearchCriteria sc) {
         return testRunMapper.getTestRunsForSmartRerun(sc);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public List<TestRun> executeSmartRerun(JobSearchCriteria sc, boolean rerunRequired, boolean rerunFailures) {
         if (rerunFailures && sc.getFailurePercent() == null) {
             sc.setFailurePercent(0);
@@ -609,7 +630,7 @@ public class TestRunService implements ProjectReassignable {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun calculateTestRunResult(long id, boolean finishTestRun) {
         TestRun testRun = getNotNullTestRunById(id);
         List<Test> tests = testService.getTestsByTestRunId(id);
@@ -796,7 +817,7 @@ public class TestRunService implements ProjectReassignable {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void reassignProject(Long fromId, Long toId) {
         testRunMapper.reassignToProject(fromId, toId);
     }

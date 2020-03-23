@@ -8,7 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -38,6 +41,9 @@ public class TestRunType extends AbstractType {
     private boolean knownIssue;
     private boolean blocker;
     private boolean reviewed;
+
+    @Valid
+    private Set<TestRunArtifactDTO> artifacts = new HashSet<>();
 
     public TestRunType(String ciRunId, Long testSuiteId, Long userId, String scmURL, String scmBranch, String scmCommit,
                        String configXML, Long jobId, Integer buildNumber, TestRun.Initiator startedBy, String workItem) {

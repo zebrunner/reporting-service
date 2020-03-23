@@ -5,7 +5,7 @@ import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSear
 import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.WorkItem;
 import com.zebrunner.reporting.domain.dto.IssueDTO;
-import com.zebrunner.reporting.domain.dto.TestArtifactType;
+import com.zebrunner.reporting.domain.dto.TestArtifactDTO;
 import com.zebrunner.reporting.domain.dto.TestType;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
 import io.swagger.annotations.Api;
@@ -234,6 +234,6 @@ public interface TestDocumentedController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "The test artifact was created and attached to the test successfully")
     })
-    void addTestArtifact(long id, TestArtifactType artifact);
+    void addTestArtifact(long id, TestArtifactDTO artifact);
 
 }
