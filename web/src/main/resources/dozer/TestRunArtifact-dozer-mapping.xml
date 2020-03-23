@@ -20,7 +20,7 @@
             <b>link</b>
         </field>
         <field
-                custom-converter="com.zebrunner.reporting.web.util.dozer.ExpirationDateConverter">
+                custom-converter="com.zebrunner.reporting.web.util.dozer.ExpirationLocalDateTimeConverter">
             <a>expiresIn</a>
             <b>expiresAt</b>
         </field>

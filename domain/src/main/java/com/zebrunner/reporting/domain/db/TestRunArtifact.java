@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,7 +15,7 @@ public class TestRunArtifact implements Serializable {
     private Long id;
     private String name;
     private String link;
-    private Date expiresAt;
+    private LocalDateTime expiresAt;
     private Long testRunId;
 
     public boolean isValid() {
