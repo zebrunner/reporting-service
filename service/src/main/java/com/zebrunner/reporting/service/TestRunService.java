@@ -56,7 +56,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -788,7 +787,7 @@ public class TestRunService implements ProjectReassignable {
 
     private TestRunResultsEmail buildTestRunResultEmail(TestRun testRun, List<Test> tests) {
 
-        tests.forEach(test -> test.setArtifacts(new TreeSet<>(test.getArtifacts())));
+        tests.forEach(test -> test.setArtifacts(new HashSet<>(test.getArtifacts())));
 
         TestRunResultsEmail testRunResultsEmail = new TestRunResultsEmail(testRun, tests);
         testRunResultsEmail.getCustomValues().put("zafira_service_url", urlResolver.buildWebURL());
