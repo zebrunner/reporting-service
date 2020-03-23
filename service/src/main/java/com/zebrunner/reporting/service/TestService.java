@@ -381,7 +381,7 @@ public class TestService {
     @Transactional(readOnly = true)
     public SearchResult<Test> searchTests(TestSearchCriteria sc) {
         List<Test> tests = testMapper.searchTests(sc);
-        tests.forEach(test -> test.setArtifacts(new TreeSet<>(test.getArtifacts())));
+        tests.forEach(test -> test.setArtifacts(new HashSet<>(test.getArtifacts())));
         int count = testMapper.getTestsSearchCount(sc);
 
         return SearchResult.<Test>builder()
