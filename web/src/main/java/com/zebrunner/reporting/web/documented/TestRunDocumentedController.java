@@ -170,20 +170,6 @@ public interface TestRunDocumentedController {
 
 
     @ApiOperation(
-            value = "Deletes a test run artifacts by its id",
-            nickname = "deleteArtifacts",
-            httpMethod = "DELETE"
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test run id")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "The test run artifacts were deleted successfully")
-    })
-    void deleteArtifacts(Long id);
-
-    @ApiOperation(
             value = "Reruns test run jobs by search criteria",
             notes = "Returns restarted test runs",
             nickname = "rerunJobs",

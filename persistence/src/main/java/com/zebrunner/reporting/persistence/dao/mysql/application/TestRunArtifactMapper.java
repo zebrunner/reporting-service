@@ -9,15 +9,6 @@ public interface TestRunArtifactMapper {
 
     void createTestRunArtifact(TestRunArtifact testRunArtifact);
 
-    TestRunArtifact getTestRunArtifactById(long id);
-
-    List<TestRunArtifact> getTestRunArtifactsByTestRunId(long testRunId);
-
     TestRunArtifact getTestRunArtifactByNameAndTestRunId(@Param("name") String name, @Param("testRunId") long testRunId);
 
-    void updateTestRunArtifact(TestRunArtifact testRunArtifact);
-
-    void deleteTestRunArtifactById(long id);
-
-    void deleteTestRunArtifactsByTestRunId(long testRunId);
 }

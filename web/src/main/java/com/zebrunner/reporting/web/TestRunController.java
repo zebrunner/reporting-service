@@ -177,12 +177,6 @@ public class TestRunController extends AbstractController implements TestRunDocu
                                 .collect(Collectors.toSet());
     }
 
-    @DeleteMapping("/{id}/artifacts")
-    @Override
-    public void deleteArtifacts(@PathVariable Long id) {
-        testRunService.deleteTestRunArtifacts(id);
-    }
-
     @PostMapping("/rerun/jobs")
     @Override
     public List<TestRunType> rerunJobs(

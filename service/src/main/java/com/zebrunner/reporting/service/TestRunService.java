@@ -303,13 +303,8 @@ public class TestRunService implements ProjectReassignable {
                 .filter(TestRunArtifact::isValid)
                 .map(artifact -> {
                     artifact.setTestRunId(testRunId);
-                    return testRunArtifactService.createOrUpdateTestRunArtifact(artifact);
+                    return testRunArtifactService.createTestRunArtifact(artifact);
                 }).collect(Collectors.toSet());
-    }
-
-    @Transactional
-    public void deleteTestRunArtifacts(Long testRunId) {
-        testRunArtifactService.deleteTestRunArtifactsByTestRunId(testRunId);
     }
 
     @CacheEvict(value = "environments", allEntries = true)
