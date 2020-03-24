@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+        namespace="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper">
+
+    <insert id="createTestRunArtifact" useGeneratedKeys="true"
+            keyProperty="id">
+		<![CDATA[
+        INSERT INTO TEST_RUN_ARTIFACTS (NAME, LINK, EXPIRES_AT, TEST_RUN_ID)
+        VALUES (#{name},
+                #{link},
+                #{expiresAt},
+                #{testRunId})
+        ]]>
+	</insert>
+
+    <sql id="getTestRunArtifact">
+		<![CDATA[
+        SELECT TA.ID          AS TEST_RUN_ARTIFACT_ID,
+               TA.NAME        AS TEST_RUN_ARTIFACT_NAME,
+               TA.LINK        AS TEST_RUN_ARTIFACT_LINK,
+               TA.TEST_RUN_ID AS TEST_RUN_ARTIFACT_TEST_RUN_ID,
+               TA.EXPIRES_AT  AS TEST_RUN_ARTIFACT_EXPIRES_AT
+        FROM TEST_RUN_ARTIFACTS TA
+        ]]>
+	</sql>
+
+    <select id="getTestRunArtifactByNameAndTestRunId"
+            resultMap="TestRunArtifactResultMap">
+        <include refid="getTestRunArtifact"/>
+        <![CDATA[
+			WHERE TA.NAME = #{name} AND TA.TEST_RUN_ID = #{testRunId};
+		]]>
+    </select>
+
+    <resultMap type="com.zebrunner.reporting.domain.db.TestRunArtifact"
+               id="TestRunArtifactResultMap" autoMapping="false">
+        <id column="TEST_RUN_ARTIFACT_ID" property="id"/>
+        <result column="TEST_RUN_ARTIFACT_NAME" property="name"/>
+        <result column="TEST_RUN_ARTIFACT_LINK" property="link"/>
+        <result column="TEST_RUN_ARTIFACT_TEST_RUN_ID" property="testRunId"/>
+        <result column="TEST_RUN_ARTIFACT_EXPIRES_AT" property="expiresAt"/>
+    </resultMap>
+
+</mapper>

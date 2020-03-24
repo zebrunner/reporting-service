@@ -8,7 +8,7 @@ import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.db.WorkItem;
 import com.zebrunner.reporting.domain.dto.IssueDTO;
-import com.zebrunner.reporting.domain.dto.TestArtifactType;
+import com.zebrunner.reporting.domain.dto.TestArtifactDTO;
 import com.zebrunner.reporting.domain.dto.TestRunStatistics;
 import com.zebrunner.reporting.domain.dto.TestType;
 import com.zebrunner.reporting.domain.push.TestPush;
@@ -202,7 +202,7 @@ public class TestController extends AbstractController implements TestDocumented
     @Override
     public void addTestArtifact(
             @PathVariable("id") long id,
-            @RequestBody TestArtifactType artifact
+            @RequestBody TestArtifactDTO artifact
     ) {
         artifact.setTestId(id);
         testArtifactService.createOrUpdateTestArtifact(mapper.map(artifact, TestArtifact.class));

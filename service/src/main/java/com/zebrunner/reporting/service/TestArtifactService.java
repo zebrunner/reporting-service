@@ -1,15 +1,20 @@
 package com.zebrunner.reporting.service;
 
-import com.zebrunner.reporting.persistence.dao.mysql.application.TestArtifactMapper;
 import com.zebrunner.reporting.domain.db.TestArtifact;
+import com.zebrunner.reporting.persistence.dao.mysql.application.TestArtifactMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TestArtifactService {
+
+    private final TestArtifactMapper testArtifactMapper;
+
     @Autowired
-    private TestArtifactMapper testArtifactMapper;
+    public TestArtifactService(TestArtifactMapper testArtifactMapper) {
+        this.testArtifactMapper = testArtifactMapper;
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public void createTestArtifact(TestArtifact testArtifact) {
@@ -37,11 +42,9 @@ public class TestArtifactService {
         TestArtifact testArtifact = getTestArtifactByNameAndTestId(newTestArtifact.getName(), newTestArtifact.getTestId());
         if (testArtifact == null) {
             createTestArtifact(newTestArtifact);
-        } else if (!testArtifact.equals(newTestArtifact)) {
+        } else {
             newTestArtifact.setId(testArtifact.getId());
             updateTestArtifact(newTestArtifact);
-        } else {
-            newTestArtifact = testArtifact;
         }
         return newTestArtifact;
     }

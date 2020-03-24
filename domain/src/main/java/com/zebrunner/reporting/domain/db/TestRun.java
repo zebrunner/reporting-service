@@ -10,7 +10,9 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -59,6 +61,8 @@ public class TestRun extends AbstractEntity {
     private boolean reviewed;
     private String framework;
 
+    private Set<TestRunArtifact> artifacts = new HashSet<>();
+
     @Builder
     public TestRun(Long id, String ciRunId) {
         super(id);
@@ -72,7 +76,7 @@ public class TestRun extends AbstractEntity {
             return "";
         }
         String name = "%s %s (%s) on %s %s";
-        String appVersion = isEmpty(config.getAppVersion()) ? config.getAppVersion() + " - " : "";
+        String appVersion = !isEmpty(config.getAppVersion()) ? config.getAppVersion() + " - " : "";
         String platformInfo = buildPlatformInfo();
         return String.format(name, appVersion, testSuite.getName(), testSuite.getFileName(), config.getEnv(), platformInfo).trim();
     }

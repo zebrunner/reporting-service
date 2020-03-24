@@ -180,7 +180,12 @@
 				P.NAME AS TEST_RUN_PROJECT_NAME,
 				P.DESCRIPTION AS TEST_RUN_PROJECT_DESCRIPTION,
 				P.MODIFIED_AT AS TEST_RUN_PROJECT_MODIFIED_AT,
-				P.CREATED_AT AS TEST_RUN_PROJECT_CREATED_AT
+				P.CREATED_AT AS TEST_RUN_PROJECT_CREATED_AT,
+
+			    TRA.ID          AS TEST_RUN_ARTIFACT_ID,
+		        TRA.NAME        AS TEST_RUN_ARTIFACT_NAME,
+		        TRA.LINK        AS TEST_RUN_ARTIFACT_LINK,
+		        TRA.TEST_RUN_ID     AS TEST_RUN_ARTIFACT_TEST_RUN_ID
 		]]>
         <include refid="testRunFullJoinPart"/>
     </sql>
@@ -199,7 +204,9 @@
 				ON TR.TEST_SUITE_ID = TS.ID
 			LEFT JOIN PROJECTS P
 				ON TR.PROJECT_ID = P.ID
-        ]]>
+			LEFT JOIN TEST_RUN_ARTIFACTS TRA
+				ON TR.ID = TRA.TEST_RUN_ID
+				]]>
 	</sql>
 
     <select id="getTestRunById" resultMap="TestRunResultMap">
@@ -773,6 +780,11 @@
                 property="project.modifiedAt"/>
         <result column="TEST_RUN_PROJECT_CREATED_AT"
                 property="project.createdAt"/>
+
+        <collection property="artifacts"
+                    ofType="com.zebrunner.reporting.domain.db.TestRunArtifact"
+                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper.TestRunArtifactResultMap" />
+
     </resultMap>
 
     <resultMap

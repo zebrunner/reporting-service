@@ -1,17 +1,18 @@
 package com.zebrunner.reporting.web.documented;
 
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
 import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.dto.BuildParameterType;
 import com.zebrunner.reporting.domain.dto.CommentType;
 import com.zebrunner.reporting.domain.dto.EmailType;
 import com.zebrunner.reporting.domain.dto.QueueTestRunParamsType;
+import com.zebrunner.reporting.domain.dto.TestRunArtifactDTO;
 import com.zebrunner.reporting.domain.dto.TestRunType;
 import com.zebrunner.reporting.domain.dto.TestType;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -22,6 +23,7 @@ import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Api("Test runs API")
 public interface TestRunDocumentedController {
@@ -36,7 +38,7 @@ public interface TestRunDocumentedController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
             @ApiImplicitParam(name = "testRunType", paramType = "body", dataType = "TestRunType", required = true, value = "The test run to create"),
-            @ApiImplicitParam(name = "project", paramType = "header", dataType = "string", value = "The test run project")
+            @ApiImplicitParam(name = "Project", paramType = "header", dataType = "string", value = "The test run project")
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the registered test run", response = TestRunType.class),
@@ -147,6 +149,25 @@ public interface TestRunDocumentedController {
             @ApiResponse(code = 200, message = "Returns found test runs", response = SearchResult.class)
     })
     SearchResult<TestRun> searchTestRuns(TestRunSearchCriteria sc, List<String> projectNames, Long filterId) throws IOException;
+
+    @ApiOperation(
+            value = "Attaches artifacts to the testRun",
+            notes = "Returns set of attached artifact",
+            nickname = "attachArtifacts",
+            httpMethod = "POST",
+            response = Set.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test run id"),
+            @ApiImplicitParam(name = "testRunArtifacts", paramType = "body", dataType = "set", required = true, value = "Set of the testRuns artifacts")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns the found test run", response = TestRunType.class),
+            @ApiResponse(code = 404, message = "Indicates that the test run does not exist", response = ErrorResponse.class)
+    })
+    Set<TestRunArtifactDTO> attachArtifacts(Long id, Set<TestRunArtifactDTO> testRunArtifacts);
+
 
     @ApiOperation(
             value = "Reruns test run jobs by search criteria",

@@ -38,7 +38,8 @@ public class IllegalOperationException extends ApplicationException {
         WORK_ITEM_CAN_NOT_BE_ATTACHED(2078),
         INVALID_IMAGE_FILE(2079),
         TOKEN_REFRESH_IS_NOT_SUPPORTED(2080),
-        WIDGET_CAN_NOT_BE_CREATED(2081);
+        WIDGET_CAN_NOT_BE_CREATED(2081),
+        TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED(2082);
 
         private final Integer code;
         private String messageKey;
