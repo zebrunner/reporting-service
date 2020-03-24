@@ -95,6 +95,22 @@
         ]]>
 	</select>
 
+    <select id="getLanguages" resultType="java.lang.String">
+		<![CDATA[
+        SELECT DISTINCT TC.LANGUAGE
+        FROM TEST_CONFIGS TC
+        WHERE TC.LANGUAGE IS NOT NULL AND LOWER(TC.LANGUAGE) <> ''
+        ]]>
+	</select>
+
+    <select id="getLocales" resultType="java.lang.String">
+		<![CDATA[
+        SELECT DISTINCT TC.LOCALE
+        FROM TEST_CONFIGS TC
+        WHERE TC.LOCALE IS NOT NULL AND LOWER(TC.LOCALE) <> ''
+        ]]>
+	</select>
+
     <select id="getEnvironments" resultType="java.lang.String">
 		<![CDATA[
         SELECT DISTINCT UPPER(TC.ENV)

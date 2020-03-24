@@ -83,6 +83,16 @@ public class TestConfigService {
     }
 
     @Transactional(readOnly = true)
+    public List<String> getLanguages() {
+        return testConfigMapper.getLanguages();
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getLocales() {
+        return testConfigMapper.getLocales();
+    }
+
+    @Transactional(readOnly = true)
     @Cacheable(value = "environments", key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #result", condition = "#result != null && #result.size() != 0")
     public List<String> getEnvironments() {
         return testConfigMapper.getEnvironments();
