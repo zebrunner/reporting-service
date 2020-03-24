@@ -41,6 +41,7 @@ public class TestRun extends AbstractEntity {
     private boolean knownIssue;
     private boolean blocker;
     private Date startedAt;
+    private Date endedAt;
     private Integer elapsed;
     private Integer eta;
     private String comments;
@@ -56,6 +57,7 @@ public class TestRun extends AbstractEntity {
     private Integer aborted;
     private Integer queued;
     private boolean reviewed;
+    private String framework;
 
     @Builder
     public TestRun(Long id, String ciRunId) {

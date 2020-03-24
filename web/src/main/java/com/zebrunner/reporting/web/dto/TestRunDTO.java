@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.web.dto;
 
+import com.zebrunner.reporting.domain.db.TestConfig;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,15 +11,17 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Positive;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class TestRunDTO {
 
-    @Null(groups = ValidationGroups.AllGroups.class)
+    @Positive
     private Long id;
+
+    private String uuid;
 
     @NotBlank(groups = ValidationGroups.TestRunStartGroup.class)
     @Null(groups = ValidationGroups.TestRunFinishGroup.class)
@@ -27,19 +30,19 @@ public class TestRunDTO {
     @PastOrPresent(groups = ValidationGroups.TestRunStartGroup.class)
     @NotNull(groups = ValidationGroups.TestRunStartGroup.class)
     @Null(groups = ValidationGroups.TestRunFinishGroup.class)
-    private LocalDateTime startedAt;
+    private OffsetDateTime startedAt;
 
     @Null(groups = ValidationGroups.TestRunStartGroup.class)
     @NotNull(groups = ValidationGroups.TestRunFinishGroup.class)
     @PastOrPresent(groups = ValidationGroups.TestRunFinishGroup.class)
-    private LocalDateTime endedAt;
+    private OffsetDateTime endedAt;
 
     @NotBlank(groups = ValidationGroups.TestRunStartGroup.class)
     @Null(groups = ValidationGroups.TestRunFinishGroup.class)
     private String framework;
 
     @Null(groups = ValidationGroups.TestRunFinishGroup.class)
-    private String config;
+    private TestConfig config;
 
     @NotNull(groups = ValidationGroups.TestRunStartGroup.class)
     @Null(groups = ValidationGroups.TestRunFinishGroup.class)
@@ -51,11 +54,9 @@ public class TestRunDTO {
     @NoArgsConstructor
     public static class LaunchContextDTO {
 
-        @Positive(groups = ValidationGroups.TestRunStartGroup.class)
         @NotNull(groups = ValidationGroups.TestRunStartGroup.class)
         private String jobNumber;
 
-        @Positive(groups = ValidationGroups.TestRunStartGroup.class)
         @NotNull(groups = ValidationGroups.TestRunStartGroup.class)
         private String upstreamJobNumber;
     }

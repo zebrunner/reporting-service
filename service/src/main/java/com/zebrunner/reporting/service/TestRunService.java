@@ -612,7 +612,12 @@ public class TestRunService implements ProjectReassignable {
     @Transactional(rollbackFor = Exception.class)
     public TestRun calculateTestRunResult(long id, boolean finishTestRun) {
         TestRun testRun = getNotNullTestRunById(id);
-        List<Test> tests = testService.getTestsByTestRunId(id);
+        return calculateTestRunResult(testRun, finishTestRun);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public TestRun calculateTestRunResult(TestRun testRun, boolean finishTestRun) {
+        List<Test> tests = testService.getTestsByTestRunId(testRun.getId());
 
         // Aborted testruns don't need status recalculation (already recalculated on abort end-point)
         if (!Status.ABORTED.equals(testRun.getStatus())) {

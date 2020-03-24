@@ -1,0 +1,5 @@
+ALTER TABLE test_runs ADD COLUMN framework VARCHAR(50) NULL;
+ALTER TABLE test_runs ADD COLUMN ended_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE tests ADD COLUMN uuid TEXT NULL;
+CREATE UNIQUE INDEX uuid_test_unique ON tests (test_run_id, uuid) WHERE uuid IS NOT NULL;

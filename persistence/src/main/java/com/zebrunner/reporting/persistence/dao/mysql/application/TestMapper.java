@@ -18,6 +18,8 @@ public interface TestMapper {
 
     Test getTestById(long id);
 
+    Test getTestByTestRunIdAndUuid(@Param("testRunId") Long testRunId, @Param("uuid") String uuid);
+
     List<Test> getTestsByTestRunId(long testRunId);
 
     List<Test> getTestsByTestRunCiRunId(String ciRunId);

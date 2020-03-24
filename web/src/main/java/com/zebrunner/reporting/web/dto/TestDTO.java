@@ -5,11 +5,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.PastOrPresent;
-import java.time.LocalDateTime;
+import javax.validation.constraints.Positive;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +18,12 @@ import java.util.Map;
 @NoArgsConstructor
 public class TestDTO {
 
-    @Null(groups = ValidationGroups.AllGroups.class)
+    @Positive
     private Long id;
+
+    @NotBlank(groups = ValidationGroups.TestStartGroup.class)
+    @Null(groups = ValidationGroups.TestFinishGroup.class)
+    private String uuid;
 
     @NotBlank(groups = ValidationGroups.TestStartGroup.class)
     @Null(groups = ValidationGroups.TestFinishGroup.class)
@@ -36,31 +40,27 @@ public class TestDTO {
     @PastOrPresent(groups = ValidationGroups.TestStartGroup.class)
     @NotNull(groups = ValidationGroups.TestStartGroup.class)
     @Null(groups = ValidationGroups.TestFinishGroup.class)
-    private LocalDateTime startedAt;
+    private OffsetDateTime startedAt;
 
     @PastOrPresent(groups = ValidationGroups.TestFinishGroup.class)
     @NotNull(groups = ValidationGroups.TestFinishGroup.class)
     @Null(groups = ValidationGroups.TestStartGroup.class)
-    private LocalDateTime endedAt;
+    private OffsetDateTime endedAt;
 
-    @NotBlank(groups = ValidationGroups.TestStartGroup.class)
     @Null(groups = ValidationGroups.TestFinishGroup.class)
     private String maintainer;
 
-    @NotBlank(groups = ValidationGroups.TestStartGroup.class)
     @Null(groups = ValidationGroups.TestFinishGroup.class)
     private String testCase;
 
-    @NotEmpty(groups = ValidationGroups.TestStartGroup.class)
     @Null(groups = ValidationGroups.TestFinishGroup.class)
     private List<String> tags;
 
-    @NotEmpty(groups = ValidationGroups.TestStartGroup.class)
     @Null(groups = ValidationGroups.TestFinishGroup.class)
     private Map<String, String> additionalAttributes;
 
-    @NotBlank(groups = ValidationGroups.TestFinishGroup.class)
     @Null(groups = ValidationGroups.TestStartGroup.class)
+    @NotBlank(groups = ValidationGroups.TestFinishGroup.class)
     private String result;
 
     @Null(groups = ValidationGroups.TestStartGroup.class)

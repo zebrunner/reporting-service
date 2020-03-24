@@ -3,9 +3,17 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://dozer.sourceforge.net http://dozer.sourceforge.net/schema/beanmapping.xsd">
 
-    <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$TestStartGroup" type="one-way" wildcard="false">
+    <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$TestStartGroup" type="bi-directional" wildcard="false">
         <class-a>com.zebrunner.reporting.web.dto.TestDTO</class-a>
         <class-b>com.zebrunner.reporting.domain.db.reporting.Test</class-b>
+        <field>
+            <a>id</a>
+            <b>id</b>
+        </field>
+        <field>
+            <a>uuid</a>
+            <b>uuid</b>
+        </field>
         <field>
             <a>name</a>
             <b>name</b>
@@ -18,7 +26,7 @@
             <a>methodName</a>
             <b>methodName</b>
         </field>
-        <field>
+        <field copy-by-reference="true">
             <a>startedAt</a>
             <b>startedAt</b>
         </field>
@@ -40,18 +48,13 @@
         </field>
     </mapping>
 
-    <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$TestStartGroup" type="one-way" wildcard="false">
-        <class-a>com.zebrunner.reporting.domain.db.reporting.Test</class-a>
-        <class-b>com.zebrunner.reporting.web.dto.TestDTO</class-b>
+    <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$TestFinishGroup" type="bi-directional" wildcard="false">
+        <class-a>com.zebrunner.reporting.web.dto.TestDTO</class-a>
+        <class-b>com.zebrunner.reporting.domain.db.reporting.Test</class-b>
         <field>
             <a>id</a>
             <b>id</b>
         </field>
-    </mapping>
-
-    <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$TestFinishGroup" type="one-way" wildcard="false">
-        <class-a>com.zebrunner.reporting.web.dto.TestDTO</class-a>
-        <class-b>com.zebrunner.reporting.domain.db.reporting.Test</class-b>
         <field>
             <a>result</a>
             <b>result</b>
@@ -60,18 +63,9 @@
             <a>reason</a>
             <b>reason</b>
         </field>
-        <field>
+        <field copy-by-reference="true">
             <a>endedAt</a>
             <b>endedAt</b>
-        </field>
-    </mapping>
-
-    <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$TestFinishGroup" type="one-way" wildcard="false">
-        <class-a>com.zebrunner.reporting.domain.db.reporting.Test</class-a>
-        <class-b>com.zebrunner.reporting.web.dto.TestDTO</class-b>
-        <field>
-            <a>id</a>
-            <b>id</b>
         </field>
     </mapping>
 </mappings>

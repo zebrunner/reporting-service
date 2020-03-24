@@ -1,10 +1,11 @@
 package com.zebrunner.reporting.domain.db.reporting;
 
+import com.zebrunner.reporting.domain.db.TestConfig;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -12,11 +13,12 @@ import java.time.LocalDateTime;
 public class TestRun {
 
     private Long id;
+    private String uuid;
     private String name;
-    private LocalDateTime startedAt;
-    private LocalDateTime endedAt;
+    private OffsetDateTime startedAt;
+    private OffsetDateTime endedAt;
     private String framework;
-    private String config;
+    private TestConfig config;
     private LaunchContext launchContext;
 
     @Getter

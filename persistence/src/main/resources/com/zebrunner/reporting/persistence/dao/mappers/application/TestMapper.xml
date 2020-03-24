@@ -6,8 +6,9 @@
 
 	<insert id="createTest" useGeneratedKeys="true" keyProperty="id">
 		<![CDATA[
-			INSERT INTO TESTS (NAME, STATUS, TEST_ARGS, TEST_RUN_ID, TEST_CASE_ID, TEST_GROUP, MESSAGE, MESSAGE_HASH_CODE, START_TIME, FINISH_TIME, RETRY, TEST_CONFIG_ID, KNOWN_ISSUE, BLOCKER, NEED_RERUN, DEPENDS_ON_METHODS, CI_TEST_ID)
+			INSERT INTO TESTS (UUID, NAME, STATUS, TEST_ARGS, TEST_RUN_ID, TEST_CASE_ID, TEST_GROUP, MESSAGE, MESSAGE_HASH_CODE, START_TIME, FINISH_TIME, RETRY, TEST_CONFIG_ID, KNOWN_ISSUE, BLOCKER, NEED_RERUN, DEPENDS_ON_METHODS, CI_TEST_ID)
 			VALUES (
+			    #{uuid},
 				#{name},
 			    #{status},
 			    #{testArgs},
@@ -103,6 +104,7 @@
 		<![CDATA[
 			SELECT
 				T.ID AS TEST_ID,
+			    T.UUID AS TEST_UUID,
 				T.NAME AS TEST_NAME,
 				T.STATUS AS TEST_STATUS,
 				T.TEST_ARGS AS TEST_TEST_ARGS,
@@ -225,6 +227,13 @@
 		<include refid="getTest" />
 		<![CDATA[
 			WHERE T.ID = #{id};
+		]]>
+	</select>
+
+	<select id="getTestByTestRunIdAndUuid" resultMap="TestResultMap">
+		<include refid="getTest" />
+		<![CDATA[
+			WHERE T.TEST_RUN_ID = #{testRunId} AND T.UUID = #{uuid} AND T.UUID IS NOT NULL;
 		]]>
 	</select>
 
@@ -419,6 +428,7 @@
 	<resultMap type="com.zebrunner.reporting.domain.db.Test"
 		id="TestResultMap" autoMapping="false">
 		<id column="TEST_ID" property="id" />
+		<result column="TEST_UUID" property="uuid" />
 		<result column="TEST_NAME" property="name" />
 		<result column="TEST_STATUS" property="status" />
 		<result column="TEST_TEST_ARGS" property="testArgs" />
