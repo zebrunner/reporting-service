@@ -147,6 +147,14 @@ public class DashboardController extends AbstractController implements Dashboard
     }
 
     @PreAuthorize("hasPermission('MODIFY_DASHBOARDS')")
+    @PostMapping("/{dashboardId}/attributes/batch")
+    @Override
+    public List<Attribute> createDashboardAttributes(@PathVariable("dashboardId") long dashboardId, @RequestBody List<Attribute> attributes) {
+        dashboardService.createDashboardAttributes(dashboardId, attributes);
+        return dashboardService.retrieveAttributesByDashboardId(dashboardId);
+    }
+
+    @PreAuthorize("hasPermission('MODIFY_DASHBOARDS')")
     @PutMapping("/{dashboardId}/attributes")
     @Override
     public List<Attribute> updateDashboardAttribute(@PathVariable("dashboardId") long dashboardId, @RequestBody Attribute attribute) {

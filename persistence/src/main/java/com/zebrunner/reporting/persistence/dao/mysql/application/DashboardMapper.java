@@ -38,6 +38,8 @@ public interface DashboardMapper {
 
     void createDashboardAttribute(@Param("dashboardId") long dashboardId, @Param("attribute") Attribute attribute);
 
+    void createDashboardAttributes(@Param("dashboardId") long dashboardId, @Param("attributes") List<Attribute> attributes);
+
     void updateAttribute(Attribute attribute);
 
     void deleteDashboardAttributeById(long attributeId);
