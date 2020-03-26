@@ -54,11 +54,11 @@ a[x-apple-data-detectors] {
 	mso-hide:all;
 }
 td .es-button-border:hover .es-button-1555487122402 {
-	background:rgb(47, 207, 191)!important;
-	border-color:rgb(47, 207, 191)!important;
+	background:#22CA88!important;
+	border-color:#22CA88!important;
 }
 td .es-button-border-1555487122413:hover {
-	background:rgb(47, 207, 191)!important;
+	background:#22CA88!important;
 }
 </style> 
  </head> 
@@ -99,7 +99,7 @@ td .es-button-border-1555487122413:hover {
                       <td align="center" height="15" bgcolor="#ffffff" style="padding:0;Margin:0;"> </td> 
                      </tr> 
                      <tr style="border-collapse:collapse;"> 
-                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"> <a href="http://viewstripo.email" target="_blank" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;"><img src="${zafiraLogoURL}" alt="" width="124" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;"></a> </td>
+                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"><img src="${zafiraLogoURL}" alt="" width="124" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;"></a> </td>
                      </tr> 
                    </table> </td> 
                  </tr> 
@@ -142,7 +142,7 @@ td .es-button-border-1555487122413:hover {
                   <td width="600" align="center" valign="top" style="padding:0;Margin:0;"> 
                    <table cellpadding="0" cellspacing="0" width="100%" bgcolor="transparent" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:transparent;"> 
                      <tr style="border-collapse:collapse;"> 
-                      <td align="center" style="Margin:0;padding-left:10px;padding-right:10px;padding-top:20px;padding-bottom:20px;"> <span class="es-button-border es-button-border-1555487122413" style="border-style:solid;border-color:#2CB543;background:#26A69A;border-width:0px;display:inline-block;border-radius:4px;width:auto;"> <a href="${invitationUrl}" class="es-button es-button-1555487122402" target="_blank" style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:14px;color:#FFFFFF;border-style:solid;border-color:#26A69A;border-width:10px 20px;display:inline-block;background:#26A69A;border-radius:4px;font-weight:bold;font-style:normal;line-height:17px;width:auto;text-align:center;">Join now</a> </span> </td>
+                      <td align="center" style="Margin:0;padding-left:10px;padding-right:10px;padding-top:20px;padding-bottom:20px;"> <span class="es-button-border es-button-border-1555487122413" style="border-style:solid;border-color:#2CB543;background:#22ca88;border-width:0px;display:inline-block;border-radius:4px;width:auto;"> <a href="${invitationUrl}" class="es-button es-button-1555487122402" target="_blank" style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:14px;color:#FFFFFF;border-style:solid;border-color:#22ca88;border-width:10px 20px;display:inline-block;background:#26A69A;border-radius:4px;font-weight:bold;font-style:normal;line-height:17px;width:auto;text-align:center;">Join now</a> </span> </td>
                      </tr> 
                    </table> </td> 
                  </tr> 
@@ -188,7 +188,7 @@ td .es-button-border-1555487122413:hover {
                       <td align="center" height="20" style="padding:0;Margin:0;"> </td> 
                      </tr> 
                      <tr style="border-collapse:collapse;"> 
-                      <td align="center" style="padding:0;Margin:0;"> <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:12px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#A9A9A9;">2018-2019 Qaprosoft LLC.&nbsp;All Rights Reserved.</p> </td> 
+                      <td align="center" style="padding:0;Margin:0;"> <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:12px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#A9A9A9;">2018-${.now?string('yyyy')} Zebrunner LLC.&nbsp;All Rights Reserved.</p> </td>
                      </tr> 
                      <tr style="border-collapse:collapse;"> 
                       <td align="center" height="20" style="padding:0;Margin:0;"> </td> 

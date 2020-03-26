@@ -8,7 +8,7 @@ zafira:
   api-url: ${zafira.api-host}/${zafira.api-context-path}
   use-artifact-proxy: ${zafira.use.artifact.proxy}
   slack:
-    image-url: https://s3-us-west-1.amazonaws.com/zebrunner/common/zfr-email.png
+    image-url: https://s3-us-west-1.amazonaws.com/zebrunner/common/zbr-email.png
     author: zafira notifications
   admin:
     username: ${zafira.admin.username}
