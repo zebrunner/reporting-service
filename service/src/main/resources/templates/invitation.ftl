@@ -188,7 +188,7 @@ td .es-button-border-1555487122413:hover {
                       <td align="center" height="20" style="padding:0;Margin:0;"> </td> 
                      </tr> 
                      <tr style="border-collapse:collapse;"> 
-                      <td align="center" style="padding:0;Margin:0;"> <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:12px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#A9A9A9;">2018-${.now?string('yyyy')} Zebrunner LLC.&nbsp;All Rights Reserved.</p> </td>
+                      <td align="center" style="padding:0;Margin:0;"> <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:12px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:24px;color:#A9A9A9;">2018-${.now?string('yyyy')} Zebrunner, Inc.&nbsp;All Rights Reserved.</p> </td>
                      </tr> 
                      <tr style="border-collapse:collapse;"> 
                       <td align="center" height="20" style="padding:0;Margin:0;"> </td> 
