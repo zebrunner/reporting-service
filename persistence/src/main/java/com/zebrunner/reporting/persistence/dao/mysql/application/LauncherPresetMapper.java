@@ -15,6 +15,8 @@ public interface LauncherPresetMapper {
 
     void update(LauncherPreset launcherPreset);
 
+    void updateReference(@Param("id") Long id, @Param("ref") String reference);
+
     void deleteById(Long id);
 
 }

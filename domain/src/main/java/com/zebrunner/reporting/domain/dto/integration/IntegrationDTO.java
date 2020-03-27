@@ -3,9 +3,9 @@ package com.zebrunner.reporting.domain.dto.integration;
 import com.zebrunner.reporting.domain.dto.AbstractType;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;

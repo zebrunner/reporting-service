@@ -206,17 +206,24 @@ public class LauncherService {
         return jobParameters;
     }
 
-    @Transactional()
-    public String buildLauncherJobByPresetRef(Long id, String ref, LauncherWebHookPayload payload, Long userId, Long providerId) throws IOException {
+    @Transactional
+    public String buildLauncherJobByPresetRef(Long id, String ref, String callbackUrl, Long userId, Long providerId) throws IOException {
+        if (userId == 0) {
+            User anonymous = userService.getDefaultUser();
+            userId = anonymous.getId();
+        }
         Launcher launcher = getLauncherById(id);
         LauncherPreset preset = launcherPresetService.retrieveByRef(ref);
         launcher.setModel(preset.getParams());
         String ciRunId = buildLauncherJob(launcher, userId, providerId);
 
-        LauncherCallback callback = new LauncherCallback(ciRunId, payload.getCallbackUrl(), preset);
-        launcherCallbackService.create(callback);
+        LauncherCallback callback = null;
+        if (callbackUrl != null) {
+            callback = new LauncherCallback(ciRunId, callbackUrl, preset);
+            launcherCallbackService.create(callback);
+        }
 
-        return callback.getRef();
+        return callback != null ? callback.getRef() : null;
     }
 
     @Transactional(readOnly = true)

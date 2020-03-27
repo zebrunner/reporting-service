@@ -54,6 +54,8 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: true
+    deserialization:
+      fail-on-unknown-properties: false
   autoconfigure:
     # since Boot detects liquibase library on classpath it'll try to supply autoconfigured datasource
     # however for Zafira we do not use datasource autoconfiguration that's why need to disable this

@@ -86,6 +86,22 @@
         ]]>
 	</update>
 
+	<update id="updateReference">
+		<![CDATA[
+			UPDATE LAUNCHER_PRESETS
+        ]]>
+		<set>
+			<if test="null != ref">
+				<![CDATA[
+                   REFERENCE = #{ref},
+                ]]>
+			</if>
+		</set>
+		<![CDATA[
+			WHERE ID = #{id}
+        ]]>
+	</update>
+
 	<sql id="delete">
         <![CDATA[
 			DELETE FROM LAUNCHER_PRESETS
