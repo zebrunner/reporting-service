@@ -21,7 +21,7 @@ public class LauncherPresetService {
     private static final String ERR_MSG_LAUNCHER_PRESET_NOT_FOUND_BY_ID = "Launcher preset not found by id '%d'";
     private static final String ERR_MSG_LAUNCHER_PRESET_NOT_FOUND_BY_REF = "Launcher preset not found by ref '%s'";
 
-    private static final String WEBHOOK_API_URL_PATTERN = "%s/api/launchers/%d/hooks/%s?providerId=%d";
+    private static final String WEBHOOK_API_URL_PATTERN = "%s/api/launchers/hooks/%s?providerId=%d";
 
     private final LauncherPresetMapper launcherPresetMapper;
     private final URLResolver urlResolver;
@@ -49,6 +49,15 @@ public class LauncherPresetService {
     @Transactional(readOnly = true)
     public LauncherPreset retrieveById(Long id) {
         LauncherPreset launcherPreset = launcherPresetMapper.findById(id);
+        if (launcherPreset == null) {
+            throw new ResourceNotFoundException(LAUNCHER_PRESET_NOT_FOUND, String.format(ERR_MSG_LAUNCHER_PRESET_NOT_FOUND_BY_ID, id));
+        }
+        return launcherPreset;
+    }
+
+    @Transactional(readOnly = true)
+    public LauncherPreset retrieveByIdAndReference(Long id, String ref) {
+        LauncherPreset launcherPreset = launcherPresetMapper.findByIdAndRef(id, ref);
         if (launcherPreset == null) {
             throw new ResourceNotFoundException(LAUNCHER_PRESET_NOT_FOUND, String.format(ERR_MSG_LAUNCHER_PRESET_NOT_FOUND_BY_ID, id));
         }
@@ -88,16 +97,16 @@ public class LauncherPresetService {
     }
 
     @Transactional(readOnly = true)
-    public String buildWebHookUrl(Long id, Long launcherId, Long providerId) {
+    public String buildWebHookUrl(Long id, Long providerId) {
         providerId = getTestEnvironmentProviderId(providerId);
         LauncherPreset launcherPreset = retrieveById(id);
         String webserviceUrl = urlResolver.buildWebserviceUrl();
-        return String.format(WEBHOOK_API_URL_PATTERN, webserviceUrl, launcherId, launcherPreset.getRef(), providerId);
+        return String.format(WEBHOOK_API_URL_PATTERN, webserviceUrl, launcherPreset.getRef(), providerId);
     }
 
     @Transactional
-    public void revokeReference(Long id, Long launcherId) {
-        LauncherPreset dbLauncherPreset = retrieveById(id);
+    public void revokeReference(Long id, String oldRef, Long launcherId) {
+        LauncherPreset dbLauncherPreset = retrieveByIdAndReference(id, oldRef);
         boolean presetNotExists = canPersist(dbLauncherPreset, launcherId);
         if (presetNotExists) {
             throw new IllegalOperationException(LAUNCHER_PRESET_CAN_NOT_BE_CREATED, String.format(ERR_MSG_PRESET_IN_USE, dbLauncherPreset.getName(), launcherId));

@@ -12,6 +12,8 @@ public interface LauncherMapper {
 
     Launcher getLauncherByJobId(Long jobId);
 
+    Launcher getByPresetReference(String presetRef);
+
     List<Launcher> getAllLaunchers();
 
     void updateLauncher(Launcher launcher);

@@ -125,7 +125,6 @@ public interface LauncherDocumentedController {
             response = String.class
     )
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher id"),
             @ApiImplicitParam(name = "ref", paramType = "path", dataType = "string", required = true, value = "Launcher preset reference key"),
             @ApiImplicitParam(name = "callbackUrl", paramType = "query", dataType = "string", value = "Callback url for run results"),
             @ApiImplicitParam(name = "providerId", paramType = "query", dataTypeClass = Long.class, value = "Test automation provider id")
@@ -135,7 +134,7 @@ public interface LauncherDocumentedController {
             @ApiResponse(code = 404, message = "Indicates that the SCM account does not exist, or the launcher preset does not exist by ref", response = ErrorResponse.class),
             @ApiResponse(code = 400, message = "Indicates that the launcher job is null, or job parameters do not contain mandatory arguments, or the test automation provider does not exist (by id or default)", response = ErrorResponse.class)
     })
-    String buildByWebHook(Long id, String ref, String callbackUrl, Long providerId) throws IOException;
+    String buildByWebHook(String ref, String callbackUrl, Long providerId) throws IOException;
 
     @ApiOperation(
             value = "Exchanges the automation server queue item URL for the build number",

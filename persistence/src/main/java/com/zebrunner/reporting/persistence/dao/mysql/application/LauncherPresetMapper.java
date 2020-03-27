@@ -11,6 +11,8 @@ public interface LauncherPresetMapper {
 
     LauncherPreset findByRef(String ref);
 
+    LauncherPreset findByIdAndRef(@Param("id") Long id, @Param("ref") String ref);
+
     boolean existsByNameAndLauncherId(@Param("name") String name, @Param("launcherId") Long launcherId);
 
     void update(LauncherPreset launcherPreset);

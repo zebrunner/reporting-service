@@ -133,6 +133,15 @@ public class LauncherService {
         return launcherMapper.getAllLaunchers();
     }
 
+    @Transactional(readOnly = true)
+    public Launcher retrieveByPresetReference(String ref) {
+        Launcher launcher = launcherMapper.getByPresetReference(ref);
+        if (launcher == null) {
+            throw new ResourceNotFoundException(LAUNCHER_NOT_FOUND, String.format("Unable to locate launcher with preset reference '%s'", ref));
+        }
+        return launcher;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public Launcher updateLauncher(Launcher launcher) {
         launcherMapper.updateLauncher(launcher);
@@ -207,12 +216,12 @@ public class LauncherService {
     }
 
     @Transactional
-    public String buildLauncherJobByPresetRef(Long id, String ref, String callbackUrl, Long userId, Long providerId) throws IOException {
+    public String buildLauncherJobByPresetRef(String ref, String callbackUrl, Long userId, Long providerId) throws IOException {
         if (userId == 0) {
             User anonymous = userService.getDefaultUser();
             userId = anonymous.getId();
         }
-        Launcher launcher = getLauncherById(id);
+        Launcher launcher = retrieveByPresetReference(ref);
         LauncherPreset preset = launcherPresetService.retrieveByRef(ref);
         launcher.setModel(preset.getParams());
         String ciRunId = buildLauncherJob(launcher, userId, providerId);

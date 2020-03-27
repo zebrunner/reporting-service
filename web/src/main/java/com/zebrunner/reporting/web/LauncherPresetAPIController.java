@@ -48,19 +48,20 @@ public class LauncherPresetAPIController extends AbstractController implements L
     @Override
     public String buildWebHookUrl(
             @PathVariable("id") Long id,
-            @PathVariable("launcherId") Long launcherId,
             @RequestParam(name = "providerId", required = false) Long providerId
     ) {
-        return launcherPresetService.buildWebHookUrl(id, launcherId, providerId);
+        return launcherPresetService.buildWebHookUrl(id, providerId);
     }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
-    @DeleteMapping("/{id}/hook")
+    @DeleteMapping("/{id}/hook/{ref}")
+    @Override
     public void revokeReference(
             @PathVariable("id") Long id,
+            @PathVariable("ref") String ref,
             @PathVariable("launcherId") Long launcherId
     ) {
-        launcherPresetService.revokeReference(id, launcherId);
+        launcherPresetService.revokeReference(id, ref, launcherId);
     }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
