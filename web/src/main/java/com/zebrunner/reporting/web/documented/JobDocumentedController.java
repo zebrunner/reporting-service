@@ -1,10 +1,8 @@
 package com.zebrunner.reporting.web.documented;
 
 import com.zebrunner.reporting.domain.db.Job;
-import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.dto.JobDTO;
 import com.zebrunner.reporting.domain.dto.JobUrlType;
-import com.zebrunner.reporting.domain.dto.JobViewDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -13,7 +11,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import java.util.List;
-import java.util.Map;
 
 @Api("Jobs API")
 public interface JobDocumentedController {
@@ -64,88 +61,4 @@ public interface JobDocumentedController {
             @ApiResponse(code = 200, message = "Returns found jobs", response = List.class)
     })
     List<Job> getAllJobs();
-
-    @ApiOperation(
-            value = "Retrieves the latest job test runs by the environment and job ids grouped by job ids",
-            notes = "Returns the latest job test runs for the last 2 weeks",
-            nickname = "getLatestJobTestRuns",
-            httpMethod = "POST",
-            response = Map.class
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "env", paramType = "query", dataType = "string", required = true, value = "The test runs environment"),
-            @ApiImplicitParam(name = "jobViews", paramType = "body", dataType = "List", required = true, value = "Job views")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns the latest job test runs", response = Map.class)
-    })
-    Map<Long, TestRun> getLatestJobTestRuns(String env, List<JobViewDTO> jobViews);
-
-    @ApiOperation(
-            value = "Creates a batch of job views",
-            notes = "Returns created job views",
-            nickname = "createJobViews",
-            httpMethod = "POST",
-            response = List.class
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "jobViewDTOs", paramType = "body", dataType = "List", required = true, value = "Job views to create")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns created job views", response = List.class)
-    })
-    List<JobViewDTO> createJobViews(List<JobViewDTO> jobViewDTOs);
-
-    @ApiOperation(
-            value = "Updates a batch of job views",
-            notes = "Deletes job views by the view id and environment, and creates new job views",
-            nickname = "updateJobViews",
-            httpMethod = "PUT",
-            response = List.class
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "jobViewDTOs", paramType = "body", dataType = "List", required = true, value = "The job view to update"),
-            @ApiImplicitParam(name = "viewId", paramType = "path", dataTypeClass = Long.class, required = true, value = "The id of the job view to delete"),
-            @ApiImplicitParam(name = "env", paramType = "query", dataType = "string", required = true, value = "The environment of job views to delete")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns created job views", response = List.class)
-    })
-    List<JobViewDTO> updateJobViews(List<JobViewDTO> jobViewDTOs, long viewId, String env);
-
-    @ApiOperation(
-            value = "Retrieves job views by the view id",
-            notes = "Returns found job views grouped by environment",
-            nickname = "getJobViews",
-            httpMethod = "GET",
-            response = Map.class
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The view id")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns found job views grouped by environment", response = Map.class)
-    })
-    Map<String, List<JobViewDTO>> getJobViews(long id);
-
-    @ApiOperation(
-            value = "Deletes job views",
-            notes = "Deletes job views by the view id and environment",
-            nickname = "deleteJobViews",
-            httpMethod = "DELETE"
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "viewId", paramType = "path", dataTypeClass = Long.class, required = true, value = "The view id"),
-            @ApiImplicitParam(name = "env", paramType = "query", dataType = "string", required = true, value = "The environment")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Job views were deleted successfully")
-    })
-    void deleteJobViews(long viewId, String env);
-
 }

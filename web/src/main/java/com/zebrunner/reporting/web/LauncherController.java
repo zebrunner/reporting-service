@@ -101,16 +101,14 @@ public class LauncherController extends AbstractController implements LauncherDo
         websocketTemplate.convertAndSend(getLauncherRunsWebsocketPath(), new LauncherRunPush(launcher, ciRunId));
     }
 
-    @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")
-    @PostMapping("/{id}/build/{ref}")
+    @GetMapping("/hooks/{ref}")
     @Override
     public String buildByWebHook(
-        @RequestBody @Valid LauncherWebHookPayload payload,
-        @PathVariable("id") Long id,
         @PathVariable("ref") String ref,
+        @RequestParam(value = "callbackUrl", required = false) String callbackUrl,
         @RequestParam(name = "providerId", required = false) Long providerId
     ) throws IOException {
-        return launcherService.buildLauncherJobByPresetRef(id, ref, payload, getPrincipalId(), providerId);
+        return launcherService.buildLauncherJobByPresetRef(ref, callbackUrl, getPrincipalId(), providerId);
     }
 
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")

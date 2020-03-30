@@ -51,6 +51,13 @@
 		]]>
 	</select>
 
+	<select id="findByIdAndRef" resultMap="LauncherPresetResultMap">
+		<include refid="get" />
+		<![CDATA[
+			WHERE LP.ID = #{id} AND LP.REFERENCE = #{ref};
+		]]>
+	</select>
+
 	<select id="existsByNameAndLauncherId" resultType="java.lang.Boolean">
 		<![CDATA[
 			SELECT EXISTS (
@@ -82,6 +89,22 @@
 			</if>
 		</set>
         <![CDATA[
+			WHERE ID = #{id}
+        ]]>
+	</update>
+
+	<update id="updateReference">
+		<![CDATA[
+			UPDATE LAUNCHER_PRESETS
+        ]]>
+		<set>
+			<if test="null != ref">
+				<![CDATA[
+                   REFERENCE = #{ref},
+                ]]>
+			</if>
+		</set>
+		<![CDATA[
 			WHERE ID = #{id}
         ]]>
 	</update>

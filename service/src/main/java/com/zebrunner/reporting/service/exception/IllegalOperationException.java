@@ -39,7 +39,8 @@ public class IllegalOperationException extends ApplicationException {
         INVALID_IMAGE_FILE(2079),
         TOKEN_REFRESH_IS_NOT_SUPPORTED(2080),
         WIDGET_CAN_NOT_BE_CREATED(2081),
-        TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED(2082);
+        TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED(2082),
+        DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED(2083);
 
         private final Integer code;
         private String messageKey;
