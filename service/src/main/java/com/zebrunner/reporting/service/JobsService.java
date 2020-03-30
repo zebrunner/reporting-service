@@ -1,9 +1,7 @@
 package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.persistence.dao.mysql.application.JobMapper;
-import com.zebrunner.reporting.persistence.dao.mysql.application.JobViewMapper;
 import com.zebrunner.reporting.domain.db.Job;
-import com.zebrunner.reporting.domain.db.JobView;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.service.exception.ProcessingException;
@@ -27,13 +25,11 @@ public class JobsService {
     private static final String ERR_MSG_UNABLE_TO_PARSE_URI = "Provided uri '%s' is malformed";
 
     private final JobMapper jobMapper;
-    private final JobViewMapper jobViewMapper;
     private final IntegrationService integrationService;
     private final UserService userService;
 
-    public JobsService(JobMapper jobMapper, JobViewMapper jobViewMapper, IntegrationService integrationService, UserService userService) {
+    public JobsService(JobMapper jobMapper, IntegrationService integrationService, UserService userService) {
         this.jobMapper = jobMapper;
-        this.jobViewMapper = jobViewMapper;
         this.integrationService = integrationService;
         this.userService = userService;
     }
@@ -109,32 +105,5 @@ public class JobsService {
             newJob = job;
         }
         return newJob;
-    }
-
-    @Transactional
-    public JobView createJobView(JobView jobView) {
-        jobViewMapper.createJobView(jobView);
-        return jobView;
-    }
-
-    @Transactional
-    public void createJobViews(List<JobView> jobViews) {
-        jobViews.forEach(jobViewMapper::createJobView);
-    }
-
-    @Transactional
-    public void updateJobViews(List<JobView> jobViews, long viewId, String env) {
-        deleteJobView(viewId, env);
-        createJobViews(jobViews);
-    }
-
-    @Transactional(readOnly = true)
-    public List<JobView> getJobViewsByViewId(long viewId) {
-        return jobViewMapper.getJobViewsByViewId(viewId);
-    }
-
-    @Transactional
-    public void deleteJobView(long viewId, String env) {
-        jobViewMapper.deleteJobViewsByViewIdAndEnv(viewId, env);
     }
 }
