@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED;
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.DASHBOARD_CAN_NOT_BE_CREATED;
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.DASHBOARD_CAN_NOT_BE_UPDATED;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.DASHBOARD_NOT_FOUND;
@@ -24,6 +25,8 @@ public class DashboardService {
     private static final String ERR_MSG_DASHBOARD_CAN_NOT_BE_FOUND = "Dashboard with id %s can not be found";
     private static final String ERR_MSG_DASHBOARD_ALREADY_EXISTS = "Dashboard with such title already exists";
     private static final String ERR_MSG_UNEDITABLE_DASHBOARD_CANT_BE_ALTERED = "Uneditable dashboard can not be updated or deleted";
+    private static final String ERR_MSG_DASHBOARD_ATTRIBUTES_ALREADY_IN_USE = "Attributes with keys (%s) already in use for dashboard with id '%d'";
+    private static final String ERR_MSG_DASHBOARD_ATTRIBUTE_ALREADY_IN_USE = "Attribute with key '%s' already in use for dashboard with id '%d'";
 
     private final DashboardMapper dashboardMapper;
     private final UserPreferenceService userPreferenceService;
@@ -142,8 +145,36 @@ public class DashboardService {
 
     @Transactional
     public Attribute createDashboardAttribute(Long dashboardId, Attribute attribute) {
+        Attribute usedAttribute = retrieveAttributesByDashboardId(dashboardId).stream()
+                                                                        .filter(attr -> attr.getKey().equals(attribute.getKey()))
+                                                                        .findAny()
+                                                                        .orElse(null);
+        if (usedAttribute != null) {
+            String message = String.format(ERR_MSG_DASHBOARD_ATTRIBUTE_ALREADY_IN_USE, usedAttribute.getKey(), dashboardId);
+            throw new IllegalOperationException(DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED, message);
+        }
         dashboardMapper.createDashboardAttribute(dashboardId, attribute);
         return attribute;
+    }
+
+    @Transactional
+    public List<Attribute> createDashboardAttributes(Long dashboardId, List<Attribute> attributes) {
+        List<String> dashboardAttributeKeys = retrieveAttributesByDashboardId(dashboardId).stream()
+                                                                                       .map(Attribute::getKey)
+                                                                                       .collect(Collectors.toList());
+        List<String> usedKeys = attributes.stream()
+                                          .filter(attribute -> dashboardAttributeKeys.contains(attribute.getKey()))
+                                          .map(Attribute::getKey)
+                                          .collect(Collectors.toList());
+        if (!usedKeys.isEmpty()) {
+            String keysAsString = String.join(", ", usedKeys);
+            String message = usedKeys.size() > 1 ?
+                    String.format(ERR_MSG_DASHBOARD_ATTRIBUTES_ALREADY_IN_USE, keysAsString, dashboardId) :
+                    String.format(ERR_MSG_DASHBOARD_ATTRIBUTE_ALREADY_IN_USE, usedKeys.get(0), dashboardId);
+            throw new IllegalOperationException(DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED, message);
+        }
+        dashboardMapper.createDashboardAttributes(dashboardId, attributes);
+        return attributes;
     }
 
     @Transactional

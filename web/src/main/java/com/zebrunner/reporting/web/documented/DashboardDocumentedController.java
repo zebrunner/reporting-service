@@ -212,9 +212,28 @@ public interface DashboardDocumentedController {
             @ApiImplicitParam(name = "attribute", paramType = "body", dataType = "Attribute", required = true, value = "Attribute to create")
     })
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns all dashboard attributes including the created attribute", response = List.class)
+            @ApiResponse(code = 200, message = "Returns all dashboard attributes including the created attribute", response = List.class),
+            @ApiResponse(code = 400, message = "Indicates that a dashboard attribute with the same keys already exists", response = ResponseEntity.class)
     })
     List<Attribute> createDashboardAttribute(long dashboardId, Attribute attribute);
+
+    @ApiOperation(
+            value = "Creates a batch of dashboard attributes",
+            notes = "Dashboard attributes will be used to obtain data for creating a widget",
+            nickname = "createDashboardAttributes",
+            httpMethod = "POST",
+            response = List.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "dashboardId", paramType = "path", dataTypeClass = Long.class, required = true, value = "Dashboard id which has an attributes"),
+            @ApiImplicitParam(name = "attributes", paramType = "body", dataType = "List", required = true, value = "Attributes to create")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns all dashboard attributes including created attributes", response = List.class),
+            @ApiResponse(code = 400, message = "Indicates that a dashboard attributes with the same keys already exist", response = ResponseEntity.class)
+    })
+    List<Attribute> createDashboardAttributes(long dashboardId, List<Attribute> attributes);
 
     @ApiOperation(
             value = "Updates the properties of an existing dashboard attribute",

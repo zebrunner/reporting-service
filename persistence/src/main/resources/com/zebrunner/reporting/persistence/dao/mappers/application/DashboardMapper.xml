@@ -236,6 +236,21 @@
 		]]>
 	</insert>
 
+	<insert id="createDashboardAttributes" useGeneratedKeys="true">
+        <![CDATA[
+			INSERT INTO DASHBOARD_ATTRIBUTES (KEY, VALUE, DASHBOARD_ID) VALUES
+		]]>
+		<foreach item="attribute" index="index" collection="attributes" open="" separator="," close="">
+			<![CDATA[
+				(
+				#{attribute.key},
+			   	#{attribute.value},
+			   	#{dashboardId}
+				)
+			]]>
+		</foreach>
+	</insert>
+
 	<sql id="getAttributes">
         <![CDATA[
 			SELECT
