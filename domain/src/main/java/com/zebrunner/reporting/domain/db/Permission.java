@@ -22,7 +22,6 @@ public class Permission extends AbstractEntity implements Comparable<Permission>
     public enum Block {
         DASHBOARDS,
         TEST_RUNS,
-        TEST_RUN_VIEWS,
         TEST_SESSIONS,
         INVITATIONS,
         USERS,
@@ -40,8 +39,6 @@ public class Permission extends AbstractEntity implements Comparable<Permission>
         MODIFY_WIDGETS,
         MODIFY_TEST_RUNS,
         TEST_RUNS_CI,
-        MODIFY_TEST_RUN_VIEWS,
-        VIEW_TEST_RUN_VIEWS,
         MODIFY_TESTS,
         MODIFY_USERS,
         VIEW_USERS,

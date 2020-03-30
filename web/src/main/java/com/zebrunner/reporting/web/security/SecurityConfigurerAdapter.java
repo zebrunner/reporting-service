@@ -56,7 +56,6 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/events/**",
             "/api/projects/**",
             "/api/slack/**",
-            "/api/views/**",
             "/api/invitations/**",
             "/api/scm/**",
             "/api/launchers/**",
