@@ -7,7 +7,7 @@ web/build/
 !gradle/wrapper/gradle-wrapper.jar
 
 ### Logs
-**/logs
+**/logs/
 
 ### IntelliJ IDEA ###
 .idea
