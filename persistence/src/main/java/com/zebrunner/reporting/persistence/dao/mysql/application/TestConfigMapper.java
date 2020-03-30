@@ -23,8 +23,6 @@ public interface TestConfigMapper {
 
     List<String> getEnvironments();
 
-    List<String> getLanguages();
-
     List<String> getLocales();
 
 }

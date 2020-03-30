@@ -83,11 +83,6 @@ public class TestConfigService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> getLanguages() {
-        return testConfigMapper.getLanguages();
-    }
-
-    @Transactional(readOnly = true)
     public List<String> getLocales() {
         return testConfigMapper.getLocales();
     }

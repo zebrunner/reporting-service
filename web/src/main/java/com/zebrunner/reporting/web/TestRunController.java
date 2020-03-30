@@ -324,12 +324,6 @@ public class TestRunController extends AbstractController implements TestRunDocu
         return testConfigService.getBrowsers();
     }
 
-    @GetMapping("/languages")
-    @Override
-    public List<String> getLanguages() {
-        return testConfigService.getLanguages();
-    }
-
     @GetMapping("/locales")
     @Override
     public List<String> getLocales() {

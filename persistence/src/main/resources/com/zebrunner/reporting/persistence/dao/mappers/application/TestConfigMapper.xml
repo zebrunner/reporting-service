@@ -95,14 +95,6 @@
         ]]>
 	</select>
 
-    <select id="getLanguages" resultType="java.lang.String">
-		<![CDATA[
-        SELECT DISTINCT TC.LANGUAGE
-        FROM TEST_CONFIGS TC
-        WHERE TC.LANGUAGE IS NOT NULL AND LOWER(TC.LANGUAGE) <> ''
-        ]]>
-	</select>
-
     <select id="getLocales" resultType="java.lang.String">
 		<![CDATA[
         SELECT DISTINCT TC.LOCALE
