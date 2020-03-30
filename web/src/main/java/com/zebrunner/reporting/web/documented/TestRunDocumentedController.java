@@ -455,6 +455,21 @@ public interface TestRunDocumentedController {
     List<String> getBrowsers();
 
     @ApiOperation(
+            value = "Retrieves all test run config locales",
+            notes = "Returns found test run config locales",
+            nickname = "getLocales",
+            httpMethod = "GET",
+            response = List.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns found test run config locales", response = List.class)
+    })
+    List<String> getLocales();
+
+    @ApiOperation(
             value = "Retrieves test run job console lines",
             notes = "Returns found lines",
             nickname = "getConsoleOutput",
