@@ -151,7 +151,7 @@ public class UserController extends AbstractController implements UserDocumented
     @GetMapping("/preferences")
     @Override
     public List<UserPreference> getDefaultUserPreferences() {
-        User user = userService.getUserByUsername("anonymous");
+        User user = userService.getDefaultUser();
         return userPreferenceService.getAllUserPreferences(user.getId());
     }
 

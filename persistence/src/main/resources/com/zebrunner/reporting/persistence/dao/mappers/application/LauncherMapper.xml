@@ -103,6 +103,13 @@
 		]]>
     </select>
 
+    <select id="getByPresetReference" resultMap="LauncherResultMap">
+        <include refid="getLaunchers"/>
+        <![CDATA[
+			WHERE LP.REFERENCE = #{ref};
+		]]>
+    </select>
+
     <select id="getAllLaunchers" resultMap="LauncherResultMap">
         <include refid="getLaunchers"/>
     </select>

@@ -134,6 +134,11 @@ public class UserService implements TenancyDbInitial {
     }
 
     @Transactional(readOnly = true)
+    public User getDefaultUser() {
+        return getNotNullUserByUsername("anonymous");
+    }
+
+    @Transactional(readOnly = true)
     public User getNotNullUserByUsername(String username) {
         User user = getUserByUsername(username);
         if (user == null) {
