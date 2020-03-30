@@ -59,8 +59,8 @@ ext {
             "javax.mail:javax.mail-api:1.5.5"
         ],
 
-        javax_validation : "javax.validation:validation-api:1.1.0.Final",
-        hibernate_validator : "org.hibernate:hibernate-validator:5.2.4.Final",
+        javax_validation : "javax.validation:validation-api:2.0.1.Final",
+        hibernate_validator : "org.hibernate:hibernate-validator:6.1.2.Final",
 
         jaxb : [
             "javax.xml.bind:jaxb-api:2.3.1",
