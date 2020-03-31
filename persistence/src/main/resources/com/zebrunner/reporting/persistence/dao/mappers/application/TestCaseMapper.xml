@@ -351,6 +351,26 @@
 		]]>
 	</update>
 
+	<update id="updateStatuses">
+		<![CDATA[
+			UPDATE
+			    TEST_CASES
+			SET
+				STATUS = #{status}
+			FROM
+    			(SELECT UNNEST(ARRAY[
+		]]>
+		<foreach item="id" index="index" collection="ids" open="" separator="," close="">
+			<![CDATA[
+			     #{id}
+			]]>
+		</foreach>
+		<![CDATA[
+			]) AS id) AS test_case_data
+				WHERE TEST_CASES.ID = test_case_data.id;
+		]]>
+	</update>
+
 	<update id="reassignToProject">
 		<![CDATA[
 			UPDATE TEST_CASES SET PROJECT_ID = #{toProjectId} WHERE PROJECT_ID = #{fromProjectId}

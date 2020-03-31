@@ -39,7 +39,7 @@ ext {
 
         unirest_http_client : "com.konghq:unirest-java:3.1.00",
 
-        dozer: dependencies.create("net.sf.dozer:dozer:5.4.0") {
+        dozer: dependencies.create("net.sf.dozer:dozer:5.5.1") {
             exclude module: "slf4j-log4j12"
         },
 

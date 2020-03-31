@@ -40,7 +40,9 @@ public class IllegalOperationException extends ApplicationException {
         TOKEN_REFRESH_IS_NOT_SUPPORTED(2080),
         WIDGET_CAN_NOT_BE_CREATED(2081),
         TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED(2082),
-        DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED(2083);
+        DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED(2083),
+        UNSUPPORTED_PATCH_OPERATION(2084),
+        ILLEGAL_ATTRIBUTE_VALUE(2085);
 
         private final Integer code;
         private String messageKey;
