@@ -6,10 +6,10 @@ import com.zebrunner.reporting.domain.db.AbstractEntity;
 import com.zebrunner.reporting.domain.db.User;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 
 import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
