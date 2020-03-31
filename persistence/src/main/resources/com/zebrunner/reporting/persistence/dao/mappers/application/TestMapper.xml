@@ -369,6 +369,26 @@
 		]]>
 	</update>
 
+	<update id="updateStatuses">
+		<![CDATA[
+			UPDATE
+			    TESTS
+			SET
+				STATUS = #{status}
+			FROM
+    			(SELECT UNNEST(ARRAY[
+		]]>
+		<foreach item="id" index="index" collection="ids" open="" separator="," close="">
+			<![CDATA[
+			     #{id}
+			]]>
+		</foreach>
+		<![CDATA[
+			]) AS id) AS test_data
+				WHERE TESTS.ID = test_data.id;
+		]]>
+	</update>
+
     <update id="updateTestsNeedRerun">
         <if test="null != ids and ids.size > 0">
             <![CDATA[
