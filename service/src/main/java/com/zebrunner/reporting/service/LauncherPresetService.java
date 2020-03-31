@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherPresetMapper;
-import com.zebrunner.reporting.domain.db.LauncherPreset;
+import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.adapter.IntegrationGroupAdapter;

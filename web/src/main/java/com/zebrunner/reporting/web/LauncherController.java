@@ -1,8 +1,7 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.db.JenkinsJob;
-import com.zebrunner.reporting.domain.db.Launcher;
-import com.zebrunner.reporting.domain.db.LauncherWebHookPayload;
+import com.zebrunner.reporting.domain.db.launcher.Launcher;
 import com.zebrunner.reporting.domain.dto.JenkinsJobsScanResultDTO;
 import com.zebrunner.reporting.domain.dto.JobResult;
 import com.zebrunner.reporting.domain.dto.LauncherDTO;

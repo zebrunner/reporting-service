@@ -83,14 +83,14 @@
         ]]>
 	</delete>
 
-	<resultMap type="com.zebrunner.reporting.domain.db.LauncherCallback" id="LauncherCallbackResultMap" autoMapping="false">
+	<resultMap type="com.zebrunner.reporting.domain.db.launcher.LauncherCallback" id="LauncherCallbackResultMap" autoMapping="false">
 		<id column="LAUNCHER_CALLBACK_ID" property="id" />
 		<result column="LAUNCHER_CALLBACK_CI_RUN_ID" property="ciRunId" />
 		<result column="LAUNCHER_CALLBACK_URL" property="url" />
 		<result column="LAUNCHER_CALLBACK_REFERENCE" property="ref" />
 		<result column="LAUNCHER_CALLBACK_MODIFIED_AT" property="modifiedAt" />
 		<result column="LAUNCHER_CALLBACK_CREATED_AT" property="createdAt" />
-		<association property="preset" javaType="com.zebrunner.reporting.domain.db.LauncherPreset"
+		<association property="preset" javaType="com.zebrunner.reporting.domain.db.launcher.LauncherPreset"
 					 resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherPresetMapper.LauncherPresetResultMap"/>
 	</resultMap>
 

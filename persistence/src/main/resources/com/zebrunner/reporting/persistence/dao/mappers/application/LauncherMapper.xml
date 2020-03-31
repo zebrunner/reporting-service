@@ -166,7 +166,7 @@
         ]]>
     </delete>
 
-    <resultMap type="com.zebrunner.reporting.domain.db.Launcher"
+    <resultMap type="com.zebrunner.reporting.domain.db.launcher.Launcher"
                id="LauncherResultMap" autoMapping="false">
         <id column="LAUNCHER_ID" property="id"/>
         <result column="LAUNCHER_NAME" property="name"/>
@@ -181,7 +181,7 @@
         <association property="job"
                      javaType="com.zebrunner.reporting.domain.db.Job"
                      resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.JobMapper.JobResultMap"/>
-        <collection property="presets" ofType="com.zebrunner.reporting.domain.db.LauncherPreset"
+        <collection property="presets" ofType="com.zebrunner.reporting.domain.db.launcher.LauncherPreset"
                     resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherPresetMapper.LauncherPresetResultMap"/>
     </resultMap>
 

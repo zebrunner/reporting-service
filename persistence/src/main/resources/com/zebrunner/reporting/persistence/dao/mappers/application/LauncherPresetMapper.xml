@@ -122,7 +122,7 @@
         ]]>
 	</delete>
 
-	<resultMap type="com.zebrunner.reporting.domain.db.LauncherPreset" id="LauncherPresetResultMap" autoMapping="false">
+	<resultMap type="com.zebrunner.reporting.domain.db.launcher.LauncherPreset" id="LauncherPresetResultMap" autoMapping="false">
 		<id column="LAUNCHER_PRESET_ID" property="id" />
 		<result column="LAUNCHER_PRESET_NAME" property="name" />
 		<result column="LAUNCHER_PRESET_REFERENCE" property="ref" />

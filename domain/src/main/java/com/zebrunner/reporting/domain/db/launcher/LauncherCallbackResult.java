@@ -1,5 +1,6 @@
-package com.zebrunner.reporting.domain.db;
+package com.zebrunner.reporting.domain.db.launcher;
 
+import com.zebrunner.reporting.domain.db.TestRun;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

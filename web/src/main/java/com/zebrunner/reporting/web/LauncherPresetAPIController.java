@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.domain.db.LauncherPreset;
+import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.domain.dto.LauncherPresetDTO;
 import com.zebrunner.reporting.service.LauncherPresetService;
 import com.zebrunner.reporting.web.documented.LauncherPresetDocumentedController;
