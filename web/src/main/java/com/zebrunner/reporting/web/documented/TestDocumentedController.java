@@ -8,6 +8,7 @@ import com.zebrunner.reporting.domain.dto.IssueDTO;
 import com.zebrunner.reporting.domain.dto.TestArtifactDTO;
 import com.zebrunner.reporting.domain.dto.TestType;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
+import com.zebrunner.reporting.web.util.BatchPatchDescriptor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -72,6 +73,24 @@ public interface TestDocumentedController {
             @ApiResponse(code = 404, message = "Indicates that the test does not exist", response = ErrorResponse.class)
     })
     Test updateTest(Test test);
+
+    @ApiOperation(
+            value = "Updates a batch of patches of tests",
+            notes = "Returns updated tests",
+            nickname = "batchPatch",
+            httpMethod = "PATCH",
+            response = List.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "batchPatchDescriptor", paramType = "body", dataType = "BatchPatchDescriptor", required = true, value = "Patch descriptor for batch update")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns updated tests", response = List.class),
+            @ApiResponse(code = 400, message = "Indicates that patch descriptor is not valid", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Indicates that at least one test by id does not exist", response = ErrorResponse.class)
+    })
+    List<Test> batchPatch(BatchPatchDescriptor batchPatchDescriptor);
 
     @ApiOperation(
             value = "Creates test work items",

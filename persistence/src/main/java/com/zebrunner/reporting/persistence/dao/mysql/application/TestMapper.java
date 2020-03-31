@@ -34,6 +34,8 @@ public interface TestMapper {
 
     void updateTest(Test test);
 
+    void updateStatuses(@Param("ids") List<Long> ids, @Param("status") Status status);
+
     void updateTestsNeedRerun(@Param("ids") List<Long> ids, @Param("rerun") boolean needRerun);
 
     void deleteTestById(long id);

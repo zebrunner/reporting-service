@@ -15,20 +15,25 @@
  *******************************************************************************/
 package com.zebrunner.reporting.web.util;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import org.springframework.boot.jackson.JsonComponent;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
-@JsonComponent
-public class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
+@Getter
+@Setter
+@AllArgsConstructor
+public class BatchPatchDescriptor {
 
-    @Override
-    public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeNumber(value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-    }
+    @NotEmpty
+    private List<Long> ids;
+
+    @NotEmpty
+    private String operation;
+
+    @NotEmpty
+    private String value;
+
 }

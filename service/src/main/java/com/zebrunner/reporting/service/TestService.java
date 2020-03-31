@@ -291,7 +291,7 @@ public class TestService {
         return test;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Test changeTestStatus(long id, Status newStatus) {
         Test test = getTestById(id);
         if (test == null) {
@@ -314,6 +314,27 @@ public class TestService {
             testCase.setStatus(status);
             testCaseService.updateTestCase(testCase);
         }
+    }
+
+    @Transactional
+    public List<Test> batchStatusUpdate(List<Long> ids, Status status) {
+        List<Test> tests = ids.stream()
+                              .map(this::getNotNullTestById)
+                              .collect(Collectors.toList());
+        List<Long> testCaseIds = tests.stream()
+                                      .map(Test::getTestCaseId)
+                                      .collect(Collectors.toList());
+
+        testMapper.updateStatuses(ids, status);
+        testCaseService.batchStatusUpdate(testCaseIds, status);
+
+        tests.forEach(test -> {
+            testRunService.calculateTestRunResult(test.getTestRunId(), false);
+            testRunStatisticsService.updateStatistics(test.getTestRunId(), status, test.getStatus());
+
+            test.setStatus(status);
+        });
+        return tests;
     }
 
     @Transactional(rollbackFor = Exception.class)

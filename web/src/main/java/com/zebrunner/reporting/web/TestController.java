@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.web;
 
+import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.domain.db.Test;
@@ -19,8 +20,10 @@ import com.zebrunner.reporting.service.TestRunService;
 import com.zebrunner.reporting.service.TestService;
 import com.zebrunner.reporting.service.WorkItemService;
 import com.zebrunner.reporting.service.cache.TestRunStatisticsCacheableService;
+import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.integration.tool.impl.TestCaseManagementService;
 import com.zebrunner.reporting.web.documented.TestDocumentedController;
+import com.zebrunner.reporting.web.util.BatchPatchDescriptor;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +33,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,9 +44,15 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.ILLEGAL_ATTRIBUTE_VALUE;
+import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.UNSUPPORTED_PATCH_OPERATION;
+
 @RequestMapping(path = "api/tests", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class TestController extends AbstractController implements TestDocumentedController {
+
+    private static final String ERR_MSG_INVALID_PATCH_OPERATION = "Specified modification operation is not supported";
+    private static final String ERR_MSG_INVALID_TEST_STATUS = "Specified test status is not supported";
 
     @Autowired
     private Mapper mapper;
@@ -105,6 +115,40 @@ public class TestController extends AbstractController implements TestDocumented
         websocketTemplate.convertAndSend(getTestRunsWebsocketPath(), new TestRunPush(testRun));
 
         return updatedTest;
+    }
+
+    @PreAuthorize("hasPermission('MODIFY_TESTS')")
+    @PatchMapping()
+    @Override
+    public List<Test> batchPatch(
+            @RequestBody @Valid BatchPatchDescriptor batchPatchDescriptor
+    ) {
+        switch (retrieveOperation(batchPatchDescriptor.getOperation())) {
+            case STATUS_UPDATE:
+                return testService.batchStatusUpdate(batchPatchDescriptor.getIds(), retrieveStatus(batchPatchDescriptor.getValue()));
+            default:
+                throw new IllegalOperationException(UNSUPPORTED_PATCH_OPERATION, ERR_MSG_INVALID_PATCH_OPERATION);
+        }
+    }
+
+    enum PatchOperation {
+        STATUS_UPDATE
+    }
+
+    private Status retrieveStatus(String status) {
+        try {
+            return Status.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalOperationException(ILLEGAL_ATTRIBUTE_VALUE, ERR_MSG_INVALID_TEST_STATUS);
+        }
+    }
+
+    private PatchOperation retrieveOperation(String operation) {
+        try {
+            return PatchOperation.valueOf(operation);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalOperationException(UNSUPPORTED_PATCH_OPERATION, ERR_MSG_INVALID_PATCH_OPERATION);
+        }
     }
 
     @PostMapping("/{id}/workitems")
