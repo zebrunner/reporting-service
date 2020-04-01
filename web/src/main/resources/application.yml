@@ -2,6 +2,7 @@
 service:
   multitenant: ${multitenant}
   version: ${version}
+  docs-enabled: true
   debug-enabled: ${debug.enabled}
   web-url: ${web.host}/${web.context.path}
   api-url: ${api.host}/${api.context.path}
