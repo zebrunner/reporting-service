@@ -277,6 +277,11 @@ public class UserService implements TenancyDbInitial {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public boolean isExistById(Long id) {
+        return userMapper.isExistById(id);
+    }
+
     public String getAdminUsername() {
         return this.adminUsername;
     }

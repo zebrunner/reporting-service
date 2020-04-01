@@ -14,7 +14,9 @@ public interface LauncherMapper {
 
     Launcher getByPresetReference(String presetRef);
 
-    List<Launcher> getAllLaunchers();
+    List<Launcher> getAllLaunchers(Long userId);
+
+    boolean isExistById(Long id);
 
     void updateLauncher(Launcher launcher);
 

@@ -39,5 +39,9 @@
             <a>presets</a>
             <b>presets</b>
         </field>
+        <field>
+            <a>preference</a>
+            <b>preference</b>
+        </field>
     </mapping>
 </mappings>

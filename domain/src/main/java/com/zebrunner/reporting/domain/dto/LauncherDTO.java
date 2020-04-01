@@ -1,5 +1,7 @@
 package com.zebrunner.reporting.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -10,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LauncherDTO extends AbstractType {
 
     private static final long serialVersionUID = 7778329756348322538L;
@@ -28,6 +31,8 @@ public class LauncherDTO extends AbstractType {
 
     @Valid
     private List<LauncherPresetDTO> presets;
+
+    private UserLauncherPreference preference;
 
     private JobDTO job;
     private boolean autoScan;

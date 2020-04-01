@@ -207,6 +207,12 @@
 		</if>
 	</select>
 
+	<select id="isExistById" resultType="java.lang.Boolean">
+        <![CDATA[
+			SELECT EXISTS(SELECT 1 FROM USERS WHERE ID = #{id})
+		]]>
+    </select>
+
 	<update id="updateUser">
 		<![CDATA[
 			UPDATE

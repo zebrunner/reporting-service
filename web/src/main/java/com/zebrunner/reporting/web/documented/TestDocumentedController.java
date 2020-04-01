@@ -8,7 +8,7 @@ import com.zebrunner.reporting.domain.dto.IssueDTO;
 import com.zebrunner.reporting.domain.dto.TestArtifactDTO;
 import com.zebrunner.reporting.domain.dto.TestType;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
-import com.zebrunner.reporting.web.util.BatchPatchDescriptor;
+import com.zebrunner.reporting.web.util.patch.BatchPatchDescriptor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

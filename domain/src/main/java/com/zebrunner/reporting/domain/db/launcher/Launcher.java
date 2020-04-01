@@ -25,6 +25,7 @@ public class Launcher extends AbstractEntity {
     private boolean autoScan;
     private List<LauncherPreset> presets;
     private String type;
+    private UserLauncherPreference preference;
 
     public Launcher(String name, String model, ScmAccount scmAccount, Job job, String type, boolean autoScan) {
         this.name = name;
