@@ -6,9 +6,7 @@
     <sql id="userLauncherPreferenceSelectBody">
         <![CDATA[
             ULP.ID AS USER_LAUNCHER_PREFERENCE_ID,
-            ULP.FAVORITE AS USER_LAUNCHER_PREFERENCE_FAVORITE,
-            ULP.CREATED_AT AS USER_LAUNCHER_PREFERENCE_CREATED_AT,
-            ULP.MODIFIED_AT AS USER_LAUNCHER_PREFERENCE_MODIFIED_AT
+            ULP.FAVORITE AS USER_LAUNCHER_PREFERENCE_FAVORITE
         ]]>
     </sql>
 
@@ -60,7 +58,5 @@
     <resultMap type="com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference" id="UserLauncherPreferenceResultMap" autoMapping="false">
         <id column="USER_LAUNCHER_PREFERENCE_ID" property="id"/>
         <id column="USER_LAUNCHER_PREFERENCE_FAVORITE" property="favorite"/>
-        <id column="USER_LAUNCHER_PREFERENCE_CREATED_AT" property="createdAt"/>
-        <id column="USER_LAUNCHER_PREFERENCE_MODIFIED_AT" property="modifiedAt"/>
     </resultMap>
 </mapper>

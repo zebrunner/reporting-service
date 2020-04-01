@@ -1,6 +1,5 @@
 package com.zebrunner.reporting.domain.db.launcher;
 
-import com.zebrunner.reporting.domain.db.AbstractEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLauncherPreference extends AbstractEntity {
+public class UserLauncherPreference {
 
+    private Long id;
     private boolean favorite;
+
+    public UserLauncherPreference(boolean favorite) {
+        this.favorite = favorite;
+    }
 }
