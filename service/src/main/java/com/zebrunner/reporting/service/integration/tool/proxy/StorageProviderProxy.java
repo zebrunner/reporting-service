@@ -19,7 +19,7 @@ public class StorageProviderProxy extends IntegrationAdapterProxy {
     );
 
     public StorageProviderProxy(ApplicationContext applicationContext,
-                                @Value("${zafira.multitenant}") Boolean multitenant,
+                                @Value("${service.multitenant}") Boolean multitenant,
                                 IntegrationGroupService integrationGroupService,
                                 IntegrationService integrationService,
                                 CryptoService cryptoService) {

@@ -22,8 +22,8 @@ public class SlackProxy extends IntegrationAdapterProxy {
                       IntegrationGroupService integrationGroupService,
                       IntegrationService integrationService,
                       CryptoService cryptoService,
-                      @Value("${zafira.slack.image-url}") String image,
-                      @Value("${zafira.slack.author}") String author
+                      @Value("${slack.image-url}") String image,
+                      @Value("${slack.author}") String author
     ) {
         super(applicationContext, integrationGroupService, integrationService, cryptoService, "SLACK", INTEGRATION_TYPE_ADAPTERS, Map.of("image", image, "author", author));
     }

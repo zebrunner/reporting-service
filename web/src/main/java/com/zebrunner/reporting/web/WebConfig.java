@@ -49,7 +49,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final boolean multitenant;
 
-    public WebConfig(@Value("${zafira.multitenant}") boolean multitenant) {
+    public WebConfig(@Value("${service.multitenant}") boolean multitenant) {
         this.multitenant = multitenant;
     }
 
@@ -124,7 +124,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public Docket api(@Value("${zafira.debug-enabled:false}") boolean debugMode) {
+    public Docket api(@Value("${service.debug-enabled:false}") boolean debugMode) {
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName("zafira-api")
                 .select()

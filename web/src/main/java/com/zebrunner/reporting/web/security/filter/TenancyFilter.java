@@ -29,7 +29,7 @@ public class TenancyFilter extends GenericFilterBean {
 
     private static final String[] EXCLUSIONS = {"api/status"};
 
-    @Value("${zafira.multitenant}")
+    @Value("${service.multitenant}")
     private boolean isMultitenant;
 
     @Override

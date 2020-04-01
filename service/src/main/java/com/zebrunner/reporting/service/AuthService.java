@@ -33,7 +33,7 @@ public class AuthService {
         AuthenticationManager zafiraAuthManager,
         AuthenticationManager ldapAuthManager,
         UserService userService,
-        @Value("${zafira.admin.username}") String adminUsername
+        @Value("${admin.username}") String adminUsername
     ) {
         this.zafiraAuthManager = zafiraAuthManager;
         this.ldapAuthManager = ldapAuthManager;

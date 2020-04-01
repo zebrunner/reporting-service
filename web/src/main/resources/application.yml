@@ -1,25 +1,21 @@
-### Zafira settings
-zafira:
-  multitenant: ${zafira.multitenant}
-  version: ${zafira.version}
-  client-version: ${zafira.client.version}
-  debug-enabled: ${zafira.debug.enabled}
-  web-url: ${zafira.web-host}/${zafira.web-context-path}
-  api-url: ${zafira.api-host}/${zafira.api-context-path}
-  use-artifact-proxy: ${zafira.use.artifact.proxy}
-  slack:
-    image-url: https://s3-us-west-1.amazonaws.com/zebrunner/common/zbr-email.png
-    author: zafira notifications
+### Reprting Service settings
+service:
+  multitenant: ${multitenant}
+  version: ${version}
+  debug-enabled: ${debug.enabled}
+  web-url: ${service.web.host}/${service.web.context.path}
+  api-url: ${service.api.host}/${zafira.api.context.path}
+  use-artifact-proxy: ${use.artifact.proxy}
   admin:
-    username: ${zafira.admin.username}
-    password: ${zafora.admin.password}
-    group: ${zafira.admin.group}
+    username: ${admin.username}
+    password: ${admin.password}
+    group: ${admin.group}
 
 ### Embedded Web server configuration
 server:
   port: 8080
   servlet:
-    context-path: /zafira-ws
+    context-path: /reporting-service
 
 ### Spring Boot managed beans configuration
 spring:
@@ -93,6 +89,11 @@ elasticsearch:
 github:
   client-id: ${github.client.id}
   client-secret: ${github.client.secret}
+
+### Slack Notifications settings
+slack:
+  image-url: https://s3-us-west-1.amazonaws.com/zebrunner/common/zbr-email.png
+  author: zafira notifications
 
 ### Auth settings
 auth:
