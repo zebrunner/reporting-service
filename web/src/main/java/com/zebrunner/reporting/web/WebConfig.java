@@ -141,7 +141,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .description("Reporting service REST API documentation")
                 .termsOfServiceUrl("https://github.com/zebrunner/reporting-service")
                 .license("Apache License Version 2.0")
-                .licenseUrl("https://github.com/zebrunner/reporting-service/blob/develop/LICENSE")
+                .licenseUrl("https://github.com/zebrunner/reporting-service/blob/master/LICENSE")
                 .version("2.0")
                 .build();
     }
