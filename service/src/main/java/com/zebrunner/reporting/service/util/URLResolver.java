@@ -24,7 +24,7 @@ public class URLResolver {
     /**
      * Build service web url. In case of multitenant deployment subdomain will be included
      *
-     * @return Zafira web URL
+     * @return web URL
      */
     public String buildWebURL() {
         return isMultitenant ? String.format(webURL, TenancyContext.getTenantName()) : webURL;

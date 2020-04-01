@@ -109,7 +109,7 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
     @Bean
     @DependsOn("ldapAuthManager")
-    public AuthenticationManager zafiraAuthManager(PasswordEncoder passwordEncoder) {
+    public AuthenticationManager authManager(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userPassAuthService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
