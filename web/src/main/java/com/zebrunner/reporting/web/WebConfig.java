@@ -49,7 +49,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final boolean multitenant;
 
-    public WebConfig(@Value("${zafira.multitenant}") boolean multitenant) {
+    public WebConfig(@Value("${service.multitenant}") boolean multitenant) {
         this.multitenant = multitenant;
     }
 
@@ -124,9 +124,9 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public Docket api(@Value("${zafira.debug-enabled:false}") boolean debugMode) {
+    public Docket api(@Value("${service.debug-enabled:false}") boolean debugMode) {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("zafira-api")
+                .groupName("reporting-service-api")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.zebrunner.reporting.web"))
                 .paths(PathSelectors.any())
@@ -137,8 +137,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Zafira REST API")
-                .description("Zafira REST API documentation")
+                .title("Reporting service REST API")
+                .description("Reporting service REST API documentation")
                 .termsOfServiceUrl("http://springfox.io")
                 .license("Apache License Version 2.0")
                 .licenseUrl("https://github.com/springfox/springfox/blob/master/LICENSE")

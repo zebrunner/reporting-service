@@ -82,10 +82,10 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
     public void sendNotification(TestRun tr, String customizedMessage) {
         String channels = tr.getSlackChannels();
         if (StringUtils.isNotEmpty(channels)) {
-            String zafiraUrl = urlResolver.buildWebURL() + "/tests/runs/" + tr.getId();
+            String serviceUrl = urlResolver.buildWebURL() + "/tests/runs/" + tr.getId();
             String jenkinsUrl = tr.getJob().getJobURL() + "/" + tr.getBuildNumber();
             String attachmentColor = determineColor(tr);
-            String mainMessage = customizedMessage + String.format(INFO_PATTERN, buildRunInfo(tr), zafiraUrl, jenkinsUrl);
+            String mainMessage = customizedMessage + String.format(INFO_PATTERN, buildRunInfo(tr), serviceUrl, jenkinsUrl);
             String resultsMessage = String.format(RESULTS_PATTERN, tr.getPassed(), tr.getFailed(), tr.getFailedAsKnown(), tr.getSkipped());
             SlackAttachment attachment = generateSlackAttachment(mainMessage, resultsMessage, attachmentColor, tr.getComments());
             Arrays.stream(channels.split(",")).forEach(channel -> {

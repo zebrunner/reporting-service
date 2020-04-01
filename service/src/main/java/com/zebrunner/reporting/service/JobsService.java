@@ -39,7 +39,7 @@ public class JobsService {
         jobMapper.createJob(job);
     }
 
-    // Check the same logic in ZafiraClient method registerJob
+    // Check the same logic in ZebrunnerClient method registerJob
     @Transactional
     public Job createOrUpdateJobByURL(String jobUrl, Long userId) {
         Job job = createJobFromURL(jobUrl, userId);

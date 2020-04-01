@@ -39,16 +39,16 @@ public class UserService implements TenancyDbInitial {
     private static final String ERR_MSG_USER_WITH_THIS_EMAIL_DOES_NOT_EXIST = "User with email %s doesn't exist";
     private static final String UNABLE_TO_CHANGE_PASSWORD = "Unable to change password for user %s";
 
-    @Value("${zafira.admin.username}")
+    @Value("${service.admin.username}")
     private String adminUsername;
 
-    @Value("${zafira.admin.password}")
+    @Value("${service.admin.password}")
     private String adminPassword;
 
-    @Value("${zafira.admin.group}")
+    @Value("${service.admin.group}")
     private String adminGroup;
 
-    @Value("${zafira.multitenant}")
+    @Value("${service.multitenant}")
     private String isMultitenant;
 
     @Autowired

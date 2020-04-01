@@ -20,8 +20,8 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LDAPUserDetailsContextMapper.class);
 
-    private static final String MSG_ILLEGAL_USER_LOGIN = "User %s is not an invited Zafira user";
-    private static final String WRN_MSG_NON_EXISTING_ZAFIRA_USER = "Existing LDAP user %s can't be logged in because he does not exists in Zafira";
+    private static final String MSG_ILLEGAL_USER_LOGIN = "User %s is not an invited Zebrunner user";
+    private static final String WRN_MSG_NON_EXISTING_USER = "Existing LDAP user %s can't be logged in because he does not exists in Zebrunner";
 
     private final UserService userService;
 
@@ -30,14 +30,14 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
     }
 
     /**
-     * Mapping LDAP user to Zafira user. If LDAP user is not a Zafira user (meaning that he was found in LDAP
-     * but was not invited to Zafira)
+     * Mapping LDAP user to Zebrunner user. If LDAP user is not a Zebrunner user (meaning that he was found in LDAP
+     * but was not invited to Zebrunner)
      */
     @Override
     public UserDetails mapUserFromContext(DirContextOperations operations, String username, Collection<? extends GrantedAuthority> authorities) {
         User user = userService.getUserByUsername(username);
         if (user == null) {
-            LOGGER.warn(String.format(WRN_MSG_NON_EXISTING_ZAFIRA_USER, username));
+            LOGGER.warn(String.format(WRN_MSG_NON_EXISTING_USER, username));
             throw new ForbiddenOperationException(String.format(MSG_ILLEGAL_USER_LOGIN, username));
         } else {
             return new JwtUserType(user.getId(), username, user.getPassword(), user.getGroups());

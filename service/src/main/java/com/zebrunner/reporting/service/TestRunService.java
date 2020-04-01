@@ -637,7 +637,7 @@ public class TestRunService implements ProjectReassignable {
         // Aborted testruns don't need status recalculation (already recalculated on abort end-point)
         if (!Status.ABORTED.equals(testRun.getStatus())) {
             // Do not update test run status if tests are running and one clicks mark as passed or mark as known issue
-            // (https://github.com/qaprosoft/zafira/issues/34)
+            // (https://github.com/zebrunner/zebrunner/issues/34)
             boolean onTestRunFinish = finishTestRun || !Status.IN_PROGRESS.equals(testRun.getStatus());
             if (onTestRunFinish) {
                 tests.stream()
@@ -662,7 +662,7 @@ public class TestRunService implements ProjectReassignable {
 
     private void setTestRunElapsedTime(TestRun testRun) {
         Integer elapsed = ((Long) DateTimeUtil.toSecondsSinceDateToNow(testRun.getStartedAt())).intValue();
-        // according to https://github.com/qaprosoft/zafira/issues/748
+        // according to https://github.com/zebrunner/zebrunner/issues/748
         Integer elapsedToInsert = testRun.getElapsed() != null ? testRun.getElapsed() + elapsed : elapsed;
         testRun.setElapsed(elapsedToInsert);
     }

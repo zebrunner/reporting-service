@@ -44,7 +44,7 @@ public class ApiExceptionHandler {
 
     private boolean debugEnabled;
 
-    public void setDebugEnabled(@Value("${zafira.debug-enabled:false}") boolean debugEnabled) {
+    public void setDebugEnabled(@Value("${service.debug-enabled:false}") boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
     }
 

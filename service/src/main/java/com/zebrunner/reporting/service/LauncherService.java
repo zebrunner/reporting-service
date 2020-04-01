@@ -2,17 +2,16 @@ package com.zebrunner.reporting.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.JenkinsJob;
 import com.zebrunner.reporting.domain.db.Job;
 import com.zebrunner.reporting.domain.db.Launcher;
 import com.zebrunner.reporting.domain.db.LauncherCallback;
 import com.zebrunner.reporting.domain.db.LauncherPreset;
-import com.zebrunner.reporting.domain.db.LauncherWebHookPayload;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.dto.JobResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
@@ -250,8 +249,8 @@ public class LauncherService {
         String repositoryName = scmAccount.getRepositoryName();
         String scmUser = gitHubService.getLoginName(scmAccount);
         String scmToken = cryptoService.decrypt(scmAccount.getAccessToken());
-        String zafiraServiceUrl = urlResolver.buildWebserviceUrl();
-        String zafiraAccessToken = jwtService.generateAccessToken(user, TenancyContext.getTenantName());
+        String serviceUrl = urlResolver.buildWebserviceUrl();
+        String accessToken = jwtService.generateAccessToken(user, TenancyContext.getTenantName());
 
         jobParameters.put("userId", String.valueOf(user.getId()));
         if (StringUtils.isNotEmpty(automationServerService.getFolder(automationServerId))) {
@@ -261,8 +260,8 @@ public class LauncherService {
         jobParameters.put("branch", branch);
         jobParameters.put("scmUser", scmUser);
         jobParameters.put("scmToken", scmToken);
-        jobParameters.put("zafira_service_url", zafiraServiceUrl);
-        jobParameters.put("zafira_access_token", zafiraAccessToken);
+        jobParameters.put("zafira_service_url", serviceUrl);
+        jobParameters.put("zafira_access_token", accessToken);
         jobParameters.put("onlyUpdated", String.valueOf(false));
 
         String args = jobParameters.entrySet().stream()

@@ -47,7 +47,7 @@ public class InvitationService {
     private static final String ERR_MSG_INVITATION_STATUS_IS_INCORRECT = "Invitation status for token %s is null or incorrect";
     private static final String ERR_MSG_USER_NOT_FOUND_IN_LDAP = "User with username %s is not found in LDAP";
 
-    private final String zafiraLogoURL;
+    private final String slackImageUrl;
     private final URLResolver urlResolver;
     private final InvitationMapper invitationMapper;
     private final EmailService emailService;
@@ -55,14 +55,14 @@ public class InvitationService {
     private final GroupService groupService;
     private final AccessManagementService accessManagementService;
 
-    public InvitationService(@Value("${zafira.slack.image-url}") String zafiraLogoURL,
+    public InvitationService(@Value("${slack.image-url}") String slackImageUrl,
                              URLResolver urlResolver,
                              InvitationMapper invitationMapper,
                              EmailService emailService,
                              UserService userService,
                              GroupService groupService,
                              AccessManagementService accessManagementService) {
-        this.zafiraLogoURL = zafiraLogoURL;
+        this.slackImageUrl = slackImageUrl;
         this.urlResolver = urlResolver;
         this.invitationMapper = invitationMapper;
         this.emailService = emailService;
@@ -250,8 +250,8 @@ public class InvitationService {
 
     private void sendEmail(Invitation invitation) {
         IEmailMessage userInviteEmail = User.Source.LDAP.equals(invitation.getSource())
-                ? new UserInviteEmail(invitation.getUrl(), zafiraLogoURL, urlResolver.buildWebURL())
-                : new UserInviteLdapEmail(invitation.getUrl(), zafiraLogoURL, urlResolver.buildWebURL());
+                ? new UserInviteEmail(invitation.getUrl(), slackImageUrl, urlResolver.buildWebURL())
+                : new UserInviteLdapEmail(invitation.getUrl(), slackImageUrl, urlResolver.buildWebURL());
         emailService.sendEmail(userInviteEmail, invitation.getEmail());
     }
 

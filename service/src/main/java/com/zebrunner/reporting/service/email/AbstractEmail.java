@@ -7,19 +7,19 @@ import java.util.List;
 public abstract class AbstractEmail implements IEmailMessage {
 
     private final String subject;
-    private final String zafiraLogoURL;
+    private final String logoUrl;
     private final String workspaceURL;
     private final EmailType type;
 
-    protected AbstractEmail(String subject, EmailType type, String zafiraLogoURL, String workspaceURL) {
+    protected AbstractEmail(String subject, EmailType type, String logoUrl, String workspaceURL) {
         this.subject = subject;
         this.type = type;
-        this.zafiraLogoURL = zafiraLogoURL;
+        this.logoUrl = logoUrl;
         this.workspaceURL = workspaceURL;
     }
 
-    public String getZafiraLogoURL() {
-        return zafiraLogoURL;
+    public String getLogoUrl() {
+        return logoUrl;
     }
 
     public String getWorkspaceURL() {

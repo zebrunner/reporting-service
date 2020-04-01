@@ -90,7 +90,7 @@ public class TenancyInitializer {
                     try {
                         Invitation invitation = invitationService.createInitialInvitation(eventMessage.getEmail(), DEFAULT_USER_GROUP);
                         result.setToken(invitation.getToken());
-                        result.setZafiraURL(urlResolver.buildWebURL());
+                        result.setLogoUrl(urlResolver.buildWebURL());
                     } catch (RuntimeException e) {
                         String errorMessage = e.getMessage();
                         result.setMessage(errorMessage);
