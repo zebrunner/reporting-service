@@ -25,7 +25,7 @@ public class ConfigurationService {
     private final TestRunService testRunService;
     private final SlackService slackService;
 
-    @Value("${version}")
+    @Value("${service.version}")
     private String serviceVersion;
 
     public ConfigurationService(
