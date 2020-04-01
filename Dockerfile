@@ -1,6 +1,8 @@
 FROM openjdk:11-jdk-slim
 
-ENV VERSION=${version}
+ARG SERVICE_VER=1.0-SNAPSHOT
+
+ENV VERSION=${SERVICE_VER}
 
 RUN mkdir /opt/assets
 
