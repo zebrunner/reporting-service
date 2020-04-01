@@ -27,7 +27,6 @@ dependencies {
     implementation libraries.commons_fileupload
     implementation libraries.dozer
     implementation libraries.jackson_databind
-    implementation libraries.hibernate_validator, { exclude group: 'javax.validation'}
     implementation libraries.javax_validation
     implementation libraries.logging
     implementation libraries.jwt
