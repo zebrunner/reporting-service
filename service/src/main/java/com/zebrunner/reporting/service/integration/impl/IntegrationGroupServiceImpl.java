@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.service.integration.impl;
 
-import com.zebrunner.reporting.persistence.repository.IntegrationGroupRepository;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationGroup;
+import com.zebrunner.reporting.persistence.repository.IntegrationGroupRepository;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.IntegrationGroupService;
 import org.springframework.stereotype.Service;
