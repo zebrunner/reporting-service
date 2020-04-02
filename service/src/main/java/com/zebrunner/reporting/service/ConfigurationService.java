@@ -7,6 +7,7 @@ import com.zebrunner.reporting.service.integration.tool.impl.SlackService;
 import com.zebrunner.reporting.service.integration.tool.impl.TestCaseManagementService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -18,22 +19,22 @@ public class ConfigurationService {
 
     private static final String ERR_MSG_TEST_RUN_NOT_FOUND = "Test run with id %s can not be found";
 
-    private final VersionService versionService;
     private final URLResolver urlResolver;
     private final AutomationServerService automationServerService;
     private final TestCaseManagementService testCaseManagementService;
     private final TestRunService testRunService;
     private final SlackService slackService;
 
+    @Value("${service.version}")
+    private String serviceVersion;
+
     public ConfigurationService(
-            VersionService versionService,
             URLResolver urlResolver,
             AutomationServerService automationServerService,
             TestCaseManagementService testCaseManagementService,
             TestRunService testRunService,
             SlackService slackService
     ) {
-        this.versionService = versionService;
         this.urlResolver = urlResolver;
         this.automationServerService = automationServerService;
         this.testCaseManagementService = testCaseManagementService;
@@ -42,11 +43,7 @@ public class ConfigurationService {
     }
 
     public Map<String, Object> getAppConfig() {
-        return Map.of(
-                "service", versionService.getServiceVersion(),
-                "client", versionService.getClientVersion(),
-                "service_url", urlResolver.buildWebserviceUrl()
-        );
+        return Map.of("service", serviceVersion, "service_url", urlResolver.buildWebserviceUrl());
     }
 
     public Map<String, Object> getJenkinsConfig() {

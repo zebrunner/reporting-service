@@ -25,7 +25,7 @@ public class UploadService {
     private final StorageProviderService storageProviderService;
     private final URLResolver urlResolver;
 
-    @Value("${zafira.multitenant}")
+    @Value("${service.multitenant}")
     private boolean multitenant;
 
 

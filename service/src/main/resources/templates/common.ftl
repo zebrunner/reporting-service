@@ -59,7 +59,7 @@
                                     <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0px;" align="left" border="0">
                                         <tbody>
                                         <tr>
-                                            <td style="width:36px;"><img alt="" title="" height="auto" src="${zafiraLogoURL}" style="border:none;border-radius:0px;display:block;font-size:13px;outline:none;text-decoration:none;width:100%;height:auto;" width="36"></td>
+                                            <td style="width:36px;"><img alt="" title="" height="auto" src="${logoUrl}" style="border:none;border-radius:0px;display:block;font-size:13px;outline:none;text-decoration:none;width:100%;height:auto;" width="36"></td>
                                         </tr>
                                         </tbody>
                                     </table>

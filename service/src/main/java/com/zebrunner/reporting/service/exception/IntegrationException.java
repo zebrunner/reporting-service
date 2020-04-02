@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 
 /**
- * Exception is dedicated to Zafira integrations structure and wraps all specific for integrations
+ * Exception is dedicated to integrations structure and wraps all specific for integrations
  * exceptions.
  * Reserved range 2200 - 2249
  */
