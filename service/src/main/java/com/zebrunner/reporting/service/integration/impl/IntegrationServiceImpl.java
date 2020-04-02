@@ -164,7 +164,13 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     @Transactional(readOnly = true)
     public List<Integration> retrieveAll() {
-        return integrationRepository.findAll();
+        List<Integration> integrations = integrationRepository.findAll();
+        integrations.forEach(integration -> {
+            IntegrationType type = integrationTypeService.retrieveByIntegrationId(integration.getId());
+            integration.setType(type);
+            integration.setSettings(integrationSettingService.retrieveByIntegrationTypeId(type.getId()));
+        });
+        return integrations;
     }
 
     @Override
