@@ -2,16 +2,17 @@ package com.zebrunner.reporting.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
+import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.JenkinsJob;
 import com.zebrunner.reporting.domain.db.Job;
-import com.zebrunner.reporting.domain.db.Launcher;
-import com.zebrunner.reporting.domain.db.LauncherCallback;
-import com.zebrunner.reporting.domain.db.LauncherPreset;
+import com.zebrunner.reporting.domain.db.launcher.Launcher;
+import com.zebrunner.reporting.domain.db.launcher.LauncherCallback;
+import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.dto.JobResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
@@ -34,18 +35,21 @@ import java.util.stream.Collectors;
 
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.JOB_CAN_NOT_BE_STARTED;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.LAUNCHER_NOT_FOUND;
+import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.USER_NOT_FOUND;
 
 @Service
 public class LauncherService {
 
     private static final String ERR_MSG_NO_BUILD_LAUNCHER_JOB_SPECIFIED = "No launcher job specified";
     private static final String ERR_MSG_REQUIRED_JOB_ARGUMENTS_NOT_FOUND = "Required job arguments not found";
+    private static final String ERR_MSG_USER_WITH_THIS_ID_DOES_NOT_EXIST = "User with id %d doesn't exist";
 
     private static final Set<String> MANDATORY_ARGUMENTS = Set.of("scmURL", "branch", "zafiraFields");
 
     private final LauncherMapper launcherMapper;
     private final LauncherPresetService launcherPresetService;
     private final LauncherCallbackService launcherCallbackService;
+    private final UserLauncherPreferenceService preferenceService;
     private final AutomationServerService automationServerService;
     private final ScmAccountService scmAccountService;
     private final JobsService jobsService;
@@ -60,6 +64,7 @@ public class LauncherService {
             LauncherMapper launcherMapper,
             LauncherPresetService launcherPresetService,
             LauncherCallbackService launcherCallbackService,
+            UserLauncherPreferenceService preferenceService,
             AutomationServerService automationServerService,
             ScmAccountService scmAccountService,
             JobsService jobsService,
@@ -73,6 +78,7 @@ public class LauncherService {
         this.launcherMapper = launcherMapper;
         this.launcherPresetService = launcherPresetService;
         this.launcherCallbackService = launcherCallbackService;
+        this.preferenceService = preferenceService;
         this.automationServerService = automationServerService;
         this.scmAccountService = scmAccountService;
         this.jobsService = jobsService;
@@ -84,7 +90,7 @@ public class LauncherService {
         this.userService = userService;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Launcher createLauncher(Launcher launcher, Long userId, Long automationServerId) {
         launcher.setAutoScan(false);
         if (automationServerService.isEnabledAndConnected(automationServerId)) {
@@ -95,10 +101,15 @@ public class LauncherService {
             launcher.setJob(job);
         }
         launcherMapper.createLauncher(launcher);
+
+        if (launcher.getPreference() != null) {
+            UserLauncherPreference preference = preferenceService.create(launcher.getId(), userId, launcher.getPreference());
+            launcher.setPreference(preference);
+        }
         return launcher;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public List<Launcher> createLaunchersForJenkinsJobs(List<JenkinsJob> jenkinsJobs, String repo, boolean isSuccess, long userId) {
         if (!isSuccess) {
             return new ArrayList<>();
@@ -128,8 +139,8 @@ public class LauncherService {
     }
 
     @Transactional(readOnly = true)
-    public List<Launcher> getAllLaunchers() {
-        return launcherMapper.getAllLaunchers();
+    public List<Launcher> getAllLaunchers(Long userId) {
+        return launcherMapper.getAllLaunchers(userId);
     }
 
     @Transactional(readOnly = true)
@@ -141,18 +152,18 @@ public class LauncherService {
         return launcher;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Launcher updateLauncher(Launcher launcher) {
         launcherMapper.updateLauncher(launcher);
         return launcher;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteLauncherById(Long id) {
         launcherMapper.deleteLauncherById(id);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteAutoScannedLaunchersByScmAccountId(Long scmAccountId) {
         launcherMapper.deleteAutoScannedLaunchersByScmAccountId(scmAccountId);
     }
@@ -281,6 +292,37 @@ public class LauncherService {
 
     public Integer getBuildNumber(String queueItemUrl, Long automationServerId) {
         return automationServerService.getBuildNumber(queueItemUrl, automationServerId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistById(Long id) {
+        return launcherMapper.isExistById(id);
+    }
+
+    @Transactional
+    public UserLauncherPreference markLauncherAsFavorite(Long id, Long userId, boolean favorite) {
+        UserLauncherPreference preference;
+
+        boolean launcherExists = isExistById(id);
+        if (!launcherExists) {
+            throw new ResourceNotFoundException(LAUNCHER_NOT_FOUND, String.format("Unable to locate launcher with id '%d'", id));
+        }
+
+        boolean userExists = userService.isExistById(userId);
+        if (!userExists) {
+            throw new ResourceNotFoundException(USER_NOT_FOUND, ERR_MSG_USER_WITH_THIS_ID_DOES_NOT_EXIST, id);
+        }
+
+        boolean userLauncherPreferenceExists = preferenceService.isExistByLauncherIdAndUserId(id, userId);
+        if (userLauncherPreferenceExists) {
+            UserLauncherPreference dbPreference = preferenceService.retrieveByLauncherIdAndUserId(id, userId);
+            dbPreference.setFavorite(favorite);
+            preference = preferenceService.update(dbPreference);
+        } else {
+            preference = new UserLauncherPreference(favorite);
+            preference = preferenceService.create(id, userId, preference);
+        }
+        return preference;
     }
 
 }

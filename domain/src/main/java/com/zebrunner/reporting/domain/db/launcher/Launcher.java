@@ -1,5 +1,8 @@
-package com.zebrunner.reporting.domain.db;
+package com.zebrunner.reporting.domain.db.launcher;
 
+import com.zebrunner.reporting.domain.db.AbstractEntity;
+import com.zebrunner.reporting.domain.db.Job;
+import com.zebrunner.reporting.domain.db.ScmAccount;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +25,7 @@ public class Launcher extends AbstractEntity {
     private boolean autoScan;
     private List<LauncherPreset> presets;
     private String type;
+    private UserLauncherPreference preference;
 
     public Launcher(String name, String model, ScmAccount scmAccount, Job job, String type, boolean autoScan) {
         this.name = name;

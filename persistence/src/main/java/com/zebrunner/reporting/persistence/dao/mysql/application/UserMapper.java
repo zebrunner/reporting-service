@@ -18,6 +18,8 @@ public interface UserMapper {
 
     User getUserByResetToken(String token);
 
+    boolean isExistById(Long id);
+
     void updateUser(User user);
 
     void updateStatus(@Param("status") User.Status status, @Param("id") Long id);

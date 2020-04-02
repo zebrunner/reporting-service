@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.persistence.dao.mysql.application;
 
-import com.zebrunner.reporting.domain.db.Launcher;
+import com.zebrunner.reporting.domain.db.launcher.Launcher;
 
 import java.util.List;
 
@@ -14,7 +14,9 @@ public interface LauncherMapper {
 
     Launcher getByPresetReference(String presetRef);
 
-    List<Launcher> getAllLaunchers();
+    List<Launcher> getAllLaunchers(Long userId);
+
+    boolean isExistById(Long id);
 
     void updateLauncher(Launcher launcher);
 

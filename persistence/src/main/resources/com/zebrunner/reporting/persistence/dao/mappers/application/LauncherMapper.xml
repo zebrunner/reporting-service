@@ -38,41 +38,44 @@
         ]]>
     </insert>
 
-    <sql id="getLaunchers">
+    <sql id="launcherSelectBody">
         <![CDATA[
-			SELECT
-				L.ID AS LAUNCHER_ID,
-				L.NAME AS LAUNCHER_NAME,
-				L.MODEL AS LAUNCHER_MODEL,
-				L.AUTO_SCAN AS LAUNCHER_AUTO_SCAN,
-				L.TYPE AS LAUNCHER_TYPE,
+            L.ID AS LAUNCHER_ID,
+            L.NAME AS LAUNCHER_NAME,
+            L.MODEL AS LAUNCHER_MODEL,
+            L.AUTO_SCAN AS LAUNCHER_AUTO_SCAN,
+            L.TYPE AS LAUNCHER_TYPE,
 		]]>
         <include refid="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherPresetMapper.body"/>
         <![CDATA[
-				,
-				S.ID AS SCM_ID,
-				S.NAME AS SCM_NAME,
-				S.ACCESS_TOKEN AS SCM_ACCESS_TOKEN,
-				S.ORGANIZATION AS SCM_ORGANIOZATION,
-				S.REPO AS SCM_REPO,
-				S.AVATAR_URL AS SCM_AVATAR_URL,
-				S.REPOSITORY_URL AS SCM_REPOSITORY_URL,
-				S.USER_ID AS SCM_USER_ID,
-				S.MODIFIED_AT AS SCM_MODIFIED_AT,
-				S.CREATED_AT AS SCM_CREATED_AT,
+            ,
+            S.ID AS SCM_ID,
+            S.NAME AS SCM_NAME,
+            S.ACCESS_TOKEN AS SCM_ACCESS_TOKEN,
+            S.ORGANIZATION AS SCM_ORGANIOZATION,
+            S.REPO AS SCM_REPO,
+            S.AVATAR_URL AS SCM_AVATAR_URL,
+            S.REPOSITORY_URL AS SCM_REPOSITORY_URL,
+            S.USER_ID AS SCM_USER_ID,
+            S.MODIFIED_AT AS SCM_MODIFIED_AT,
+            S.CREATED_AT AS SCM_CREATED_AT,
 
-				J.ID AS JOB_ID,
-				J.USER_ID AS JOB_USER_ID,
-				J.NAME AS JOB_NAME,
-				J.JOB_URL AS JOB_JOB_URL,
-				J.JENKINS_HOST AS JOB_JENKINS_HOST,
-                J.AUTOMATION_SERVER_ID AS JOB_AUTOMATION_SERVER_ID,
-				J.MODIFIED_AT AS JOB_MODIFIED_AT,
-				J.CREATED_AT AS JOB_CREATED_AT,
+            J.ID AS JOB_ID,
+            J.USER_ID AS JOB_USER_ID,
+            J.NAME AS JOB_NAME,
+            J.JOB_URL AS JOB_JOB_URL,
+            J.JENKINS_HOST AS JOB_JENKINS_HOST,
+            J.AUTOMATION_SERVER_ID AS JOB_AUTOMATION_SERVER_ID,
+            J.MODIFIED_AT AS JOB_MODIFIED_AT,
+            J.CREATED_AT AS JOB_CREATED_AT,
 
-				L.CREATED_AT AS LAUNCHER_CREATED_AT,
-				L.MODIFIED_AT AS LAUNCHER_MODIFIED_AT
-			FROM
+            L.CREATED_AT AS LAUNCHER_CREATED_AT,
+            L.MODIFIED_AT AS LAUNCHER_MODIFIED_AT
+        ]]>
+    </sql>
+
+    <sql id="launcherSelectJoins">
+        <![CDATA[
 				LAUNCHERS L
             LEFT JOIN
                 SCM S
@@ -87,6 +90,17 @@
 			ON
 				L.ID = LP.LAUNCHER_ID
         ]]>
+    </sql>
+
+    <sql id="getLaunchers">
+        <![CDATA[
+			SELECT
+		]]>
+        <include refid="launcherSelectBody"/>
+        <![CDATA[
+			FROM
+		]]>
+		<include refid="launcherSelectJoins"/>
     </sql>
 
     <select id="getLauncherById" resultMap="LauncherResultMap">
@@ -111,7 +125,30 @@
     </select>
 
     <select id="getAllLaunchers" resultMap="LauncherResultMap">
-        <include refid="getLaunchers"/>
+        <![CDATA[
+            SELECT
+		]]>
+        <include refid="launcherSelectBody"/>
+        <![CDATA[
+            ,
+		]]>
+        <include refid="com.zebrunner.reporting.persistence.dao.mysql.application.UserLauncherPreferenceMapper.userLauncherPreferenceSelectBody"/>
+        <![CDATA[
+            FROM
+		]]>
+        <include refid="launcherSelectJoins"/>
+        <![CDATA[
+            LEFT JOIN
+                USER_LAUNCHER_PREFERENCES ULP
+            ON
+                (L.ID = ULP.LAUNCHER_ID AND ULP.USER_ID = #{userId})
+		]]>
+    </select>
+
+    <select id="isExistById" resultType="java.lang.Boolean">
+        <![CDATA[
+            SELECT EXISTS(SELECT 1 FROM LAUNCHERS WHERE ID = #{id})
+        ]]>
     </select>
 
     <update id="updateLauncher">
@@ -166,7 +203,7 @@
         ]]>
     </delete>
 
-    <resultMap type="com.zebrunner.reporting.domain.db.Launcher"
+    <resultMap type="com.zebrunner.reporting.domain.db.launcher.Launcher"
                id="LauncherResultMap" autoMapping="false">
         <id column="LAUNCHER_ID" property="id"/>
         <result column="LAUNCHER_NAME" property="name"/>
@@ -178,10 +215,12 @@
         <association property="scmAccount"
                      javaType="com.zebrunner.reporting.domain.db.ScmAccount"
                      resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.ScmAccountMapper.ScmAccountResultMap"/>
+        <association property="preference"
+                     resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.UserLauncherPreferenceMapper.UserLauncherPreferenceResultMap"/>
         <association property="job"
                      javaType="com.zebrunner.reporting.domain.db.Job"
                      resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.JobMapper.JobResultMap"/>
-        <collection property="presets" ofType="com.zebrunner.reporting.domain.db.LauncherPreset"
+        <collection property="presets" ofType="com.zebrunner.reporting.domain.db.launcher.LauncherPreset"
                     resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherPresetMapper.LauncherPresetResultMap"/>
     </resultMap>
 

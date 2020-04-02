@@ -1,11 +1,12 @@
 package com.zebrunner.reporting.web.documented;
 
-import com.zebrunner.reporting.domain.db.LauncherWebHookPayload;
+import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JenkinsJobsScanResultDTO;
 import com.zebrunner.reporting.domain.dto.JobResult;
 import com.zebrunner.reporting.domain.dto.LauncherDTO;
 import com.zebrunner.reporting.domain.dto.LauncherScannerType;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
+import com.zebrunner.reporting.web.util.patch.PatchDescriptor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -206,5 +207,24 @@ public interface LauncherDocumentedController {
             @ApiResponse(code = 404, message = "Indicates that the SCM account cannot be found by the repository name", response = ErrorResponse.class)
     })
     List<LauncherDTO> scanLaunchersFromJenkins(JenkinsJobsScanResultDTO jenkinsJobsScanResultDTO);
+
+    @ApiOperation(
+            value = "Updates patch of user launcher preference",
+            notes = "Returns updated preference",
+            nickname = "patchUserLauncherPreference",
+            httpMethod = "PATCH",
+            response = UserLauncherPreference.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "descriptor", paramType = "body", dataTypeClass = PatchDescriptor.class, required = true, value = "Patch descriptor"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "Launcher id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns updated preference", response = List.class),
+            @ApiResponse(code = 400, message = "Indicates that patch descriptor has incorrect operation or value", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Indicates that launcher or user cannot be found by id", response = ErrorResponse.class)
+    })
+    UserLauncherPreference patchUserLauncherPreference(PatchDescriptor descriptor, Long id);
 
 }

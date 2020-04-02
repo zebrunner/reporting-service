@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.persistence.dao.mysql.application;
 
-import com.zebrunner.reporting.domain.db.LauncherCallback;
+import com.zebrunner.reporting.domain.db.launcher.LauncherCallback;
 
 public interface LauncherCallbackMapper {
 

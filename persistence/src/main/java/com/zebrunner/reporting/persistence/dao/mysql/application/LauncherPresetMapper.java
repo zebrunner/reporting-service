@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.persistence.dao.mysql.application;
 
-import com.zebrunner.reporting.domain.db.LauncherPreset;
+import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import org.apache.ibatis.annotations.Param;
 
 public interface LauncherPresetMapper {
