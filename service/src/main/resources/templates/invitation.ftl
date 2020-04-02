@@ -99,7 +99,7 @@ td .es-button-border-1555487122413:hover {
                       <td align="center" height="15" bgcolor="#ffffff" style="padding:0;Margin:0;"> </td> 
                      </tr> 
                      <tr style="border-collapse:collapse;"> 
-                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"><img src="${zafiraLogoURL}" alt="" width="124" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;"></a> </td>
+                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"><img src="${logoUrl}" alt="" width="124" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;"></a> </td>
                      </tr> 
                    </table> </td> 
                  </tr> 
