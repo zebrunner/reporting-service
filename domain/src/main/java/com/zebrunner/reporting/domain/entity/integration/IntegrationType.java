@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,7 +32,7 @@ public class IntegrationType {
     private String name;
     private String iconUrl;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany()
     @JoinColumn(name = "integration_type_id")
     private Set<IntegrationParam> params;
 
@@ -41,7 +40,7 @@ public class IntegrationType {
     @JoinColumn(name = "integration_type_id")
     private Set<Integration> integrations;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "integration_group_id")
     private IntegrationGroup group;
 
