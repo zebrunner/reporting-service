@@ -132,9 +132,14 @@ public class DashboardService {
 
     @Transactional
     public List<Widget> updateDashboardWidgets(Long dashboardId, List<Widget> widgets) {
-        return widgets.stream()
-                      .map(widget -> updateDashboardWidget(dashboardId, widget))
-                      .collect(Collectors.toList());
+        Dashboard dashboard = getDashboardById(dashboardId);
+        if (!dashboard.isSystem()) {
+            return widgets.stream()
+                          .map(widget -> updateDashboardWidget(dashboardId, widget))
+                          .collect(Collectors.toList());
+        } else {
+            throw new IllegalOperationException(DASHBOARD_CAN_NOT_BE_UPDATED, ERR_MSG_UNEDITABLE_DASHBOARD_CANT_BE_ALTERED);
+        }
     }
 
     @Transactional
