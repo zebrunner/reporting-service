@@ -33,7 +33,7 @@ public class AuthService {
         AuthenticationManager authManager,
         AuthenticationManager ldapAuthManager,
         UserService userService,
-        @Value("${admin.username}") String adminUsername
+        @Value("${service.admin.username}") String adminUsername
     ) {
         this.authManager = authManager;
         this.ldapAuthManager = ldapAuthManager;
