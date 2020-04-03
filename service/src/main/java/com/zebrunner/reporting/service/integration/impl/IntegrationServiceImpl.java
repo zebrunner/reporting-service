@@ -151,7 +151,9 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     @Transactional(readOnly = true)
     public List<Integration> retrieveIntegrationsByGroupId(Long groupId) {
-        return integrationRepository.findByGroupId(groupId);
+        List<Integration> integrations = integrationRepository.findByGroupId(groupId);
+        attachTypesAndSettings(integrations);
+        return integrations;
     }
 
     @Override
@@ -161,22 +163,28 @@ public class IntegrationServiceImpl implements IntegrationService {
                                     .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.ResourceNotFoundErrorDetail.INTEGRATION_NOT_FOUND, ERR_MSG_DEFAULT_VALUE_IS_NOT_PROVIDED_BY_NAME, integrationTypeName));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Integration> retrieveAll() {
-        List<Integration> integrations = integrationRepository.findAll();
+    private void attachTypesAndSettings(List<Integration> integrations) {
         integrations.forEach(integration -> {
             IntegrationType type = integrationTypeService.retrieveByIntegrationId(integration.getId());
             integration.setType(type);
             integration.setSettings(integrationSettingService.retrieveByIntegrationTypeId(type.getId()));
         });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Integration> retrieveAll() {
+        List<Integration> integrations = integrationRepository.findAll();
+        attachTypesAndSettings(integrations);
         return integrations;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Integration> retrieveIntegrationsByGroupName(String integrationGroupName) {
-        return integrationRepository.findIntegrationsByGroupName(integrationGroupName);
+        List<Integration> integrations = integrationRepository.findIntegrationsByGroupName(integrationGroupName);
+        attachTypesAndSettings(integrations);
+        return integrations;
     }
 
     @Override
