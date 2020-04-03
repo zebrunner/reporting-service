@@ -208,3 +208,14 @@ databaseChangeLog:
             path: changeset/019_user_launcher_preferences_table.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 020_add_system_column_dashboards_table
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/020_add_system_column_dashboards_table.sql
+            relativeToChangelogFile: true
+            splitStatements: false

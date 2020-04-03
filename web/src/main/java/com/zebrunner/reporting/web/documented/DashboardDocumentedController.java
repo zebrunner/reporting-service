@@ -43,7 +43,7 @@ public interface DashboardDocumentedController {
     )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "hidden", paramType = "query", value = "A flag to retrieve hidden dashboards"),
+            @ApiImplicitParam(name = "hidden", paramType = "query", dataTypeClass = Boolean.class, value = "A flag to retrieve hidden dashboards"),
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns found dashboards. To retrieve hidden dashboards, user needs separate permission", response = List.class)
@@ -63,7 +63,7 @@ public interface DashboardDocumentedController {
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the found dashboard", response = DashboardType.class),
-            @ApiResponse(code = 404, message = "Indicates that the dashboard is not found ", response = ResponseEntity.class)
+            @ApiResponse(code = 404, message = "Indicates that the dashboard is not found", response = ResponseEntity.class)
     })
     DashboardType getDashboardById(long id);
 
@@ -79,7 +79,8 @@ public interface DashboardDocumentedController {
             @ApiImplicitParam(name = "title", paramType = "query", dataType = "string", value = "The dashboard title")
     })
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns the found dashboard", response = DashboardType.class)
+            @ApiResponse(code = 200, message = "Returns the found dashboard", response = DashboardType.class),
+            @ApiResponse(code = 404, message = "Indicates that the dashboard is not found", response = ResponseEntity.class)
     })
     DashboardType getDashboardByTitle(String title);
 
@@ -213,7 +214,7 @@ public interface DashboardDocumentedController {
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns all dashboard attributes including the created attribute", response = List.class),
-            @ApiResponse(code = 400, message = "Indicates that a dashboard attribute with the same keys already exists", response = ResponseEntity.class)
+            @ApiResponse(code = 400, message = "Indicates that a dashboard attribute with the same keys already exists or is not editable", response = ResponseEntity.class)
     })
     List<Attribute> createDashboardAttribute(long dashboardId, Attribute attribute);
 
@@ -231,7 +232,7 @@ public interface DashboardDocumentedController {
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns all dashboard attributes including created attributes", response = List.class),
-            @ApiResponse(code = 400, message = "Indicates that a dashboard attributes with the same keys already exist", response = ResponseEntity.class)
+            @ApiResponse(code = 400, message = "Indicates that a dashboard attributes with the same keys already exist or is not editable", response = ResponseEntity.class)
     })
     List<Attribute> createDashboardAttributes(long dashboardId, List<Attribute> attributes);
 
@@ -248,7 +249,8 @@ public interface DashboardDocumentedController {
             @ApiImplicitParam(name = "attribute", paramType = "body", dataType = "Attribute", required = true, value = "Attribute to update")
     })
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns all dashboard attributes including the updated attribute", response = List.class)
+            @ApiResponse(code = 200, message = "Returns all dashboard attributes including the updated attribute", response = List.class),
+            @ApiResponse(code = 400, message = "Indicates that a dashboard attributes is not editable", response = ResponseEntity.class)
     })
     List<Attribute> updateDashboardAttribute(long dashboardId, Attribute attribute);
 
@@ -265,7 +267,8 @@ public interface DashboardDocumentedController {
             @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "Attribute id")
     })
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns all dashboard attributes excluding the deleted attribute", response = List.class)
+            @ApiResponse(code = 200, message = "Returns all dashboard attributes excluding the deleted attribute", response = List.class),
+            @ApiResponse(code = 400, message = "Indicates that a dashboard attributes is not editable", response = ResponseEntity.class)
     })
     List<Attribute> deleteDashboardAttribute(long dashboardId, long id);
 

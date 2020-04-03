@@ -33,7 +33,8 @@ import java.util.stream.Collectors;
 @RestController
 public class DashboardController extends AbstractController implements DashboardDocumentedController {
 
-    private static final String ERR_MSG_ILLEGAL_DASHBOARD_ACCESS = "Cannot access requested dashboard by id '%d'";
+    private static final String ERR_MSG_ILLEGAL_DASHBOARD_ACCESS_BY_ID = "Cannot access requested dashboard by id '%d'";
+    private static final String ERR_MSG_ILLEGAL_DASHBOARD_ACCESS_BY_TITLE = "Cannot access requested dashboard by title '%s'";
 
     private final DashboardService dashboardService;
     private final WidgetTemplateService widgetTemplateService;
@@ -73,8 +74,9 @@ public class DashboardController extends AbstractController implements Dashboard
     @Override
     public DashboardType getDashboardById(@PathVariable("id") long id) {
         Dashboard dashboard = dashboardService.getDashboardById(id);
-        if (dashboard.isHidden() && !hasPermission(Permission.Name.VIEW_HIDDEN_DASHBOARDS)) {
-            throw new ResourceNotFoundException(ResourceNotFoundException.ResourceNotFoundErrorDetail.DASHBOARD_NOT_FOUND, String.format(ERR_MSG_ILLEGAL_DASHBOARD_ACCESS, id));
+        boolean rejectResource = !dashboard.isSystem() && dashboard.isHidden() && !hasPermission(Permission.Name.VIEW_HIDDEN_DASHBOARDS);
+        if (rejectResource) {
+            throw new ResourceNotFoundException(ResourceNotFoundException.ResourceNotFoundErrorDetail.DASHBOARD_NOT_FOUND, String.format(ERR_MSG_ILLEGAL_DASHBOARD_ACCESS_BY_ID, id));
         }
         dashboard.getWidgets().forEach(widget -> widgetTemplateService.clearRedundantParamsValues(widget.getWidgetTemplate()));
         return mapper.map(dashboard, DashboardType.class);
@@ -84,6 +86,10 @@ public class DashboardController extends AbstractController implements Dashboard
     @Override
     public DashboardType getDashboardByTitle(@RequestParam(name = "title", required = false) String title) {
         Dashboard dashboard = dashboardService.retrieveByTitle(title);
+        boolean rejectResource = !dashboard.isSystem() && dashboard.isHidden() && !hasPermission(Permission.Name.VIEW_HIDDEN_DASHBOARDS);
+        if (rejectResource) {
+            throw new ResourceNotFoundException(ResourceNotFoundException.ResourceNotFoundErrorDetail.DASHBOARD_NOT_FOUND, String.format(ERR_MSG_ILLEGAL_DASHBOARD_ACCESS_BY_TITLE, title));
+        }
         return mapper.map(dashboard, DashboardType.class);
     }
 
