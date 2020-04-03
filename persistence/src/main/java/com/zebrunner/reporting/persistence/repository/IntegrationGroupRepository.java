@@ -21,7 +21,6 @@ public interface IntegrationGroupRepository extends Repository<IntegrationGroup,
     @Query("select ig from IntegrationGroup ig join fetch ig.types it where it.id = :typeId")
     Optional<IntegrationGroup> findByTypeId(@Param("typeId") Long typeId);
 
-    @EntityGraph(value = "integrationGroup.expanded")
     List<IntegrationGroup> findAll();
 
 }
