@@ -16,8 +16,8 @@
         ]]>
         <if test="null != job">
             <![CDATA[
-			          , JOB_ID
-                    ]]>
+                , JOB_ID
+            ]]>
         </if>
         <![CDATA[
             )
@@ -30,12 +30,25 @@
         ]]>
         <if test="null != job">
             <![CDATA[
-			          , #{job.id}
-                    ]]>
+                , #{job.id}
+            ]]>
         </if>
         <![CDATA[
 			)
         ]]>
+    </insert>
+
+    <insert id="batchCreate" useGeneratedKeys="true" keyProperty="id">
+        <if test="launchers != null and !launchers.isEmpty()">
+            <![CDATA[
+                INSERT INTO LAUNCHERS (NAME, MODEL, SCM_ID, AUTO_SCAN, TYPE, JOB_ID) VALUES
+            ]]>
+            <foreach item="launcher" index="index" collection="launchers" open="" separator="," close="">
+                <![CDATA[
+                      (#{launcher.name}, #{launcher.model}, #{launcher.scmAccount.id}, #{launcher.autoScan}, #{launcher.type}, #{launcher.job.id})
+                ]]>
+            </foreach>
+        </if>
     </insert>
 
     <sql id="launcherSelectBody">
@@ -145,6 +158,13 @@
 		]]>
     </select>
 
+    <select id="getAllAutoScannedByScmAccountId" resultMap="LauncherResultMap">
+        <include refid="getLaunchers"/>
+        <![CDATA[
+			WHERE L.AUTO_SCAN = TRUE AND L.SCM_ID = #{scmAccountId}
+		]]>
+    </select>
+
     <select id="isExistById" resultType="java.lang.Boolean">
         <![CDATA[
             SELECT EXISTS(SELECT 1 FROM LAUNCHERS WHERE ID = #{id})
@@ -182,6 +202,46 @@
         ]]>
     </update>
 
+    <update id="batchUpdate">
+        <if test="launchers != null and !launchers.isEmpty()">
+            <![CDATA[
+            UPDATE LAUNCHERS L
+            SET MODEL = LD.MODEL, TYPE = LD.TYPE
+            FROM (
+              SELECT
+                  UNNEST(ARRAY[
+            ]]>
+            <foreach item="launcher" index="index" collection="launchers" open="" separator="," close="">
+                <![CDATA[
+                      #{launcher.model}
+                ]]>
+            </foreach>
+            <![CDATA[
+                ]) AS MODEL,
+                    UNNEST(ARRAY[
+            ]]>
+            <foreach item="launcher" index="index" collection="launchers" open="" separator="," close="">
+                <![CDATA[
+                      #{launcher.type}
+                ]]>
+            </foreach>
+            <![CDATA[
+                ]) AS TYPE,
+                    UNNEST(ARRAY[
+            ]]>
+            <foreach item="launcher" index="index" collection="launchers" open="" separator="," close="">
+                <![CDATA[
+                      #{launcher.id}
+                ]]>
+            </foreach>
+            <![CDATA[
+                ]::INTEGER[]) AS ID
+                    ) LD
+                WHERE L.ID = LD.ID
+            ]]>
+        </if>
+    </update>
+
     <sql id="deleteLauncher">
         <![CDATA[
         DELETE
@@ -196,11 +256,18 @@
         ]]>
     </delete>
 
-    <delete id="deleteAutoScannedLaunchersByScmAccountId">
-        <include refid="deleteLauncher"/>
-        <![CDATA[
-			WHERE AUTO_SCAN = true AND SCM_ID = #{scmAccountId}
-        ]]>
+    <delete id="batchDelete">
+        <if test="ids != null and !ids.isEmpty()">
+            <include refid="deleteLauncher"/>
+            <![CDATA[
+                WHERE ID IN
+            ]]>
+            <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+                <![CDATA[
+                      #{id}
+                ]]>
+            </foreach>
+        </if>
     </delete>
 
     <resultMap type="com.zebrunner.reporting.domain.db.launcher.Launcher"
