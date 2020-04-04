@@ -19,6 +19,8 @@ public interface IntegrationSettingService {
 
     List<IntegrationSetting> retrieveByIntegrationTypeId(Long integrationTypeId);
 
+    List<IntegrationSetting> retrieveByIntegrationId(Long integrationId);
+
     IntegrationSetting update(IntegrationSetting integrationSetting);
 
 }
