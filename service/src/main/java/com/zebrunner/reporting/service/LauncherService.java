@@ -25,10 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -110,15 +112,80 @@ public class LauncherService {
     }
 
     @Transactional
-    public List<Launcher> createLaunchersForJenkinsJobs(List<JenkinsJob> jenkinsJobs, String repo, boolean isSuccess, long userId) {
+    public List<Launcher> mergeLaunchersWithJenkinsJobs(List<JenkinsJob> jenkinsJobs, String repo, boolean isSuccess, long userId) {
         if (!isSuccess) {
             return new ArrayList<>();
         }
         ScmAccount scmAccount = scmAccountService.getScmAccountByRepo(repo);
-        deleteAutoScannedLaunchersByScmAccountId(scmAccount.getId());
+        List<Launcher> launchers = getAutoScannedByScmAccountId(scmAccount.getId());
+        Map<Launcher, JenkinsJob> launchersToMerge = collectLaunchersToMerge(launchers, jenkinsJobs);
+        List<JenkinsJob> jenkinsJobsToCreate = collectJenkinsJobsToCreate(launchers, jenkinsJobs);
+        List<Long> launcherIdsToDelete = launchers.stream()
+                                                  .filter(launcher -> !launchersToMerge.containsKey(launcher))
+                                                  .map(Launcher::getId)
+                                                  .collect(Collectors.toList());
+
+        List<Launcher> mergedLaunchers = mergeLaunchers(launchersToMerge);
+        mergedLaunchers.addAll(
+                batchCreateFromJenkinsJobs(jenkinsJobsToCreate, scmAccount, userId)
+        );
+        batchDelete(launcherIdsToDelete);
+        return mergedLaunchers;
+    }
+
+    private Map<Launcher, JenkinsJob> collectLaunchersToMerge(List<Launcher> launchers, List<JenkinsJob> jenkinsJobs) {
+        return launchers.stream()
+                        .map(launcher -> jenkinsJobs.stream()
+                                                    .filter(jenkinsJob -> isLauncherEqualJenkinsJob(launcher, jenkinsJob))
+                                                    .findFirst()
+                                                    .map(jenkinsJob -> new AbstractMap.SimpleEntry<>(launcher, jenkinsJob)))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+    }
+
+    private List<JenkinsJob> collectJenkinsJobsToCreate(List<Launcher> launchers, List<JenkinsJob> jenkinsJobs) {
         return jenkinsJobs.stream()
-                          .map(jenkinsJob -> createLauncherForJenkinsJob(userId, scmAccount, jenkinsJob))
+                          .filter(jenkinsJob -> launchers.stream()
+                                                         .filter(launcher -> isLauncherEqualJenkinsJob(launcher, jenkinsJob))
+                                                         .findFirst()
+                                                         .isEmpty())
                           .collect(Collectors.toList());
+    }
+
+    private boolean isLauncherEqualJenkinsJob(Launcher launcher, JenkinsJob jenkinsJob) {
+        return jenkinsJob.getUrl().equals(launcher.getJob().getJobURL());
+    }
+
+    private List<Launcher> mergeLaunchers(Map<Launcher, JenkinsJob> launchersToMerge) {
+        List<Launcher> launchers = launchersToMerge.entrySet().stream()
+                                                   .map(entry -> mergeLauncherWithJob(entry.getKey(), entry.getValue()))
+                                                   .collect(Collectors.toList());
+        return batchUpdate(launchers);
+    }
+
+    private Launcher mergeLauncherWithJob(Launcher launcher, JenkinsJob jenkinsJob) {
+        launcher.setModel(jenkinsJob.getParameters());
+        launcher.setType(jenkinsJob.getType());
+        return launcher;
+    }
+
+    @Transactional
+    public List<Launcher> batchCreateFromJenkinsJobs(List<JenkinsJob> jenkinsJobs, ScmAccount scmAccount, Long userId) {
+        List<Launcher> launchersToCreate = jenkinsJobs.stream()
+                                                      .map(jenkinsJob -> {
+                                                          String jobUrl = jenkinsJob.getUrl();
+                                                          Job job = jobsService.createOrUpdateJobByURL(jobUrl, userId);
+                                                          return new Launcher(job.getName(), jenkinsJob.getParameters(), scmAccount, job, jenkinsJob.getType(), true);
+                                                      })
+                                                      .collect(Collectors.toList());
+        return batchCreate(launchersToCreate);
+    }
+
+    @Transactional
+    public List<Launcher> batchCreate(List<Launcher> launchers) {
+        launcherMapper.batchCreate(launchers);
+        return launchers;
     }
 
     private Launcher createLauncherForJenkinsJob(long userId, ScmAccount scmAccount, JenkinsJob jenkinsJob) {
@@ -127,6 +194,11 @@ public class LauncherService {
         Launcher launcher = new Launcher(job.getName(), jenkinsJob.getParameters(), scmAccount, job, jenkinsJob.getType(), true);
         launcherMapper.createLauncher(launcher);
         return launcher;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Launcher> getAutoScannedByScmAccountId(Long scmAccountId) {
+        return launcherMapper.getAllAutoScannedByScmAccountId(scmAccountId);
     }
 
     @Transactional(readOnly = true)
@@ -159,13 +231,19 @@ public class LauncherService {
     }
 
     @Transactional
+    public List<Launcher> batchUpdate(List<Launcher> launchers) {
+        launcherMapper.batchUpdate(launchers);
+        return launchers;
+    }
+
+    @Transactional
     public void deleteLauncherById(Long id) {
         launcherMapper.deleteLauncherById(id);
     }
 
     @Transactional
-    public void deleteAutoScannedLaunchersByScmAccountId(Long scmAccountId) {
-        launcherMapper.deleteAutoScannedLaunchersByScmAccountId(scmAccountId);
+    public void batchDelete(List<Long> ids) {
+        launcherMapper.batchDelete(ids);
     }
 
     @Transactional(readOnly = true)
