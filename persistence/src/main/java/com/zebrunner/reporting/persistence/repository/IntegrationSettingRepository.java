@@ -30,6 +30,10 @@ public interface IntegrationSettingRepository extends CrudRepository<Integration
     List<IntegrationSetting> findAllByIntegrationTypeId(@Param("integrationTypeId") Long integrationTypeId);
 
     @EntityGraph(value = "integrationSetting.expanded")
+    @Query("select ist from IntegrationSetting ist join ist.integration i where i.id = :integrationId")
+    List<IntegrationSetting> findAllByIntegrationId(@Param("integrationId") Long integrationId);
+
+    @EntityGraph(value = "integrationSetting.expanded")
     List<IntegrationSetting> findAllByEncryptedTrue();
 
 }
