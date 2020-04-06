@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -193,8 +195,19 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleOtherException(Exception e) {
-        LOGGER.error("Unexpected internal server error", e);
+    public ErrorResponse handleOtherException(HttpServletRequest request, Exception e) {
+        if (request == null) {
+            LOGGER.error("Unexpected internal server error", e);
+        } else {
+            StringBuilder headersBuilder = new StringBuilder("Headers [");
+            request.getHeaderNames()
+                   .asIterator()
+                   .forEachRemaining(headerName -> headersBuilder.append(" '").append(headerName).append(": ").append(request.getHeader(headerName)).append("'; "));
+            headersBuilder.append("]");
+
+
+            LOGGER.error("Unexpected internal server error processing " + request.getMethod() + " " + request.getRequestURI() + " with headers " + headersBuilder.toString());
+        }
 
         ErrorResponse response = new ErrorResponse();
         if (debugEnabled) {
