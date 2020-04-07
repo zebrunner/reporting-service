@@ -83,6 +83,7 @@
     "ENV": "C.ENV",
     "PLATFORM": "C.PLATFORM",
     "BROWSER": "C.BROWSER",
+    "LOCALE": "C.LOCALE",
     "DATE": "TR.STARTED_AT",
     "PROJECT": "P.NAME"
 }/>
