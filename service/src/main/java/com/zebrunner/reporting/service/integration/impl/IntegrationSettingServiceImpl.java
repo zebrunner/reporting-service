@@ -95,6 +95,12 @@ public class IntegrationSettingServiceImpl implements IntegrationSettingService,
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<IntegrationSetting> retrieveByIntegrationId(Long integrationId) {
+        return integrationSettingRepository.findAllByIntegrationId(integrationId);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public IntegrationSetting update(IntegrationSetting integrationSetting) {
         integrationSettingRepository.save(integrationSetting);

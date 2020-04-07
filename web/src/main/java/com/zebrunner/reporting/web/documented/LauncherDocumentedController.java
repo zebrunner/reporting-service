@@ -193,7 +193,7 @@ public interface LauncherDocumentedController {
 
     @ApiOperation(
             value = "Jenkins callback endpoint",
-            notes = "Creates launchers using data received from Jenkins",
+            notes = "Merges launchers using data received from Jenkins",
             nickname = "scanLaunchersFromJenkins",
             httpMethod = "POST",
             response = List.class
@@ -203,7 +203,7 @@ public interface LauncherDocumentedController {
             @ApiImplicitParam(name = "jenkinsJobsScanResultDTO", paramType = "body", dataType = "JenkinsJobsScanResultDTO", required = true, value = "Scanned data from an SCM repository")
     })
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns created launchers", response = List.class),
+            @ApiResponse(code = 200, message = "Returns merged launchers", response = List.class),
             @ApiResponse(code = 404, message = "Indicates that the SCM account cannot be found by the repository name", response = ErrorResponse.class)
     })
     List<LauncherDTO> scanLaunchersFromJenkins(JenkinsJobsScanResultDTO jenkinsJobsScanResultDTO);

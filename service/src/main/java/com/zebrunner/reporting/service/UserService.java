@@ -187,6 +187,7 @@ public class UserService implements TenancyDbInitial {
         User dbUser = getNotNullUserById(user.getId());
         dbUser.setFirstName(user.getFirstName());
         dbUser.setLastName(user.getLastName());
+        dbUser.setPhotoURL(user.getPhotoURL());
         return updateUser(dbUser);
     }
 

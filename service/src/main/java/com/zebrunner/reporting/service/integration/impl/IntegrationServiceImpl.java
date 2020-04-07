@@ -167,7 +167,8 @@ public class IntegrationServiceImpl implements IntegrationService {
         integrations.forEach(integration -> {
             IntegrationType type = integrationTypeService.retrieveByIntegrationId(integration.getId());
             integration.setType(type);
-            integration.setSettings(integrationSettingService.retrieveByIntegrationTypeId(type.getId()));
+            List<IntegrationSetting> settings = integrationSettingService.retrieveByIntegrationId(integration.getId());
+            integration.setSettings(settings);
         });
     }
 

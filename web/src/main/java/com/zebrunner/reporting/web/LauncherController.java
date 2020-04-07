@@ -155,7 +155,7 @@ public class LauncherController extends AbstractController implements LauncherDo
                                                                .stream()
                                                                .map(jenkinsLauncher -> mapper.map(jenkinsLauncher, JenkinsJob.class))
                                                                .collect(Collectors.toList());
-        List<Launcher> launchers = launcherService.createLaunchersForJenkinsJobs(jenkinsJobs, jenkinsJobsScanResultDTO.getRepo(), jenkinsJobsScanResultDTO.isSuccess(), principalId);
+        List<Launcher> launchers = launcherService.mergeLaunchersWithJenkinsJobs(jenkinsJobs, jenkinsJobsScanResultDTO.getRepo(), jenkinsJobsScanResultDTO.isSuccess(), principalId);
         List<LauncherDTO> launcherDTOS = launchers.stream()
                                                   .map(launcher -> mapper.map(launcher, LauncherDTO.class))
                                                   .collect(Collectors.toList());
