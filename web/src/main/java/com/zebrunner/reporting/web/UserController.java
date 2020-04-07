@@ -87,8 +87,8 @@ public class UserController extends AbstractController implements UserDocumented
         User user = mapper.map(userDTO, User.class);
         user.setId(id);
 
-        boolean fullyUpdate = isAdmin() && hasPermission(Permission.Name.MODIFY_USERS);
-        if (fullyUpdate) {
+        boolean fullUpdate = isAdmin() && hasPermission(Permission.Name.MODIFY_USERS);
+        if (fullUpdate) {
             user = userService.createOrUpdateUser(user);
         } else {
             user = userService.updateUserProfile(user);
