@@ -347,6 +347,11 @@ public class TestService {
             testRunService.calculateTestRunResult(test.getTestRunId(), false);
             testRunStatisticsService.updateStatistics(test.getTestRunId(), status, test.getStatus());
 
+            boolean markAsPassed = Status.FAILED.equals(test.getStatus()) && !Status.FAILED.equals(status);
+            if (markAsPassed) {
+                unlinkStatisticsFailureItems(test);
+            }
+
             test.setStatus(status);
         });
         return tests;
