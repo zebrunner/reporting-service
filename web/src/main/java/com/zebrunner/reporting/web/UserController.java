@@ -100,13 +100,6 @@ public class UserController extends AbstractController implements UserDocumented
         return userDTO;
     }
 
-    @DeleteMapping("/profile/photo")
-    @Deprecated
-    @Override
-    public void deleteUserProfilePhoto() {
-        userService.deleteProfilePhoto(getPrincipalId());
-    }
-
     @PutMapping("/password")
     @Override
     public void updateUserPassword(@Valid @RequestBody ChangePasswordDTO password) {

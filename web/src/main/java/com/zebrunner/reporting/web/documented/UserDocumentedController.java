@@ -72,22 +72,6 @@ public interface UserDocumentedController {
     UserDTO updateUserProfile(UserDTO userDTO, Long id);
 
     @ApiOperation(
-            value = "Deletes a user profile photo",
-            notes = "Deletes a user profile photo from the storage",
-            nickname = "deleteUserProfilePhoto",
-            httpMethod = "DELETE"
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "The user profile photo was deleted successfully"),
-            @ApiResponse(code = 400, message = "Indicates that the storage provider is not specified", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Indicates that the user does not exist", response = ErrorResponse.class)
-    })
-    void deleteUserProfilePhoto();
-
-    @ApiOperation(
             value = "Updates a user password",
             notes = "Only the profile owner and admin have access to update user password",
             nickname = "updateUserPassword",
