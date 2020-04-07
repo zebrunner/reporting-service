@@ -62,13 +62,14 @@ public interface UserDocumentedController {
     )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "userType", paramType = "body", dataType = "UserType", required = true, value = "The user to update")
+            @ApiImplicitParam(name = "userDTO", paramType = "body", dataType = "UserDTO", required = true, value = "The user to update"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The user id"),
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the updated user profile", response = UserDTO.class),
             @ApiResponse(code = 404, message = "Indicates that user does not exist", response = ErrorResponse.class)
     })
-    UserDTO updateUserProfile(UserDTO userDTO);
+    UserDTO updateUserProfile(UserDTO userDTO, Long id);
 
     @ApiOperation(
             value = "Deletes a user profile photo",
@@ -119,22 +120,6 @@ public interface UserDocumentedController {
             @ApiResponse(code = 200, message = "Returns found users", response = SearchResult.class)
     })
     SearchResult<User> searchUsers(UserSearchCriteria searchCriteria, boolean isPublic);
-
-    @ApiOperation(
-            value = "Creates or updates a user",
-            notes = "Returns the created or updated user",
-            nickname = "createOrUpdateUser",
-            httpMethod = "PUT",
-            response = UserDTO.class
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "userType", paramType = "body", dataType = "UserType", required = true, value = "The user to create or update")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns the created or updated user", response = UserDTO.class)
-    })
-    UserDTO createOrUpdateUser(UserDTO userDTO);
 
     @ApiOperation(
             value = "Updates a user status",

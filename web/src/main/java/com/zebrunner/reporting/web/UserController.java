@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.web;
 
+import com.zebrunner.reporting.domain.db.Permission;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.UserSearchCriteria;
 import com.zebrunner.reporting.domain.db.User;
@@ -78,16 +79,24 @@ public class UserController extends AbstractController implements UserDocumented
         return extendedUserProfile;
     }
 
-    @PutMapping("/profile")
+    @PutMapping("/{id}")
     @Override
-    public UserDTO updateUserProfile(@Valid @RequestBody UserDTO userDTO) {
-        checkCurrentUserAccess(userDTO.getId());
+    public UserDTO updateUserProfile(@Valid @RequestBody UserDTO userDTO, @PathVariable("id") Long id) {
+        checkCurrentUserAccess(id);
+
         User user = mapper.map(userDTO, User.class);
-        user = userService.updateUserProfile(user);
+        user.setId(id);
+
+        boolean fullyUpdate = isAdmin() && hasPermission(Permission.Name.MODIFY_USERS);
+        if (fullyUpdate) {
+            user = userService.createOrUpdateUser(user);
+        } else {
+            user = userService.updateUserProfile(user);
+        }
+
         userDTO = mapper.map(user, UserDTO.class);
         userDTO.setRoles(userDTO.getRoles());
         userDTO.setPreferences(userDTO.getPreferences());
-        userDTO.setPhotoURL(userDTO.getPhotoURL());
         return userDTO;
     }
 
@@ -114,15 +123,6 @@ public class UserController extends AbstractController implements UserDocumented
             @RequestParam(value = "public", required = false) boolean isPublic
     ) {
         return userService.searchUsers(searchCriteria, isPublic);
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USERS')")
-    @PutMapping()
-    @Override
-    public UserDTO createOrUpdateUser(@RequestBody @Valid UserDTO userDTO) {
-        User user = mapper.map(userDTO, User.class);
-        user = userService.createOrUpdateUser(user);
-        return mapper.map(user, UserDTO.class);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USERS')")
