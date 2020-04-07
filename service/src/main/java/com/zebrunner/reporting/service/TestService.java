@@ -93,10 +93,9 @@ public class TestService {
         test.setStatus(Status.IN_PROGRESS);
 
         if (rerun) {
+            unlinkStatisticsFailureItems(existingTest);
             test.setMessage(null);
             test.setFinishTime(null);
-            test.setKnownIssue(false);
-            test.setBlocker(false);
             updateTest(test);
 
             workItemService.deleteKnownIssuesByTestId(test.getId());
@@ -297,6 +296,11 @@ public class TestService {
         if (test == null) {
             throw new ResourceNotFoundException(TEST_NOT_FOUND, String.format(ERR_MSG_TEST_NOT_FOUND, id));
         }
+
+        boolean markAsPassed = Status.FAILED.equals(test.getStatus()) && !Status.FAILED.equals(newStatus);
+        if (markAsPassed) {
+            unlinkStatisticsFailureItems(test);
+        }
         Status oldStatus = test.getStatus();
 
         test.setStatus(newStatus);
@@ -306,6 +310,17 @@ public class TestService {
 
         testRunStatisticsService.updateStatistics(test.getTestRunId(), newStatus, oldStatus);
         return test;
+    }
+
+    private void unlinkStatisticsFailureItems(Test test) {
+        if (test.isKnownIssue()) {
+            test.setKnownIssue(false);
+            testRunStatisticsService.updateStatistics(test.getTestRunId(), TestRunStatistics.Action.REMOVE_KNOWN_ISSUE);
+        }
+        if (test.isBlocker()) {
+            test.setBlocker(false);
+            testRunStatisticsService.updateStatistics(test.getTestRunId(), TestRunStatistics.Action.REMOVE_BLOCKER);
+        }
     }
 
     private void updateTestCaseStatus(Long testCaseId, Status status)  {
