@@ -458,15 +458,20 @@ public class TestService {
         if (illegalOperation) {
             throw new IllegalOperationException(ILLEGAL_BATCH_OPERATION, ERR_MSG_TESTS_NOT_FOUND);
         }
+        return batchLinkWorkItemBatches(workItemBatches);
+    }
+
+    private List<WorkItemBatch> batchLinkWorkItemBatches(List<WorkItemBatch> workItemBatches) {
         return workItemBatches.stream()
-                              .peek(workItemBatch -> {
-                                  List<WorkItem> workItems = workItemBatch.getWorkItems().stream()
-                                                                          .map(workItem -> linkWorkItem(workItemBatch.getTestId(), workItem))
-                                                                          .collect(Collectors.toList());
-                                  workItemBatch.setWorkItems(workItems);
-                              }
-                              )
+                              .peek(this::batchLinkWorkItems)
                               .collect(Collectors.toList());
+    }
+
+    private void batchLinkWorkItems(WorkItemBatch workItemBatch) {
+        List<WorkItem> workItems = workItemBatch.getWorkItems().stream()
+                                                .map(workItem -> linkWorkItem(workItemBatch.getTestId(), workItem))
+                                                .collect(Collectors.toList());
+        workItemBatch.setWorkItems(workItems);
     }
 
     @Transactional()

@@ -207,8 +207,7 @@ public class TestController extends AbstractController implements TestDocumented
                                          .collect(Collectors.toList());
 
         if (getPrincipalId() > 0) {
-            workItemBatches.forEach(workItemBatch ->
-                    workItemBatch.getWorkItems().forEach(workItem -> workItem.setUser(new User(getPrincipalId()))));
+            setUserToWorkItems(workItemBatches);
         }
 
         workItemBatches = testService.linkWorkItems(workItemBatches, testRunId);
@@ -225,6 +224,11 @@ public class TestController extends AbstractController implements TestDocumented
         websocketTemplate.convertAndSend(getTestRunsWebsocketPath(), new TestRunPush(testRun));
 
         return workItemBatches;
+    }
+
+    private void setUserToWorkItems(List<WorkItemBatch> workItemBatches) {
+        workItemBatches.forEach(workItemBatch ->
+                workItemBatch.getWorkItems().forEach(workItem -> workItem.setUser(new User(getPrincipalId()))));
     }
 
     @PutMapping("/{id}/issues")

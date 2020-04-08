@@ -235,13 +235,23 @@ public class UserService implements TenancyDbInitial {
         user.setSource(user.getSource() != null ? user.getSource() : User.Source.INTERNAL);
         user.setStatus(User.Status.ACTIVE);
         createUser(user);
-        Group group = groupId != null ? groupService.getGroupById(groupId) : groupService.getPrimaryGroupByRole(Group.Role.ROLE_USER);
+        Group group = recognizeGroupById(groupId);
         if (group != null) {
             addUserToGroup(user, group.getId());
             user.getGroups().add(group);
         }
         userPreferenceService.createDefaultUserPreferences(user.getId());
         return user;
+    }
+
+    private Group recognizeGroupById(Long groupId) {
+        Group group;
+        if (groupId != null) {
+            group = groupService.getGroupById(groupId);
+        } else {
+            group = groupService.getPrimaryGroupByRole(Group.Role.ROLE_USER)
+        }
+        return group;
     }
 
     @Transactional
