@@ -27,6 +27,7 @@ import java.util.List;
 
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.CHANGE_PASSWORD_IS_NOT_POSSIBLE;
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.TOKEN_RESET_IS_NOT_POSSIBLE;
+import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.USER_CAN_NOT_BE_CREATED;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.USER_NOT_FOUND;
 
 @Service
@@ -38,6 +39,7 @@ public class UserService implements TenancyDbInitial {
     private static final String ERR_MSG_USER_WITH_THIS_USERNAME_DOES_NOT_EXIST = "User with username %s doesn't exist";
     private static final String ERR_MSG_USER_WITH_THIS_EMAIL_DOES_NOT_EXIST = "User with email %s doesn't exist";
     private static final String UNABLE_TO_CHANGE_PASSWORD = "Unable to change password for user %s";
+    private static final String ERR_MSG_UNABLE_TO_CREATE_USER_WITH_USERNAME_OR_EMAIL = "Unable to create user with username '%s' or email '%s'";
 
     @Value("${service.admin.username}")
     private String adminUsername;
@@ -220,6 +222,37 @@ public class UserService implements TenancyDbInitial {
         return user;
     }
 
+    @Transactional
+    public User create(User user, Long groupId) {
+        boolean exists = isExistByUsernameOrEmail(user.getUsername(), user.getEmail());
+        if (exists) {
+            throw new IllegalOperationException(USER_CAN_NOT_BE_CREATED, String.format(ERR_MSG_UNABLE_TO_CREATE_USER_WITH_USERNAME_OR_EMAIL, user.getUsername(), user.getEmail()));
+        }
+
+        if (!StringUtils.isEmpty(user.getPassword())) {
+            user.setPassword(passwordEncryptor.encryptPassword(user.getPassword()));
+        }
+        user.setSource(user.getSource() != null ? user.getSource() : User.Source.INTERNAL);
+        user.setStatus(User.Status.ACTIVE);
+        createUser(user);
+        Group group = groupId != null ? groupService.getGroupById(groupId) : groupService.getPrimaryGroupByRole(Group.Role.ROLE_USER);
+        if (group != null) {
+            addUserToGroup(user, group.getId());
+            user.getGroups().add(group);
+        }
+        userPreferenceService.createDefaultUserPreferences(user.getId());
+        return user;
+    }
+
+    @Transactional
+    public User update(User user) {
+        boolean exists = isExistById(user.getId());
+        if (!exists) {
+            throw new ResourceNotFoundException(USER_NOT_FOUND, String.format(ERR_MSG_USER_WITH_THIS_ID_DOES_NOT_EXIST, user.getId()));
+        }
+        return updateUser(user);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public User createOrUpdateUser(User newUser, Long groupId) {
         User user = getUserByUsername(newUser.getUsername());
@@ -281,6 +314,11 @@ public class UserService implements TenancyDbInitial {
     @Transactional(readOnly = true)
     public boolean isExistById(Long id) {
         return userMapper.isExistById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistByUsernameOrEmail(String username, String email) {
+        return userMapper.isExistByUsernameOrEmail(username, email);
     }
 
     public String getAdminUsername() {
