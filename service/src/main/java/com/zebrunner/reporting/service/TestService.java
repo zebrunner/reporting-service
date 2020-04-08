@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service;
 
+import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
 import com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
@@ -11,7 +12,7 @@ import com.zebrunner.reporting.domain.db.TestArtifact;
 import com.zebrunner.reporting.domain.db.TestCase;
 import com.zebrunner.reporting.domain.db.TestConfig;
 import com.zebrunner.reporting.domain.db.TestRun;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import com.zebrunner.reporting.domain.dto.TestRunStatistics;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
@@ -33,9 +34,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.ILLEGAL_BATCH_OPERATION;
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.WORK_ITEM_CAN_NOT_BE_ATTACHED;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.TEST_NOT_FOUND;
 
@@ -46,6 +47,7 @@ public class TestService {
 
     private static final String ERR_MSG_TEST_NOT_FOUND = "Test with id %s can not be found";
     private static final String ERR_MSG_KNOWN_ISSUE_TEST_STATUS= "Known issue cannot be attached to test with status '%s'";
+    private static final String ERR_MSG_TESTS_NOT_FOUND = "Tests can not be found";
 
     private static final String INV_COUNT = "InvCount";
     private static final List<String> SELENIUM_ERRORS = List.of(
@@ -332,9 +334,9 @@ public class TestService {
     }
 
     @Transactional
-    public List<Test> batchStatusUpdate(List<Long> ids, Status status) {
+    public List<Test> batchStatusUpdate(Long testRunId, List<Long> ids, Status status) {
         List<Test> tests = ids.stream()
-                              .map(this::getNotNullTestById)
+                              .map(id -> getNotNullTestByIdAndTestRunId(id, testRunId))
                               .collect(Collectors.toList());
         List<Long> testCaseIds = tests.stream()
                                       .map(Test::getTestCaseId)
@@ -343,8 +345,9 @@ public class TestService {
         testMapper.updateStatuses(ids, status);
         testCaseService.batchStatusUpdate(testCaseIds, status);
 
+        testRunService.calculateTestRunResult(testRunId, false);
+
         tests.forEach(test -> {
-            testRunService.calculateTestRunResult(test.getTestRunId(), false);
             testRunStatisticsService.updateStatistics(test.getTestRunId(), status, test.getStatus());
 
             boolean markAsPassed = Status.FAILED.equals(test.getStatus()) && !Status.FAILED.equals(status);
@@ -379,6 +382,20 @@ public class TestService {
             throw new ResourceNotFoundException(TEST_NOT_FOUND, ERR_MSG_TEST_NOT_FOUND, id);
         }
         return test;
+    }
+
+    @Transactional(readOnly = true)
+    public Test getNotNullTestByIdAndTestRunId(long id, long testRunId) {
+        Test test = testMapper.getTestByIdAndTestRunId(id, testRunId);
+        if (test == null) {
+            throw new ResourceNotFoundException(TEST_NOT_FOUND, ERR_MSG_TEST_NOT_FOUND, id);
+        }
+        return test;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsTestByIdAndTestRunId(long id, long testRunId) {
+        return testMapper.existsTestByIdAndTestRunId(id, testRunId);
     }
 
     @Transactional(readOnly = true)
@@ -432,6 +449,29 @@ public class TestService {
                 .results(tests)
                 .totalResults(count)
                 .build();
+    }
+
+    @Transactional()
+    public List<WorkItemBatch> linkWorkItems(List<WorkItemBatch> workItemBatches, Long testRunId) {
+       boolean illegalOperation = workItemBatches.stream()
+                                                 .anyMatch(workItemBatch -> !existsTestByIdAndTestRunId(workItemBatch.getTestId(), testRunId));
+        if (illegalOperation) {
+            throw new IllegalOperationException(ILLEGAL_BATCH_OPERATION, ERR_MSG_TESTS_NOT_FOUND);
+        }
+        return batchLinkWorkItemBatches(workItemBatches);
+    }
+
+    private List<WorkItemBatch> batchLinkWorkItemBatches(List<WorkItemBatch> workItemBatches) {
+        return workItemBatches.stream()
+                              .peek(this::batchLinkWorkItems)
+                              .collect(Collectors.toList());
+    }
+
+    private void batchLinkWorkItems(WorkItemBatch workItemBatch) {
+        List<WorkItem> workItems = workItemBatch.getWorkItems().stream()
+                                                .map(workItem -> linkWorkItem(workItemBatch.getTestId(), workItem))
+                                                .collect(Collectors.toList());
+        workItemBatch.setWorkItems(workItems);
     }
 
     @Transactional()

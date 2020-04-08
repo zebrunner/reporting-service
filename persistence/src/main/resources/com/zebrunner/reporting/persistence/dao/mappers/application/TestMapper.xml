@@ -228,6 +228,23 @@
 		]]>
 	</select>
 
+	<select id="getTestByIdAndTestRunId" resultMap="TestResultMap">
+		<include refid="getTest" />
+		<![CDATA[
+			WHERE T.ID = #{id} AND T.TEST_RUN_ID = #{testRunId};
+		]]>
+	</select>
+
+	<select id="existsTestByIdAndTestRunId" resultType="java.lang.Boolean">
+		<![CDATA[
+		SELECT EXISTS (
+					   SELECT * FROM TESTS T
+					   WHERE
+						   T.ID = #{id} AND T.TEST_RUN_ID = #{testRunId}
+				   )
+		]]>
+	</select>
+
 	<select id="getTestByName" resultMap="TestResultMap">
 		<include refid="getTest" />
 		<![CDATA[
@@ -488,7 +505,7 @@
 			property="testConfig.createdAt" />
 
 		<collection property="workItems"
-			ofType="com.zebrunner.reporting.domain.db.WorkItem"
+			ofType="com.zebrunner.reporting.domain.db.workitem.WorkItem"
 			resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.WorkItemMapper.WorkItemResultMap" />
 
 		<collection property="artifacts"

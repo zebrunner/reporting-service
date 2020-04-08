@@ -54,9 +54,26 @@ public interface UserDocumentedController {
     Map<String, Object> getExtendedUserProfile();
 
     @ApiOperation(
+            value = "Creates a user",
+            notes = "Returns the created user",
+            nickname = "create",
+            httpMethod = "POST",
+            response = UserDTO.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "userDTO", paramType = "body", dataType = "UserDTO", required = true, value = "The user to create")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns the created user profile", response = UserDTO.class),
+            @ApiResponse(code = 400, message = "Indicates that user with same username is exist", response = ErrorResponse.class)
+    })
+    UserDTO create(UserDTO userDTO);
+
+    @ApiOperation(
             value = "Updates a user profile",
             notes = "Returns the updated user profile",
-            nickname = "updateUserProfile",
+            nickname = "update",
             httpMethod = "PUT",
             response = UserDTO.class
     )
@@ -69,7 +86,7 @@ public interface UserDocumentedController {
             @ApiResponse(code = 200, message = "Returns the updated user profile", response = UserDTO.class),
             @ApiResponse(code = 404, message = "Indicates that user does not exist", response = ErrorResponse.class)
     })
-    UserDTO updateUserProfile(UserDTO userDTO, Long id);
+    UserDTO update(UserDTO userDTO, Long id);
 
     @ApiOperation(
             value = "Updates a user password",

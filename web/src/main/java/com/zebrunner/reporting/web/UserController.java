@@ -79,9 +79,21 @@ public class UserController extends AbstractController implements UserDocumented
         return extendedUserProfile;
     }
 
+    @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_WIDGETS')")
+    @Override
+    public UserDTO create(@Valid @RequestBody UserDTO userDTO) {
+        User user = mapper.map(userDTO, User.class);
+
+        user = userService.create(user, null);
+
+        userDTO = mapper.map(user, UserDTO.class);
+        return userDTO;
+    }
+
     @PutMapping("/{id}")
     @Override
-    public UserDTO updateUserProfile(@Valid @RequestBody UserDTO userDTO, @PathVariable("id") Long id) {
+    public UserDTO update(@Valid @RequestBody UserDTO userDTO, @PathVariable("id") Long id) {
         checkCurrentUserAccess(id);
 
         User user = mapper.map(userDTO, User.class);
@@ -89,7 +101,7 @@ public class UserController extends AbstractController implements UserDocumented
 
         boolean fullUpdate = isAdmin() && hasPermission(Permission.Name.MODIFY_USERS);
         if (fullUpdate) {
-            user = userService.createOrUpdateUser(user);
+            user = userService.update(user);
         } else {
             user = userService.updateUserProfile(user);
         }

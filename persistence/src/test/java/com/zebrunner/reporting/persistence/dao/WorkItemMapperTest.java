@@ -8,7 +8,7 @@ import com.zebrunner.reporting.persistence.PersistenceTestConfig;
 import com.zebrunner.reporting.persistence.utils.KeyGenerator;
 import com.zebrunner.reporting.persistence.dao.mysql.application.WorkItemMapper;
 import com.zebrunner.reporting.domain.db.User;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ContextConfiguration;

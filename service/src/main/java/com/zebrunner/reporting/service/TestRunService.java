@@ -8,7 +8,7 @@ import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestConfig;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.db.TestRunArtifact;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import com.zebrunner.reporting.domain.db.filter.Filter;
 import com.zebrunner.reporting.domain.db.filter.FilterAdapter;
 import com.zebrunner.reporting.domain.dto.BuildParameterType;
