@@ -14,9 +14,13 @@ public class ExpirationLocalDateTimeConverter extends DozerConverter<Integer, Lo
 
     @Override
     public Integer convertFrom(LocalDateTime source, Integer destination) {
-        ZoneOffset currentZoneOffset = OffsetDateTime.now().getOffset();
-        long numOfSeconds = source.toEpochSecond(currentZoneOffset) - LocalDateTime.now().toEpochSecond(currentZoneOffset);
-        return (int) numOfSeconds;
+        Integer numOfSeconds = null;
+        if (source != null) {
+            ZoneOffset currentZoneOffset = OffsetDateTime.now().getOffset();
+            LocalDateTime currentTime = LocalDateTime.now();
+            numOfSeconds = ((Long)(source.toEpochSecond(currentZoneOffset) - currentTime.toEpochSecond(currentZoneOffset))).intValue();
+        }
+        return numOfSeconds;
     }
 
     @Override
