@@ -254,35 +254,8 @@ public class UserService implements TenancyDbInitial {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public User createOrUpdateUser(User newUser, Long groupId) {
-        User user = getUserByUsername(newUser.getUsername());
-        if (user == null) {
-            if (!StringUtils.isEmpty(newUser.getPassword())) {
-                newUser.setPassword(passwordEncryptor.encryptPassword(newUser.getPassword()));
-            }
-            newUser.setSource(newUser.getSource() != null ? newUser.getSource() : User.Source.INTERNAL);
-            newUser.setStatus(User.Status.ACTIVE);
-            createUser(newUser);
-            Group group = groupId != null ? groupService.getGroupById(groupId) : groupService.getPrimaryGroupByRole(Group.Role.ROLE_USER);
-            if (group != null) {
-                addUserToGroup(newUser, group.getId());
-                newUser.getGroups().add(group);
-            }
-            userPreferenceService.createDefaultUserPreferences(newUser.getId());
-        } else {
-            newUser.setId(user.getId());
-            updateUser(newUser);
-        }
-        return newUser;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
     public User updateStatus(User user) {
         return userCacheableService.updateStatus(user);
-    }
-
-    public User createOrUpdateUser(User newUser) {
-        return createOrUpdateUser(newUser, null);
     }
 
     @Transactional(rollbackFor = Exception.class)

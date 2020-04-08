@@ -345,8 +345,9 @@ public class TestService {
         testMapper.updateStatuses(ids, status);
         testCaseService.batchStatusUpdate(testCaseIds, status);
 
+        testRunService.calculateTestRunResult(testRunId, false);
+
         tests.forEach(test -> {
-            testRunService.calculateTestRunResult(test.getTestRunId(), false);
             testRunStatisticsService.updateStatistics(test.getTestRunId(), status, test.getStatus());
 
             boolean markAsPassed = Status.FAILED.equals(test.getStatus()) && !Status.FAILED.equals(status);
