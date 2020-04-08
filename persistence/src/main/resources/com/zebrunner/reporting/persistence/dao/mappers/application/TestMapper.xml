@@ -228,6 +228,13 @@
 		]]>
 	</select>
 
+	<select id="getTestByIdAndTestRunId" resultMap="TestResultMap">
+		<include refid="getTest" />
+		<![CDATA[
+			WHERE T.ID = #{id} AND T.TEST_RUN_ID = #{testRunId};
+		]]>
+	</select>
+
 	<select id="getTestByName" resultMap="TestResultMap">
 		<include refid="getTest" />
 		<![CDATA[

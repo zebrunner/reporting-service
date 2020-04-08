@@ -83,14 +83,15 @@ public interface TestDocumentedController {
     )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "batchPatchDescriptor", paramType = "body", dataType = "BatchPatchDescriptor", required = true, value = "Patch descriptor for batch update")
+            @ApiImplicitParam(name = "batchPatchDescriptor", paramType = "body", dataType = "BatchPatchDescriptor", required = true, value = "Patch descriptor for batch update"),
+            @ApiImplicitParam(name = "testRunId", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test run id")
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns updated tests", response = List.class),
             @ApiResponse(code = 400, message = "Indicates that patch descriptor is not valid", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Indicates that at least one test by id does not exist", response = ErrorResponse.class)
     })
-    List<Test> batchPatch(BatchPatchDescriptor batchPatchDescriptor);
+    List<Test> batchPatch(BatchPatchDescriptor batchPatchDescriptor, Long testRunId);
 
     @ApiOperation(
             value = "Creates test work items",

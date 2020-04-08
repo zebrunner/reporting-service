@@ -332,9 +332,9 @@ public class TestService {
     }
 
     @Transactional
-    public List<Test> batchStatusUpdate(List<Long> ids, Status status) {
+    public List<Test> batchStatusUpdate(Long testRunId, List<Long> ids, Status status) {
         List<Test> tests = ids.stream()
-                              .map(this::getNotNullTestById)
+                              .map(id -> getNotNullTestByIdAndTestRunId(id, testRunId))
                               .collect(Collectors.toList());
         List<Long> testCaseIds = tests.stream()
                                       .map(Test::getTestCaseId)
@@ -375,6 +375,15 @@ public class TestService {
     @Transactional(readOnly = true)
     public Test getNotNullTestById(long id) {
         Test test = getTestById(id);
+        if (test == null) {
+            throw new ResourceNotFoundException(TEST_NOT_FOUND, ERR_MSG_TEST_NOT_FOUND, id);
+        }
+        return test;
+    }
+
+    @Transactional(readOnly = true)
+    public Test getNotNullTestByIdAndTestRunId(long id, long testRunId) {
+        Test test = testMapper.getTestByIdAndTestRunId(id, testRunId);
         if (test == null) {
             throw new ResourceNotFoundException(TEST_NOT_FOUND, ERR_MSG_TEST_NOT_FOUND, id);
         }

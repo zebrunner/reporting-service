@@ -112,20 +112,31 @@ public class TestController extends AbstractController implements TestDocumented
     }
 
     @PreAuthorize("hasPermission('MODIFY_TESTS')")
-    @PatchMapping()
+    @PatchMapping("/runs/{testRunId}")
     @Override
     public List<Test> batchPatch(
-            @RequestBody @Valid BatchPatchDescriptor batchPatchDescriptor
+            @RequestBody @Valid BatchPatchDescriptor batchPatchDescriptor,
+            @PathVariable("testRunId") Long testRunId
     ) {
-        return PatchDecorator.<List<Test>, Status>descriptor(batchPatchDescriptor)
+        List<Test> tests = PatchDecorator.<List<Test>, Status>descriptor(batchPatchDescriptor)
                 .operation(PatchOperation.class)
 
                 .when(PatchOperation.STATUS_UPDATE)
                 .withParameter(Status::valueOf)
-                .then(status -> testService.batchStatusUpdate(batchPatchDescriptor.getIds(), status))
+                .then(status -> testService.batchStatusUpdate(testRunId, batchPatchDescriptor.getIds(), status))
 
                 .after()
                 .decorate();
+
+        TestRunStatistics testRunStatistic = statisticsService.getTestRunStatistic(testRunId);
+        websocketTemplate.convertAndSend(getStatisticsWebsocketPath(), new TestRunStatisticPush(testRunStatistic));
+
+        tests.forEach(test -> websocketTemplate.convertAndSend(getTestsWebsocketPath(testRunId), new TestPush(test)));
+
+        TestRun testRun = testRunService.getTestRunById(testRunId);
+        websocketTemplate.convertAndSend(getTestRunsWebsocketPath(), new TestRunPush(testRun));
+
+        return tests;
     }
 
     enum PatchOperation {
