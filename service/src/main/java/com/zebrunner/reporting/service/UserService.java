@@ -249,7 +249,7 @@ public class UserService implements TenancyDbInitial {
         if (groupId != null) {
             group = groupService.getGroupById(groupId);
         } else {
-            group = groupService.getPrimaryGroupByRole(Group.Role.ROLE_USER)
+            group = groupService.getPrimaryGroupByRole(Group.Role.ROLE_USER);
         }
         return group;
     }
