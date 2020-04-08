@@ -1,9 +1,10 @@
 package com.zebrunner.reporting.web.documented;
 
+import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.domain.db.Test;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import com.zebrunner.reporting.domain.dto.IssueDTO;
 import com.zebrunner.reporting.domain.dto.TestArtifactDTO;
 import com.zebrunner.reporting.domain.dto.TestType;
@@ -175,6 +176,25 @@ public interface TestDocumentedController {
             @ApiResponse(code = 400, message = "Indicates that the test status is not failed or skipped, and the work item type is a BUG", response = ErrorResponse.class)
     })
     WorkItem linkWorkItem(long id, WorkItem workItem);
+
+
+    @ApiOperation(
+            value = "Links a work item to a test",
+            notes = "Creates a new work item or attaches an old work item to a test",
+            nickname = "linkWorkItem",
+            httpMethod = "POST",
+            response = WorkItem.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "testRunId", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test run id"),
+            @ApiImplicitParam(name = "workItemBatches", paramType = "body", dataTypeClass = List.class, required = true, value = "The batch of work items to attach")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns the registered test run", response = WorkItem.class),
+            @ApiResponse(code = 400, message = "Indicates that the batch of tests are not belong to one test run or indicates that the test status is not failed or skipped, and the work item type is a BUG", response = ErrorResponse.class)
+    })
+    List<WorkItemBatch> linkWorkItems(List<WorkItemBatch> workItemBatches, Long testRunId);
 
     @ApiOperation(
             value = "Updates a test work item",

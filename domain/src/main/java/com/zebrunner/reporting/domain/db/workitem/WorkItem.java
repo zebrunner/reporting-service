@@ -1,7 +1,9 @@
-package com.zebrunner.reporting.domain.db;
+package com.zebrunner.reporting.domain.db.workitem;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.zebrunner.reporting.domain.db.AbstractEntity;
+import com.zebrunner.reporting.domain.db.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

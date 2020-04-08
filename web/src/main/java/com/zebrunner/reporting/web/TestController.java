@@ -1,13 +1,14 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.db.Status;
+import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestArtifact;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.db.User;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import com.zebrunner.reporting.domain.dto.IssueDTO;
 import com.zebrunner.reporting.domain.dto.TestArtifactDTO;
 import com.zebrunner.reporting.domain.dto.TestRunStatistics;
@@ -43,6 +44,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RequestMapping(path = "api/tests", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
@@ -193,6 +196,35 @@ public class TestController extends AbstractController implements TestDocumented
         websocketTemplate.convertAndSend(getTestRunsWebsocketPath(), new TestRunPush(testRun));
 
         return workItem;
+    }
+
+    @PostMapping("/runs/{testRunId}/workitems")
+    @Override
+    public List<WorkItemBatch> linkWorkItems(@RequestBody List<WorkItemBatch> workItemBatches, @PathVariable("testRunId") Long testRunId) {
+
+        workItemBatches = workItemBatches.stream()
+                                         .filter(Objects::nonNull)
+                                         .collect(Collectors.toList());
+
+        if (getPrincipalId() > 0) {
+            workItemBatches.forEach(workItemBatch ->
+                    workItemBatch.getWorkItems().forEach(workItem -> workItem.setUser(new User(getPrincipalId()))));
+        }
+
+        workItemBatches = testService.linkWorkItems(workItemBatches, testRunId);
+
+        TestRunStatistics testRunStatistic = statisticsService.getTestRunStatistic(testRunId);
+        websocketTemplate.convertAndSend(getStatisticsWebsocketPath(), new TestRunStatisticPush(testRunStatistic));
+
+        workItemBatches.forEach(workItemBatch -> {
+            Test test = testService.getTestById(workItemBatch.getTestId());
+            websocketTemplate.convertAndSend(getTestsWebsocketPath(testRunId), new TestPush(test));
+        });
+
+        TestRun testRun = testRunService.getTestRunById(testRunId);
+        websocketTemplate.convertAndSend(getTestRunsWebsocketPath(), new TestRunPush(testRun));
+
+        return workItemBatches;
     }
 
     @PutMapping("/{id}/issues")

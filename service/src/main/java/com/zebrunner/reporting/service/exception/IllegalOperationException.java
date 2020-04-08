@@ -42,7 +42,8 @@ public class IllegalOperationException extends ApplicationException {
         TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED(2082),
         DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED(2083),
         UNSUPPORTED_PATCH_OPERATION(2084),
-        ILLEGAL_ATTRIBUTE_VALUE(2085);
+        ILLEGAL_ATTRIBUTE_VALUE(2085),
+        ILLEGAL_BATCH_OPERATION(2086);
 
         private final Integer code;
         private String messageKey;

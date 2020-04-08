@@ -6,7 +6,7 @@ import java.util.Set;
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.Tag;
 import com.zebrunner.reporting.domain.db.Test;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import org.apache.ibatis.annotations.Param;
 
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
@@ -19,6 +19,8 @@ public interface TestMapper {
     Test getTestById(long id);
 
     Test getTestByIdAndTestRunId(@Param("id") long id, @Param("testRunId") long testRunId);
+
+    boolean existsTestByIdAndTestRunId(@Param("id") long id, @Param("testRunId") long testRunId);
 
     List<Test> getTestsByTestRunId(long testRunId);
 
