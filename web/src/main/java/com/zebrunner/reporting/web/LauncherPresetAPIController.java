@@ -44,7 +44,7 @@ public class LauncherPresetAPIController extends AbstractController implements L
     }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
-    @GetMapping(value = "/{id}/hook")
+    @GetMapping(value = "/{id}/hook", produces = MediaType.TEXT_PLAIN_VALUE)
     @Override
     public String buildWebHookUrl(
             @PathVariable("id") Long id,
