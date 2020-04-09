@@ -82,15 +82,15 @@ public class TestConfig extends AbstractEntity {
     }
 
     private void getResultingPlatform(StringBuilder resultingPlatform, String name, String version) {
-        boolean isNameExist = !isEmpty(name);
-        boolean isVersionExist = !isEmpty(version);
-        if (isNameExist) {
+        boolean isNameExists = !isEmpty(name);
+        boolean isVersionExists = !isEmpty(version);
+        if (isNameExists) {
             resultingPlatform.append(name);
-            if (isVersionExist) {
+            if (isVersionExists) {
                 resultingPlatform.append(" ");
             }
         }
-        if (isVersionExist) {
+        if (isVersionExists) {
             resultingPlatform.append(version);
         }
     }
