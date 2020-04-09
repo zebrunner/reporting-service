@@ -134,6 +134,10 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
             testRunInfo.append(" | ")
                        .append(config.getAppVersion());
         }
+        if (config.getLocale() != null) {
+            testRunInfo.append(" | ")
+                       .append(config.getLocale());
+        }
         return testRunInfo.toString();
     }
 
