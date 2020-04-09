@@ -1,6 +1,8 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.web.util.dozer.NullSafeDozerBeanMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
@@ -25,9 +30,12 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @EnableAsync
 @Configuration
@@ -35,11 +43,13 @@ import java.util.Locale;
 @Import(BeanValidatorPluginsConfiguration.class)
 public class WebConfig implements WebMvcConfigurer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebConfig.class);
+
     private static final String BASENAME_LOCATION = "classpath:i18n/messages";
 
     private final boolean multitenant;
 
-    public WebConfig(@Value("${zafira.multitenant}") boolean multitenant) {
+    public WebConfig(@Value("${service.multitenant}") boolean multitenant) {
         this.multitenant = multitenant;
     }
 
@@ -85,56 +95,53 @@ public class WebConfig implements WebMvcConfigurer {
         return methodValidationPostProcessor;
     }
 
-    private static final String[] DOZER_MAPPING_FILES = new String[] {
-            "dozer/Filter-dozer-mapping.xml",
-            "dozer/Launcher-dozer-mapping.xml",
-            "dozer/TestSuite-dozer-mapping.xml",
-            "dozer/TestCase-dozer-mapping.xml",
-            "dozer/Test-dozer-mapping.xml",
-            "dozer/Job-dozer-mapping.xml",
-            "dozer/TestRun-dozer-mapping.xml",
-            "dozer/User-dozer-mapping.xml",
-            "dozer/Project-dozer-mapping.xml",
-            "dozer/TestArtifact-dozer-mapping.xml",
-            "dozer/TestRunArtifact-dozer-mapping.xml",
-            "dozer/Tenancy-dozer-mapping.xml",
-            "dozer/Invitation-dozer-mapping.xml",
-            "dozer/ScmAccount-dozer-mapping.xml",
-            "dozer/Tag-dozer-mapping.xml",
-            "dozer/WidgetTemplate-dozer-mapping.xml",
-            "dozer/Integration-dozer-mapping.xml",
-            "dozer/IntegrationGroup-dozer-mapping.xml",
-            "dozer/IntegrationType-dozer-mapping.xml",
-            "dozer/IntegrationSetting-dozer-mapping.xml",
-            "dozer/IntegrationParam-dozer-mapping.xml"
-    };
-
     @Bean
-    public NullSafeDozerBeanMapper mapper() {
+    public NullSafeDozerBeanMapper mapper(ResourceLoader resourceLoader) {
+        List<String> mappingsFileNames = retrieveDozerMappingsUrls(resourceLoader, "classpath*:dozer/**/*.xml");
         NullSafeDozerBeanMapper beanMapper = new NullSafeDozerBeanMapper();
-        beanMapper.setMappingFiles(Arrays.asList(DOZER_MAPPING_FILES));
+        beanMapper.setMappingFiles(mappingsFileNames);
         return beanMapper;
     }
 
+    private List<String> retrieveDozerMappingsUrls(ResourceLoader resourceLoader, String mappingsLocationPattern) {
+        List<String> mappingsFileNames = null;
+        try {
+            Resource[] dozerMappings = ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
+                                                           .getResources(mappingsLocationPattern);
+            mappingsFileNames = Arrays.stream(dozerMappings).map(resource -> {
+                String mappingPath = null;
+                try {
+                    mappingPath = resource.getURL().toString();
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+                return mappingPath;
+            }).collect(Collectors.toList());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return mappingsFileNames;
+    }
+
     @Bean
-    public Docket api(@Value("${zafira.debug-enabled:false}") boolean debugMode) {
+    public Docket api(@Value("${service.docs-enabled:false}") boolean docsEnabled) {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("zafira-api")
+                .groupName("reporting-service-api")
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.zebrunner.reporting.web"))
                 .paths(PathSelectors.any())
                 .build()
-                .enable(debugMode)
+                .enable(docsEnabled)
                 .apiInfo(apiInfo());
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Zafira REST API")
-                .description("Zafira REST API documentation")
-                .termsOfServiceUrl("http://springfox.io")
+                .title("Reporting service REST API")
+                .description("Reporting service REST API documentation")
+                .termsOfServiceUrl("https://github.com/zebrunner/reporting-service")
                 .license("Apache License Version 2.0")
-                .licenseUrl("https://github.com/springfox/springfox/blob/master/LICENSE")
+                .licenseUrl("https://github.com/zebrunner/reporting-service/blob/master/LICENSE")
                 .version("2.0")
                 .build();
     }

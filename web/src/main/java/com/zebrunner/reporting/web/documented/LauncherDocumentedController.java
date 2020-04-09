@@ -1,11 +1,12 @@
 package com.zebrunner.reporting.web.documented;
 
-import com.zebrunner.reporting.domain.db.LauncherWebHookPayload;
+import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JenkinsJobsScanResultDTO;
 import com.zebrunner.reporting.domain.dto.JobResult;
 import com.zebrunner.reporting.domain.dto.LauncherDTO;
 import com.zebrunner.reporting.domain.dto.LauncherScannerType;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
+import com.zebrunner.reporting.web.util.patch.PatchDescriptor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -121,14 +122,12 @@ public interface LauncherDocumentedController {
             value = "Builds a launcher job by webhook",
             notes = "Returns a callback reference key",
             nickname = "buildByWebHook",
-            httpMethod = "POST",
+            httpMethod = "GET",
             response = String.class
     )
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "payload", paramType = "body", dataType = "LauncherWebHookPayload", required = true, value = "The job to create or update"),
-            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher id"),
             @ApiImplicitParam(name = "ref", paramType = "path", dataType = "string", required = true, value = "Launcher preset reference key"),
+            @ApiImplicitParam(name = "callbackUrl", paramType = "query", dataType = "string", value = "Callback url for run results"),
             @ApiImplicitParam(name = "providerId", paramType = "query", dataTypeClass = Long.class, value = "Test automation provider id")
     })
     @ApiResponses({
@@ -136,7 +135,7 @@ public interface LauncherDocumentedController {
             @ApiResponse(code = 404, message = "Indicates that the SCM account does not exist, or the launcher preset does not exist by ref", response = ErrorResponse.class),
             @ApiResponse(code = 400, message = "Indicates that the launcher job is null, or job parameters do not contain mandatory arguments, or the test automation provider does not exist (by id or default)", response = ErrorResponse.class)
     })
-    String buildByWebHook(LauncherWebHookPayload payload, Long id, String ref, Long providerId) throws IOException;
+    String buildByWebHook(String ref, String callbackUrl, Long providerId) throws IOException;
 
     @ApiOperation(
             value = "Exchanges the automation server queue item URL for the build number",
@@ -194,7 +193,7 @@ public interface LauncherDocumentedController {
 
     @ApiOperation(
             value = "Jenkins callback endpoint",
-            notes = "Creates launchers using data received from Jenkins",
+            notes = "Merges launchers using data received from Jenkins",
             nickname = "scanLaunchersFromJenkins",
             httpMethod = "POST",
             response = List.class
@@ -204,9 +203,28 @@ public interface LauncherDocumentedController {
             @ApiImplicitParam(name = "jenkinsJobsScanResultDTO", paramType = "body", dataType = "JenkinsJobsScanResultDTO", required = true, value = "Scanned data from an SCM repository")
     })
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns created launchers", response = List.class),
+            @ApiResponse(code = 200, message = "Returns merged launchers", response = List.class),
             @ApiResponse(code = 404, message = "Indicates that the SCM account cannot be found by the repository name", response = ErrorResponse.class)
     })
     List<LauncherDTO> scanLaunchersFromJenkins(JenkinsJobsScanResultDTO jenkinsJobsScanResultDTO);
+
+    @ApiOperation(
+            value = "Updates patch of user launcher preference",
+            notes = "Returns updated preference",
+            nickname = "patchUserLauncherPreference",
+            httpMethod = "PATCH",
+            response = UserLauncherPreference.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "descriptor", paramType = "body", dataTypeClass = PatchDescriptor.class, required = true, value = "Patch descriptor"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "Launcher id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns updated preference", response = List.class),
+            @ApiResponse(code = 400, message = "Indicates that patch descriptor has incorrect operation or value", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Indicates that launcher or user cannot be found by id", response = ErrorResponse.class)
+    })
+    UserLauncherPreference patchUserLauncherPreference(PatchDescriptor descriptor, Long id);
 
 }

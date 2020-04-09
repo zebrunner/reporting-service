@@ -15,7 +15,7 @@ public interface IntegrationRepository extends JpaRepository<Integration, Long> 
     @EntityGraph(value = "integration.expanded")
     Optional<Integration> findById(Long name);
 
-    @EntityGraph(value = "integration.expanded")
+//    @EntityGraph(value = "integration.expanded")
     List<Integration> findAll();
 
     @EntityGraph(value = "integration.expanded")

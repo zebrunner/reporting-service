@@ -5,8 +5,8 @@ import com.zebrunner.reporting.domain.db.Permission;
 import com.zebrunner.reporting.domain.db.User;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Set;
 

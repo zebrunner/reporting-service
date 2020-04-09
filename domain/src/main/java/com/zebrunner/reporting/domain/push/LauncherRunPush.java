@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.domain.push;
 
-import com.zebrunner.reporting.domain.db.Launcher;
+import com.zebrunner.reporting.domain.db.launcher.Launcher;
 import lombok.Getter;
 
 @Getter

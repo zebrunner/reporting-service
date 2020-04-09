@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zebrunner.reporting.persistence.dao.mysql.application.UserLauncherPreferenceMapper">
+
+    <sql id="userLauncherPreferenceSelectBody">
+        <![CDATA[
+            ULP.ID AS USER_LAUNCHER_PREFERENCE_ID,
+            ULP.FAVORITE AS USER_LAUNCHER_PREFERENCE_FAVORITE
+        ]]>
+    </sql>
+
+    <insert id="create" useGeneratedKeys="true" keyProperty="userLauncherPreference.id">
+        <![CDATA[
+        INSERT INTO USER_LAUNCHER_PREFERENCES (USER_ID, LAUNCHER_ID, FAVORITE) VALUES (
+            #{userId},
+            #{launcherId},
+            #{userLauncherPreference.favorite}
+        )
+        ]]>
+    </insert>
+
+    <select id="findByLauncherIdAndUserId" resultMap="UserLauncherPreferenceResultMap">
+        <![CDATA[
+            SELECT
+        ]]>
+        <include refid="userLauncherPreferenceSelectBody"/>
+        <![CDATA[
+            FROM
+                USER_LAUNCHER_PREFERENCES ULP
+            WHERE
+                LAUNCHER_ID = #{launcherId} AND USER_ID = #{userId}
+        ]]>
+    </select>
+
+    <select id="isExistByLauncherIdAndUserId" resultType="java.lang.Boolean">
+        <![CDATA[
+        SELECT EXISTS(SELECT 1 FROM USER_LAUNCHER_PREFERENCES WHERE USER_ID = #{userId} AND LAUNCHER_ID = #{launcherId})
+        ]]>
+    </select>
+
+    <update id="update">
+        <![CDATA[
+			UPDATE
+			    USER_LAUNCHER_PREFERENCES
+		]]>
+        <set>
+            <![CDATA[
+               FAVORITE = #{favorite},
+            ]]>
+        </set>
+        <![CDATA[
+			WHERE
+			    ID = #{id}
+		]]>
+    </update>
+
+    <resultMap type="com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference" id="UserLauncherPreferenceResultMap" autoMapping="false">
+        <id column="USER_LAUNCHER_PREFERENCE_ID" property="id"/>
+        <id column="USER_LAUNCHER_PREFERENCE_FAVORITE" property="favorite"/>
+    </resultMap>
+</mapper>

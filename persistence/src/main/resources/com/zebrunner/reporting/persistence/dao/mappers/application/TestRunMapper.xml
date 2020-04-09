@@ -235,6 +235,7 @@
                   AND T.STATUS = 'FAILED'
                   AND T.BLOCKER = TRUE)                                                            AS TEST_RUN_FAILED_AS_BLOCKER,
                (SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'SKIPPED') AS TEST_RUN_SKIPPED,
+               (SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'ABORTED') AS TEST_RUN_ABORTED,
                (SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'QUEUED')  AS TEST_RUN_QUEUED
         FROM TEST_RUNS TR
         ]]>
@@ -789,6 +790,7 @@
         <result column="TEST_RUN_FAILED_AS_BLOCKER"
                 property="failedAsBlocker"/>
         <result column="TEST_RUN_SKIPPED" property="skipped"/>
+        <result column="TEST_RUN_ABORTED" property="aborted"/>
         <result column="TEST_RUN_QUEUED" property="queued"/>
     </resultMap>
 

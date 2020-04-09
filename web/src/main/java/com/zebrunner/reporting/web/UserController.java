@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.web;
 
+import com.zebrunner.reporting.domain.db.Permission;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.UserSearchCriteria;
 import com.zebrunner.reporting.domain.db.User;
@@ -78,24 +79,37 @@ public class UserController extends AbstractController implements UserDocumented
         return extendedUserProfile;
     }
 
-    @PutMapping("/profile")
+    @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_WIDGETS')")
     @Override
-    public UserDTO updateUserProfile(@Valid @RequestBody UserDTO userDTO) {
-        checkCurrentUserAccess(userDTO.getId());
+    public UserDTO create(@Valid @RequestBody UserDTO userDTO) {
         User user = mapper.map(userDTO, User.class);
-        user = userService.updateUserProfile(user);
+
+        user = userService.create(user, null);
+
         userDTO = mapper.map(user, UserDTO.class);
-        userDTO.setRoles(userDTO.getRoles());
-        userDTO.setPreferences(userDTO.getPreferences());
-        userDTO.setPhotoURL(userDTO.getPhotoURL());
         return userDTO;
     }
 
-    @DeleteMapping("/profile/photo")
-    @Deprecated
+    @PutMapping("/{id}")
     @Override
-    public void deleteUserProfilePhoto() {
-        userService.deleteProfilePhoto(getPrincipalId());
+    public UserDTO update(@Valid @RequestBody UserDTO userDTO, @PathVariable("id") Long id) {
+        checkCurrentUserAccess(id);
+
+        User user = mapper.map(userDTO, User.class);
+        user.setId(id);
+
+        boolean fullUpdate = isAdmin() && hasPermission(Permission.Name.MODIFY_USERS);
+        if (fullUpdate) {
+            user = userService.update(user);
+        } else {
+            user = userService.updateUserProfile(user);
+        }
+
+        userDTO = mapper.map(user, UserDTO.class);
+        userDTO.setRoles(userDTO.getRoles());
+        userDTO.setPreferences(userDTO.getPreferences());
+        return userDTO;
     }
 
     @PutMapping("/password")
@@ -114,15 +128,6 @@ public class UserController extends AbstractController implements UserDocumented
             @RequestParam(value = "public", required = false) boolean isPublic
     ) {
         return userService.searchUsers(searchCriteria, isPublic);
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USERS')")
-    @PutMapping()
-    @Override
-    public UserDTO createOrUpdateUser(@RequestBody @Valid UserDTO userDTO) {
-        User user = mapper.map(userDTO, User.class);
-        user = userService.createOrUpdateUser(user);
-        return mapper.map(user, UserDTO.class);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USERS')")
@@ -151,7 +156,7 @@ public class UserController extends AbstractController implements UserDocumented
     @GetMapping("/preferences")
     @Override
     public List<UserPreference> getDefaultUserPreferences() {
-        User user = userService.getUserByUsername("anonymous");
+        User user = userService.getDefaultUser();
         return userPreferenceService.getAllUserPreferences(user.getId());
     }
 

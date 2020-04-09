@@ -207,6 +207,18 @@
 		</if>
 	</select>
 
+	<select id="isExistById" resultType="java.lang.Boolean">
+        <![CDATA[
+			SELECT EXISTS(SELECT 1 FROM USERS WHERE ID = #{id})
+		]]>
+    </select>
+
+	<select id="isExistByUsernameOrEmail" resultType="java.lang.Boolean">
+        <![CDATA[
+		SELECT EXISTS(SELECT 1 FROM USERS WHERE USERNAME = #{username} OR (EMAIL = #{email} AND EMAIL IS NOT NULL))
+		]]>
+    </select>
+
 	<update id="updateUser">
 		<![CDATA[
 			UPDATE

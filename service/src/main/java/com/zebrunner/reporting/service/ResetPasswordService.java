@@ -18,18 +18,18 @@ public class ResetPasswordService {
 
     private static final String USER_FOR_PASSWORD_RESET_IS_NOT_FOUND = "User for password reset is not found";
 
-    private final String zafiraLogoURL;
+    private final String slackImageUrl;
     private final URLResolver urlResolver;
     private final EmailService emailService;
     private final UserService userService;
 
     public ResetPasswordService(
-            @Value("${zafira.slack.image-url}") String zafiraLogoURL,
+            @Value("${slack.image-url}") String slackImageUrl,
             URLResolver urlResolver,
             EmailService emailService,
             UserService userService
     ) {
-        this.zafiraLogoURL = zafiraLogoURL;
+        this.slackImageUrl = slackImageUrl;
         this.urlResolver = urlResolver;
         this.emailService = emailService;
         this.userService = userService;
@@ -45,9 +45,9 @@ public class ResetPasswordService {
         if (User.Source.INTERNAL.equals(user.getSource())) {
             String token = RandomStringUtils.randomAlphanumeric(50);
             userService.updateResetToken(token, user.getId());
-            emailMessage = new ResetPasswordEmail(token, zafiraLogoURL, urlResolver.buildWebURL());
+            emailMessage = new ResetPasswordEmail(token, slackImageUrl, urlResolver.buildWebURL());
         } else {
-            emailMessage = new ResetPasswordLdapEmail(zafiraLogoURL, urlResolver.buildWebURL());
+            emailMessage = new ResetPasswordLdapEmail(slackImageUrl, urlResolver.buildWebURL());
         }
         emailService.sendEmail(emailMessage, email);
     }
@@ -58,4 +58,5 @@ public class ResetPasswordService {
         userService.updateUserPassword(user, password);
         userService.updateResetToken(null, user.getId());
     }
+
 }

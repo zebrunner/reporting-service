@@ -5,7 +5,7 @@
 
     <mapping type="bi-directional" wildcard="false">
         <class-a>com.zebrunner.reporting.domain.dto.LauncherDTO</class-a>
-        <class-b>com.zebrunner.reporting.domain.db.Launcher</class-b>
+        <class-b>com.zebrunner.reporting.domain.db.launcher.Launcher</class-b>
 
         <field>
             <a>id</a>
@@ -38,6 +38,10 @@
         <field>
             <a>presets</a>
             <b>presets</b>
+        </field>
+        <field>
+            <a>preference</a>
+            <b>preference</b>
         </field>
     </mapping>
 </mappings>

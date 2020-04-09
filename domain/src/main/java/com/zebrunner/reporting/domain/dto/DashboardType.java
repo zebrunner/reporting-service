@@ -19,6 +19,7 @@ public class DashboardType extends AbstractType {
     private boolean hidden;
     private Integer position;
     private boolean editable;
+    private boolean system;
     private List<Attribute> attributes;
 
 }

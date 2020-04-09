@@ -2,7 +2,7 @@ package com.zebrunner.reporting.persistence.dao.mysql.application;
 
 import java.util.List;
 
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import org.apache.ibatis.annotations.Param;
 
 public interface WorkItemMapper {

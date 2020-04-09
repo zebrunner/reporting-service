@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.domain.db.LauncherPreset;
+import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.domain.dto.LauncherPresetDTO;
 import com.zebrunner.reporting.service.LauncherPresetService;
 import com.zebrunner.reporting.web.documented.LauncherPresetDocumentedController;
@@ -8,6 +8,7 @@ import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,14 +44,24 @@ public class LauncherPresetAPIController extends AbstractController implements L
     }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
-    @GetMapping("/{id}/webhook")
+    @GetMapping(value = "/{id}/hook")
     @Override
     public String buildWebHookUrl(
             @PathVariable("id") Long id,
-            @PathVariable("launcherId") Long launcherId,
             @RequestParam(name = "providerId", required = false) Long providerId
     ) {
-        return launcherPresetService.buildWebHookUrl(id, launcherId, providerId);
+        return launcherPresetService.buildWebHookUrl(id, providerId);
+    }
+
+    @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
+    @DeleteMapping("/{id}/hook/{ref}")
+    @Override
+    public void revokeReference(
+            @PathVariable("id") Long id,
+            @PathVariable("ref") String ref,
+            @PathVariable("launcherId") Long launcherId
+    ) {
+        launcherPresetService.revokeReference(id, ref, launcherId);
     }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")

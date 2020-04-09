@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.persistence.dao.mysql.application;
 
-import com.zebrunner.reporting.domain.db.LauncherPreset;
+import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import org.apache.ibatis.annotations.Param;
 
 public interface LauncherPresetMapper {
@@ -11,9 +11,13 @@ public interface LauncherPresetMapper {
 
     LauncherPreset findByRef(String ref);
 
+    LauncherPreset findByIdAndRef(@Param("id") Long id, @Param("ref") String ref);
+
     boolean existsByNameAndLauncherId(@Param("name") String name, @Param("launcherId") Long launcherId);
 
     void update(LauncherPreset launcherPreset);
+
+    void updateReference(@Param("id") Long id, @Param("ref") String reference);
 
     void deleteById(Long id);
 

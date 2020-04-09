@@ -51,6 +51,13 @@
 		]]>
 	</select>
 
+	<select id="findByIdAndRef" resultMap="LauncherPresetResultMap">
+		<include refid="get" />
+		<![CDATA[
+			WHERE LP.ID = #{id} AND LP.REFERENCE = #{ref};
+		]]>
+	</select>
+
 	<select id="existsByNameAndLauncherId" resultType="java.lang.Boolean">
 		<![CDATA[
 			SELECT EXISTS (
@@ -86,6 +93,22 @@
         ]]>
 	</update>
 
+	<update id="updateReference">
+		<![CDATA[
+			UPDATE LAUNCHER_PRESETS
+        ]]>
+		<set>
+			<if test="null != ref">
+				<![CDATA[
+                   REFERENCE = #{ref},
+                ]]>
+			</if>
+		</set>
+		<![CDATA[
+			WHERE ID = #{id}
+        ]]>
+	</update>
+
 	<sql id="delete">
         <![CDATA[
 			DELETE FROM LAUNCHER_PRESETS
@@ -99,7 +122,7 @@
         ]]>
 	</delete>
 
-	<resultMap type="com.zebrunner.reporting.domain.db.LauncherPreset" id="LauncherPresetResultMap" autoMapping="false">
+	<resultMap type="com.zebrunner.reporting.domain.db.launcher.LauncherPreset" id="LauncherPresetResultMap" autoMapping="false">
 		<id column="LAUNCHER_PRESET_ID" property="id" />
 		<result column="LAUNCHER_PRESET_NAME" property="name" />
 		<result column="LAUNCHER_PRESET_REFERENCE" property="ref" />

@@ -117,7 +117,7 @@ public class AuthController extends AbstractController implements AuthDocumented
     public void signup(@RequestHeader("Access-Token") String token, @Valid @RequestBody UserDTO userDTO) {
         Invitation invitation = invitationService.acceptInvitation(token, userDTO.getUsername());
         userDTO.setSource(invitation.getSource());
-        userService.createOrUpdateUser(mapper.map(userDTO, User.class), invitation.getGroupId());
+        userService.create(mapper.map(userDTO, User.class), invitation.getGroupId());
     }
 
     @PostMapping("/refresh")

@@ -4,14 +4,14 @@ public class UserInviteEmail extends AbstractEmail {
 
     private static final String SUBJECT = "Join the workspace";
 
-    private final String zafiraLogoURL;
+    private final String logoUrl;
     private final String workspaceURL;
     private final String invitationUrl;
 
-    public UserInviteEmail(String invitationUrl, String zafiraLogoURL, String workspaceURL) {
-        super(SUBJECT, EmailType.USER_INVITE, zafiraLogoURL, workspaceURL);
+    public UserInviteEmail(String invitationUrl, String logoUrl, String workspaceURL) {
+        super(SUBJECT, EmailType.USER_INVITE, logoUrl, workspaceURL);
         this.invitationUrl = invitationUrl;
-        this.zafiraLogoURL = zafiraLogoURL;
+        this.logoUrl = logoUrl;
         this.workspaceURL = workspaceURL;
     }
 
@@ -19,8 +19,8 @@ public class UserInviteEmail extends AbstractEmail {
         return invitationUrl;
     }
 
-    public String getZafiraLogoURL() {
-        return zafiraLogoURL;
+    public String getLogoUrl() {
+        return logoUrl;
     }
 
     public String getWorkspaceURL() {

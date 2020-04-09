@@ -34,8 +34,8 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/auth/tenant/**",
             "/api/invitations/info",
             "/api/auth/signup",
-            "/api/auth/password/**"
-
+            "/api/auth/password/**",
+            "/api/launchers/hooks/*"
     };
 
     private static final String[] AUTHENTICATED_API_PATTERNS = new String[] {
@@ -56,7 +56,6 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/events/**",
             "/api/projects/**",
             "/api/slack/**",
-            "/api/views/**",
             "/api/invitations/**",
             "/api/scm/**",
             "/api/launchers/**",
@@ -110,7 +109,7 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
     @Bean
     @DependsOn("ldapAuthManager")
-    public AuthenticationManager zafiraAuthManager(PasswordEncoder passwordEncoder) {
+    public AuthenticationManager authManager(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userPassAuthService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);

@@ -19,11 +19,11 @@ public class TenancyService {
     private TenancyMapper tenancyMapper;
 
     @Getter
-    @Value("#{new Boolean('${zafira.multitenant}')}")
+    @Value("#{new Boolean('${service.multitenant}')}")
     private Boolean isMultitenant;
 
     @Getter
-    @Value("${zafira.use-artifact-proxy:false}")
+    @Value("${service.use-artifact-proxy:false}")
     private boolean useArtifactsProxy;
 
     @Transactional(readOnly = true)

@@ -24,6 +24,7 @@
 				D.HIDDEN AS DASHBOARD_HIDDEN,
 				D.POSITION AS DASHBOARD_POSITION,
 				D.EDITABLE AS DASHBOARD_EDITABLE,
+				D.SYSTEM AS DASHBOARD_SYSTEM,
 				D.MODIFIED_AT AS DASHBOARD_MODIFIED_AT,
 				D.CREATED_AT AS DASHBOARD_CREATED_AT,
 
@@ -81,6 +82,7 @@
 	<select id="getAllDashboards" resultMap="DashboardResultMap">
 		<include refid="getDashboard" />
 		<![CDATA[
+			WHERE D.SYSTEM = FALSE
 			ORDER BY D.POSITION ASC;
 		]]>
 	</select>
@@ -118,6 +120,14 @@
 		]]>
 	</select>
 
+	<select id="getByAttributeId" resultMap="DashboardResultMap">
+		<include refid="getDashboard" />
+		<![CDATA[
+            WHERE
+                DA.ID = #{attributeId}
+		]]>
+	</select>
+
 	<update id="updateDashboard">
 		<![CDATA[
 			UPDATE
@@ -127,6 +137,8 @@
                 HIDDEN = #{hidden}
 			WHERE
 			    ID = #{id}
+			AND
+				SYSTEM = FALSE
 		]]>
 	</update>
 
@@ -138,6 +150,8 @@
 				POSITION = #{position}
 			WHERE
 				ID = #{id}
+			AND
+			    SYSTEM = FALSE
 		]]>
 	</update>
 
@@ -150,7 +164,7 @@
 	<delete id="deleteDashboardById">
 		<include refid="deleteDashboard" />
 		<![CDATA[
-			WHERE ID = #{id}
+			WHERE ID = #{id} AND SYSTEM = FALSE
 		]]>
 	</delete>
 
@@ -161,6 +175,7 @@
 		<result column="DASHBOARD_HIDDEN" property="hidden" />
 		<result column="DASHBOARD_POSITION" property="position" />
 		<result column="DASHBOARD_EDITABLE" property="editable" />
+		<result column="DASHBOARD_SYSTEM" property="system" />
 		<result column="DASHBOARD_MODIFIED_AT" property="modifiedAt" />
 		<result column="DASHBOARD_CREATED_AT" property="createdAt" />
 		<collection property="widgets"
@@ -228,11 +243,44 @@
 		keyProperty="attribute.id">
         <![CDATA[
 			INSERT INTO DASHBOARD_ATTRIBUTES (KEY, VALUE, DASHBOARD_ID)
-			VALUES (
+			SELECT
 				#{attribute.key},
 				#{attribute.value},
 				#{dashboardId}
+			WHERE NOT EXISTS (
+			    SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND SYSTEM = TRUE
 			)
+		]]>
+	</insert>
+
+	<insert id="createDashboardAttributes" useGeneratedKeys="true">
+        <![CDATA[
+			INSERT INTO DASHBOARD_ATTRIBUTES (KEY, VALUE, DASHBOARD_ID)
+			SELECT
+			       DA.KEY, DA.VALUE, DA.DASHBOARD_ID FROM
+			(SELECT
+    			UNNEST(ARRAY[
+		]]>
+		<foreach item="attribute" index="index" collection="attributes" open="" separator="," close="">
+			<![CDATA[
+				#{attribute.key}
+			]]>
+		</foreach>
+		<![CDATA[
+			]) AS KEY,
+			UNNEST(ARRAY[
+		]]>
+		<foreach item="attribute" index="index" collection="attributes" open="" separator="," close="">
+			<![CDATA[
+				#{attribute.value}
+			]]>
+		</foreach>
+		<![CDATA[
+				]) AS VALUE,
+			#{dashboardId} AS DASHBOARD_ID) DA
+			WHERE NOT EXISTS (
+    			SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND SYSTEM = TRUE
+    		)
 		]]>
 	</insert>
 
@@ -271,9 +319,12 @@
 	<delete id="deleteDashboardAttributeById">
 		DELETE
 		FROM
-		DASHBOARD_ATTRIBUTES
+			DASHBOARD_ATTRIBUTES
 		WHERE
-		ID = #{id}
+			ID = #{id}
+	  	AND NOT EXISTS (
+				SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND SYSTEM = TRUE
+			)
 	</delete>
 
 	<update id="updateAttribute">
@@ -294,7 +345,11 @@
 			</if>
 		</set>
         <![CDATA[
-            WHERE ID = #{id}
+            WHERE
+            	ID = #{id}
+			AND NOT EXISTS (
+				SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND SYSTEM = TRUE
+			)
         ]]>
 	</update>
 

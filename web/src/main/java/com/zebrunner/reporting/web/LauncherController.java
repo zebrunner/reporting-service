@@ -1,8 +1,8 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.db.JenkinsJob;
-import com.zebrunner.reporting.domain.db.Launcher;
-import com.zebrunner.reporting.domain.db.LauncherWebHookPayload;
+import com.zebrunner.reporting.domain.db.launcher.Launcher;
+import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JenkinsJobsScanResultDTO;
 import com.zebrunner.reporting.domain.dto.JobResult;
 import com.zebrunner.reporting.domain.dto.LauncherDTO;
@@ -11,6 +11,8 @@ import com.zebrunner.reporting.domain.push.LauncherPush;
 import com.zebrunner.reporting.domain.push.LauncherRunPush;
 import com.zebrunner.reporting.service.LauncherService;
 import com.zebrunner.reporting.web.documented.LauncherDocumentedController;
+import com.zebrunner.reporting.web.util.patch.PatchDecorator;
+import com.zebrunner.reporting.web.util.patch.PatchDescriptor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -69,7 +72,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     @GetMapping()
     @Override
     public List<LauncherDTO> getAllLaunchers() {
-        List<Launcher> launchers = launcherService.getAllLaunchers();
+        List<Launcher> launchers = launcherService.getAllLaunchers(getPrincipalId());
         return launchers.stream()
                         .map(launcher -> mapper.map(launcher, LauncherDTO.class))
                         .collect(Collectors.toList());
@@ -101,16 +104,14 @@ public class LauncherController extends AbstractController implements LauncherDo
         websocketTemplate.convertAndSend(getLauncherRunsWebsocketPath(), new LauncherRunPush(launcher, ciRunId));
     }
 
-    @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")
-    @PostMapping("/{id}/build/{ref}")
+    @GetMapping("/hooks/{ref}")
     @Override
     public String buildByWebHook(
-        @RequestBody @Valid LauncherWebHookPayload payload,
-        @PathVariable("id") Long id,
         @PathVariable("ref") String ref,
+        @RequestParam(value = "callbackUrl", required = false) String callbackUrl,
         @RequestParam(name = "providerId", required = false) Long providerId
     ) throws IOException {
-        return launcherService.buildLauncherJobByPresetRef(id, ref, payload, getPrincipalId(), providerId);
+        return launcherService.buildLauncherJobByPresetRef(ref, callbackUrl, getPrincipalId(), providerId);
     }
 
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")
@@ -154,12 +155,31 @@ public class LauncherController extends AbstractController implements LauncherDo
                                                                .stream()
                                                                .map(jenkinsLauncher -> mapper.map(jenkinsLauncher, JenkinsJob.class))
                                                                .collect(Collectors.toList());
-        List<Launcher> launchers = launcherService.createLaunchersForJenkinsJobs(jenkinsJobs, jenkinsJobsScanResultDTO.getRepo(), jenkinsJobsScanResultDTO.isSuccess(), principalId);
+        List<Launcher> launchers = launcherService.mergeLaunchersWithJenkinsJobs(jenkinsJobs, jenkinsJobsScanResultDTO.getRepo(), jenkinsJobsScanResultDTO.isSuccess(), principalId);
         List<LauncherDTO> launcherDTOS = launchers.stream()
                                                   .map(launcher -> mapper.map(launcher, LauncherDTO.class))
                                                   .collect(Collectors.toList());
         websocketTemplate.convertAndSend(getLaunchersWebsocketPath(), new LauncherPush(launcherDTOS, jenkinsJobsScanResultDTO.getUserId(), jenkinsJobsScanResultDTO.isSuccess()));
         return launcherDTOS;
+    }
+
+    @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")
+    @PatchMapping("/{id}")
+    @Override
+    public UserLauncherPreference patchUserLauncherPreference(@RequestBody @Valid PatchDescriptor descriptor, @PathVariable("id") Long id) {
+        return PatchDecorator.<UserLauncherPreference, Boolean>descriptor(descriptor)
+                .operation(PatchOperation.class)
+
+                .when(PatchOperation.SAVE_FAVORITE)
+                .withParameter(Boolean::valueOf)
+                .then(favorite -> launcherService.markLauncherAsFavorite(id, getPrincipalId(), favorite))
+
+                .after()
+                .decorate();
+    }
+
+    enum PatchOperation {
+        SAVE_FAVORITE
     }
 
 }

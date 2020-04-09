@@ -17,6 +17,7 @@ public class Dashboard extends AbstractEntity {
     private boolean hidden;
     private Integer position;
     private boolean editable;
+    private boolean system;
     private List<Attribute> attributes;
 
 }

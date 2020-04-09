@@ -1,10 +1,13 @@
 ### Gradle ###
 .gradle
-*/build/
+domain/build/
+persistence/build/
+service/build/
+web/build/
 !gradle/wrapper/gradle-wrapper.jar
 
 ### Logs
-*/logs/*.log
+**/logs/
 
 ### IntelliJ IDEA ###
 .idea

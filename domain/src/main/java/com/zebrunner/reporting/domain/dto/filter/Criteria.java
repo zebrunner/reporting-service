@@ -35,6 +35,7 @@ public class Criteria {
         ENV,
         PLATFORM,
         BROWSER,
+        LOCALE,
         DATE,
         PROJECT
     }

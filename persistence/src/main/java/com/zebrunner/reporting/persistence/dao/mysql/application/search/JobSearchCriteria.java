@@ -2,7 +2,8 @@ package com.zebrunner.reporting.persistence.dao.mysql.application.search;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter

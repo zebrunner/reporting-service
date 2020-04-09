@@ -6,7 +6,7 @@ import java.util.Set;
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.Tag;
 import com.zebrunner.reporting.domain.db.Test;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import org.apache.ibatis.annotations.Param;
 
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
@@ -17,6 +17,10 @@ public interface TestMapper {
     void addTags(@Param(value = "testId") Long testId, @Param(value = "tags") Set<Tag> tags);
 
     Test getTestById(long id);
+
+    Test getTestByIdAndTestRunId(@Param("id") long id, @Param("testRunId") long testRunId);
+
+    boolean existsTestByIdAndTestRunId(@Param("id") long id, @Param("testRunId") long testRunId);
 
     List<Test> getTestsByTestRunId(long testRunId);
 
@@ -33,6 +37,8 @@ public interface TestMapper {
     void deleteTestWorkItemByTestIdAndWorkItemType(@Param("testId") long testId, @Param("type") WorkItem.Type type);
 
     void updateTest(Test test);
+
+    void updateStatuses(@Param("ids") List<Long> ids, @Param("status") Status status);
 
     void updateTestsNeedRerun(@Param("ids") List<Long> ids, @Param("rerun") boolean needRerun);
 

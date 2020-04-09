@@ -2,6 +2,7 @@ package com.zebrunner.reporting.persistence.dao.mysql.application;
 
 import java.util.List;
 
+import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.TestCase;
 import org.apache.ibatis.annotations.Param;
 
@@ -17,6 +18,8 @@ public interface TestCaseMapper {
     TestCase getOwnedTestCase(@Param("userId") Long userId, @Param("testClass") String testClass, @Param("testMethod") String testMethod, @Param("projectId") Long projectId);
 
     void updateTestCase(TestCase testCase);
+
+    void updateStatuses(@Param("ids") List<Long> ids, @Param("status") Status status);
 
     void reassignToProject(@Param("fromProjectId") Long fromProjectId, @Param("toProjectId") Long toProjectId);
 

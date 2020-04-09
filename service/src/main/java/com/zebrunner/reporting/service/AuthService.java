@@ -24,18 +24,18 @@ public class AuthService {
     private static final String ERR_MSG_USER_IS_FROM_OTHER_TENANT = "User with id %d is from tenant %s";
     private static final String ERR_MSG_USERNAME_OR_PASSWORD_IS_INVALID = "Username or password for user %s is invalid";
 
-    private final AuthenticationManager zafiraAuthManager;
+    private final AuthenticationManager authManager;
     private final AuthenticationManager ldapAuthManager;
     private final UserService userService;
     private final String adminUsername;
 
     public AuthService(
-        AuthenticationManager zafiraAuthManager,
+        AuthenticationManager authManager,
         AuthenticationManager ldapAuthManager,
         UserService userService,
-        @Value("${zafira.admin.username}") String adminUsername
+        @Value("${service.admin.username}") String adminUsername
     ) {
-        this.zafiraAuthManager = zafiraAuthManager;
+        this.authManager = authManager;
         this.ldapAuthManager = ldapAuthManager;
         this.userService = userService;
         this.adminUsername = adminUsername;
@@ -44,7 +44,7 @@ public class AuthService {
     public Authentication getAuthentication(String username, String password, User user) {
         boolean isLdapUser = user == null || user.getSource().equals(User.Source.LDAP);
 
-        AuthenticationManager authManager = isLdapUser ? ldapAuthManager : zafiraAuthManager;
+        AuthenticationManager authManager = isLdapUser ? ldapAuthManager : this.authManager;
 
         Authentication authentication;
         try {
