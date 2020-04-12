@@ -42,7 +42,7 @@ public class SlackService extends AbstractIntegrationService<SlackAdapter> {
             String readableTime = asReadableTime(testRun.getElapsed());
             String statusText = TestRunResultsEmail.buildStatusText(testRun);
             String onFinishMessage = String.format(ON_FINISH_PATTERN, testRun.getId(), readableTime, statusText);
-            SlackAdapter adapter = getAdapterByIntegrationId(null);
+            SlackAdapter adapter = getDefaultAdapterByType();
             adapter.sendNotification(testRun, onFinishMessage);
         }
         // otherwise - do nothing
@@ -53,12 +53,12 @@ public class SlackService extends AbstractIntegrationService<SlackAdapter> {
         TestRun testRun = testRunService.getTestRunByIdFull(testRunId);
         String statusText = TestRunResultsEmail.buildStatusText(testRun);
         String reviewedMessage = String.format(REVIEWED_PATTERN, testRun.getId(), statusText);
-        SlackAdapter adapter = getAdapterByIntegrationId(null);
+        SlackAdapter adapter = getDefaultAdapterByType();
         adapter.sendNotification(testRun, reviewedMessage);
     }
 
     public String getWebhook() {
-        SlackAdapter adapter = getAdapterByIntegrationId(null);
+        SlackAdapter adapter = getDefaultAdapterByType();
         return adapter.getWebhook();
     }
 
