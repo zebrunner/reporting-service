@@ -94,6 +94,9 @@ public class TestService {
 
         test.setStatus(Status.IN_PROGRESS);
 
+        Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
+        testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
+
         if (rerun) {
             unlinkStatisticsFailureItems(existingTest);
             test.setMessage(null);
@@ -117,9 +120,6 @@ public class TestService {
 
         Set<Tag> tags = saveTags(test.getId(), test.getTags());
         test.setTags(tags);
-
-        Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : test.getStatus();
-        testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
 
         return test;
     }
@@ -247,8 +247,8 @@ public class TestService {
             existingTest.setStatus(test.getStatus());
             existingTest.setRetry(test.getRetry());
 
-            testMapper.updateTest(existingTest);
             testRunStatisticsService.updateStatistics(existingTest.getTestRunId(), existingTest.getStatus());
+            testMapper.updateTest(existingTest);
         }
         deleteQueuedTest(test);
         testMetricService.createTestMetrics(test.getId(), testMetrics);
@@ -314,6 +314,10 @@ public class TestService {
         return test;
     }
 
+    /**
+     * Need test update to avoid issues in the future
+     * @param test to proccess
+     */
     private void unlinkStatisticsFailureItems(Test test) {
         if (test.isKnownIssue()) {
             test.setKnownIssue(false);
@@ -342,21 +346,24 @@ public class TestService {
                                       .map(Test::getTestCaseId)
                                       .collect(Collectors.toList());
 
-        testMapper.updateStatuses(ids, status);
-        testCaseService.batchStatusUpdate(testCaseIds, status);
-
         testRunService.calculateTestRunResult(testRunId, false);
 
         tests.forEach(test -> {
-            testRunStatisticsService.updateStatistics(test.getTestRunId(), status, test.getStatus());
 
             boolean markAsPassed = Status.FAILED.equals(test.getStatus()) && !Status.FAILED.equals(status);
             if (markAsPassed) {
                 unlinkStatisticsFailureItems(test);
+                updateTest(test); // need to update knownIssue = false
             }
 
+            testRunStatisticsService.updateStatistics(test.getTestRunId(), status, test.getStatus());
             test.setStatus(status);
         });
+
+        // Make sure that statuses updating follows after statistics change
+        testMapper.updateStatuses(ids, status);
+        testCaseService.batchStatusUpdate(testCaseIds, status);
+
         return tests;
     }
 
