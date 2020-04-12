@@ -100,6 +100,7 @@
         SELECT DISTINCT TC.LOCALE
         FROM TEST_CONFIGS TC
         WHERE TC.LOCALE IS NOT NULL AND LOWER(TC.LOCALE) <> ''
+        ORDER BY TC.LOCALE
         ]]>
 	</select>
 
