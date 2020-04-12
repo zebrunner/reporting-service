@@ -310,6 +310,11 @@
 				   AND LOWER(C.BROWSER) = LOWER(#{browser})
 				]]>
             </if>
+            <if test="null != locale">
+                <![CDATA[
+				   AND LOWER(C.LOCALE) = LOWER(#{locale})
+				]]>
+            </if>
             <if test="null != date">
                 <![CDATA[
 				   AND TR.STARTED_AT BETWEEN #{date}::timestamp AND #{date}::timestamp + '24:00:00'::interval
