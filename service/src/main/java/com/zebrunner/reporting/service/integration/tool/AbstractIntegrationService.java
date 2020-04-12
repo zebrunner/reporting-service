@@ -50,8 +50,8 @@ public abstract class AbstractIntegrationService<T extends IntegrationGroupAdapt
     @SuppressWarnings("unchecked")
     public T getAdapterByIntegrationId(Long integrationId) {
         IntegrationAdapter adapter = (IntegrationAdapter) getNotNullAdapterByIntegrationId(integrationId);
-        boolean isAdapterEnabledAndConnected = isEnabledAndConnected(adapter);
-        if (!isAdapterEnabledAndConnected) {
+        boolean adapterEnabledAndConnected = isEnabledAndConnected(adapter);
+        if (!adapterEnabledAndConnected) {
             throw new IllegalOperationException(INTEGRATION_USAGE_NOT_POSSIBLE, String.format(ERR_MSG_INTEGRATION_USAGE_NOT_POSSIBLE, integrationId));
         }
         return (T) adapter;
