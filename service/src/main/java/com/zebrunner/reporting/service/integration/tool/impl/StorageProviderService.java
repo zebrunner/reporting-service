@@ -26,17 +26,17 @@ public class StorageProviderService extends AbstractIntegrationService<StoragePr
     }
 
     public String saveFile(final FileUploadType file) {
-        StorageProviderAdapter adapter = getAdapterByIntegrationId(null);
+        StorageProviderAdapter adapter = getDefaultAdapterByType();
         return adapter.saveFile(file);
     }
 
     public void removeFile(final String linkToFile) {
-        StorageProviderAdapter adapter = getAdapterByIntegrationId(null);
+        StorageProviderAdapter adapter = getDefaultAdapterByType();
         adapter.removeFile(linkToFile);
     }
 
     public Optional<SessionCredentials> getTemporarySessionCredentials() {
-        StorageProviderAdapter adapter = getAdapterByIntegrationId(null);
+        StorageProviderAdapter adapter = getDefaultAdapterByType();
         return adapter.getTemporarySessionCredentials(storageProviderTokenExpiration);
     }
 
