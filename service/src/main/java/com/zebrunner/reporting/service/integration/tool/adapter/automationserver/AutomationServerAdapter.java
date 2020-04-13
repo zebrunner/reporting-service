@@ -14,6 +14,8 @@ public interface AutomationServerAdapter extends IntegrationGroupAdapter {
 
     void abortJob(String jobURL, Integer buildNumber);
 
+    boolean isBuildInProgress(String jobURL, Integer buildNumber);
+
     String buildLauncherJobUrl();
 
     List<BuildParameterType> getBuildParameters(Job ciJob, Integer buildNumber);

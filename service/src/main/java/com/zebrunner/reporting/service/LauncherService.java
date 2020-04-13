@@ -368,6 +368,13 @@ public class LauncherService {
         automationServerService.abortScannerJob(repositoryName, buildNumber, rescan, automationServerId);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isScannerJobInProgress(long scmAccountId, Integer buildNumber, boolean rescan, Long automationServerId) {
+        ScmAccount scmAccount = scmAccountService.getScmAccountById(scmAccountId);
+        String repositoryName = scmAccount.getRepositoryName();
+        return automationServerService.isScannerJobInProgress(repositoryName, buildNumber, rescan, automationServerId);
+    }
+
     public Integer getBuildNumber(String queueItemUrl, Long automationServerId) {
         return automationServerService.getBuildNumber(queueItemUrl, automationServerId);
     }
