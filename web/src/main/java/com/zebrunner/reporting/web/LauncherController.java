@@ -147,6 +147,15 @@ public class LauncherController extends AbstractController implements LauncherDo
     }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
+    @GetMapping("/scanner/{buildNumber}/status")
+    public boolean getScannerStatus(@PathVariable("buildNumber") int buildNumber,
+                                    @RequestParam("scmAccountId") Long scmAccountId,
+                                    @RequestParam("rescan") boolean rescan,
+                                    @RequestParam(name = "automationServerId", required = false) Long automationServerId) {
+        return launcherService.isScannerJobInProgress(scmAccountId, buildNumber, rescan, automationServerId);
+    }
+
+    @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
     @PostMapping("/create")
     @Override
     public List<LauncherDTO> scanLaunchersFromJenkins(@RequestBody @Valid JenkinsJobsScanResultDTO jenkinsJobsScanResultDTO) {

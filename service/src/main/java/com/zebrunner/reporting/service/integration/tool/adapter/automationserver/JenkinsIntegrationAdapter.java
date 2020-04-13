@@ -100,6 +100,12 @@ public class JenkinsIntegrationAdapter extends AbstractIntegrationAdapter implem
         abortJobByURL(jobURL, buildNumber);
     }
 
+
+    public boolean isBuildInProgress(String jobURL, Integer buildNumber) {
+        BuildWithDetails details = getBuildWithDetails(jobURL, buildNumber);
+        return details.isBuilding();
+    }
+
     @Override
     public String buildLauncherJobUrl() {
         return folder == null || folder.isBlank() ?
@@ -366,7 +372,7 @@ public class JenkinsIntegrationAdapter extends AbstractIntegrationAdapter implem
         return scannerJobUrl;
     }
 
-    private void sleep(long millis) {
+    private static void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {

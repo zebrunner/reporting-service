@@ -192,6 +192,24 @@ public interface LauncherDocumentedController {
     void cancelScanner(int buildNumber, Long scmAccountId, boolean rescan, Long automationServerId);
 
     @ApiOperation(
+            value = "Returns true if scanner job is in progress",
+            nickname = "getScannerStatus",
+            httpMethod = "GET"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "buildNumber", paramType = "path", dataTypeClass = Integer.class, required = true, value = " The CI job build number"),
+            @ApiImplicitParam(name = "scmAccountId", paramType = "query", dataTypeClass = Long.class, required = true, value = "The id of the SCM account. Is used to retrieve repository URL"),
+            @ApiImplicitParam(name = "rescan", paramType = "query", dataType = "boolean", required = true, value = "A flag indicating that the scanner job was built for rescanning"),
+            @ApiImplicitParam(name = "automationServerId", paramType = "query", dataTypeClass = Long.class, value = "The test automation provider id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns true if scanner job is in progress"),
+            @ApiResponse(code = 400, message = "Indicates that the SCM account does not exist, or test automation provider does not exist (by id or default)", response = ErrorResponse.class)
+    })
+    boolean getScannerStatus(int buildNumber, Long scmAccountId, boolean rescan, Long automationServerId);
+
+    @ApiOperation(
             value = "Jenkins callback endpoint",
             notes = "Merges launchers using data received from Jenkins",
             nickname = "scanLaunchersFromJenkins",
