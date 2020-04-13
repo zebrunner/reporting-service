@@ -346,8 +346,6 @@ public class TestService {
                                       .map(Test::getTestCaseId)
                                       .collect(Collectors.toList());
 
-        testRunService.calculateTestRunResult(testRunId, false);
-
         tests.forEach(test -> {
 
             boolean markAsPassed = Status.FAILED.equals(test.getStatus()) && !Status.FAILED.equals(status);
@@ -363,6 +361,8 @@ public class TestService {
         // Make sure that statuses updating follows after statistics change
         testMapper.updateStatuses(ids, status);
         testCaseService.batchStatusUpdate(testCaseIds, status);
+
+        testRunService.calculateTestRunResult(testRunId, false);
 
         return tests;
     }
