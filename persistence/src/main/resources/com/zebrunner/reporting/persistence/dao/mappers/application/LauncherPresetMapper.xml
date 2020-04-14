@@ -115,10 +115,10 @@
         ]]>
 	</sql>
 
-	<delete id="deleteById">
+	<delete id="deleteByIdAndLauncherId">
 		<include refid="delete" />
 		<![CDATA[
-			WHERE ID = #{id}
+			WHERE ID = #{id} AND LAUNCHER_ID = #{launcherId}
         ]]>
 	</delete>
 

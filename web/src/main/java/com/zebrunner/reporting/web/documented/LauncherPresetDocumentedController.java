@@ -86,4 +86,20 @@ public interface LauncherPresetDocumentedController {
     })
     LauncherPresetDTO updateLauncherPreset(LauncherPresetDTO launcherPresetDTO, Long id, Long launcherId);
 
+    @ApiOperation(
+            value = "Deletes launcher preset",
+            notes = "Deletes launcher preset by id and launcher id",
+            nickname = "deleteLauncherPreset",
+            httpMethod = "DELETE"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, value = "The launcher preset id"),
+            @ApiImplicitParam(name = "launcherId", paramType = "path", dataTypeClass = Long.class, value = "The launcher id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Launcher preset was deleted or id and launcher id are not referenced to launcher preset")
+    })
+    void deleteLauncherPreset(Long id, Long launcherId);
+
 }

@@ -92,6 +92,11 @@ public class LauncherPresetService {
     }
 
     @Transactional
+    public void deleteByIdAndLauncherId(Long id, Long launcherId) {
+        launcherPresetMapper.deleteByIdAndLauncherId(id, launcherId);
+    }
+
+    @Transactional
     public void updateReference(Long id, String ref) {
         launcherPresetMapper.updateReference(id, ref);
     }

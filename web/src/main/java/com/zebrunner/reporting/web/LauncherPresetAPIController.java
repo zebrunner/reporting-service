@@ -73,4 +73,11 @@ public class LauncherPresetAPIController extends AbstractController implements L
         launcherPreset = launcherPresetService.update(launcherPreset, launcherId);
         return mapper.map(launcherPreset, LauncherPresetDTO.class);
     }
+
+    @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
+    @DeleteMapping("/{id}")
+    @Override
+    public void deleteLauncherPreset(@PathVariable("id") Long id, @PathVariable("launcherId") Long launcherId) {
+        launcherPresetService.deleteByIdAndLauncherId(id, launcherId);
+    }
 }
