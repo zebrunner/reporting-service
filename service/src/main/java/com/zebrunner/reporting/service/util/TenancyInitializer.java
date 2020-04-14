@@ -66,6 +66,7 @@ public class TenancyInitializer {
             String tenancy = eventMessage.getTenantName();
             LOGGER.info("Tenancy '" + tenancy + "' initialization is started.");
             initTenancy(tenancy);
+            LOGGER.info("Tenancy '" + tenancy + "' initialization is finished.");
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -100,7 +101,7 @@ public class TenancyInitializer {
     }
 
     private boolean completeTenancyDBInitialization(String tenancy) {
-        LOGGER.info("Tenancy '" + tenancy + "' DB initialization is starting...");
+        LOGGER.info("Tenancy '" + tenancy + "' DB initialization is started.");
 
         tenancyDbInitials.forEach(tenancyInitial -> initTenancyDb(tenancy, tenancyInitial));
         processMessage(tenancy, () -> scmAccountService.reEncryptTokens());
