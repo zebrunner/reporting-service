@@ -792,6 +792,12 @@ public class TestRunService implements ProjectReassignable {
         TestRunResultsEmail testRunResultsEmail = new TestRunResultsEmail(testRun, tests);
         testRunResultsEmail.getCustomValues().put("zafira_service_url", urlResolver.buildWebURL());
 
+        Long automationServerId = testRun.getJob().getAutomationServerId();
+        boolean appendJenkinsUrl = automationServerService.isAbleToShowJobUrl(automationServerId);
+        if (appendJenkinsUrl) {
+            testRunResultsEmail.setShowJenkinsUrl(true);
+        }
+
         return testRunResultsEmail;
     }
 
