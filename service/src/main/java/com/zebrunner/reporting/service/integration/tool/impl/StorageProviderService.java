@@ -3,6 +3,7 @@ package com.zebrunner.reporting.service.integration.tool.impl;
 import com.zebrunner.reporting.domain.dto.aws.FileUploadType;
 import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
+import com.zebrunner.reporting.service.exception.IntegrationException;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.service.integration.tool.AbstractIntegrationService;
 import com.zebrunner.reporting.service.integration.tool.adapter.storageprovider.StorageProviderAdapter;
@@ -40,7 +41,7 @@ public class StorageProviderService extends AbstractIntegrationService<StoragePr
         try {
             StorageProviderAdapter adapter = getDefaultAdapterByType();
             return adapter.getTemporarySessionCredentials(storageProviderTokenExpiration);
-        } catch (IllegalOperationException e) {
+        } catch (IllegalOperationException | IntegrationException e) {
             return Optional.empty();
         }
     }
