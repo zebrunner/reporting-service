@@ -116,6 +116,11 @@ public class AutomationServerService extends AbstractIntegrationService<Automati
         return maybeSetting.isPresent() && Boolean.parseBoolean(maybeSetting.get().getValue());
     }
 
+    public boolean isAbleToShowJobUrl(Long integrationId) {
+        return integrationId == null
+                || isJobUrlVisibilityEnabled(integrationId);
+    }
+
     private Optional<IntegrationSetting> getSetting(Long integrationId, String name) {
         Optional<IntegrationSetting> maybeSetting;
         if (integrationId == null) {

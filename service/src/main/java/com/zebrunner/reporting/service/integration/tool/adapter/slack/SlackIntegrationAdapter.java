@@ -7,6 +7,7 @@ import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.service.integration.tool.adapter.AbstractIntegrationAdapter;
 import com.zebrunner.reporting.service.integration.tool.adapter.AdapterParam;
+import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import in.ashwanthkumar.slack.webhook.SlackAttachment;
 import in.ashwanthkumar.slack.webhook.SlackMessage;
@@ -26,20 +27,24 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
     private static final String ERR_MSG_SLACK_CONNECTION_IS_NOT_ESTABLISHED = "Slack connection is not established";
 
     private final static String RESULTS_PATTERN = "Passed: %d, Failed: %d, Known Issues: %d, Skipped: %d";
-    private final static String INFO_PATTERN = "%1$s\n<%2$s|Open in Zafira>  |  <%3$s|Open in Jenkins>";
+    private final static String INFO_PATTERN = "%1$s\n<%2$s|Open in Zafira>";
+    private final static String OPEN_IN_JENKINS_INFO_PATTERN = "  |  <%1$s|Open in Jenkins>";
 
     private final String image;
     private final String author;
     private final String webhookUrl;
     private final SlackService slackService;
     private final URLResolver urlResolver;
+    private final AutomationServerService automationServerService;
 
     public SlackIntegrationAdapter(Integration integration,
                                    URLResolver urlResolver,
+                                   AutomationServerService automationServerService,
                                    Map<String, String> additionalProperties) {
         super(integration);
 
         this.urlResolver = urlResolver;
+        this.automationServerService = automationServerService;
 
         this.image = additionalProperties.get("image");
         this.author = additionalProperties.get("author");
@@ -83,9 +88,15 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
         String channels = tr.getSlackChannels();
         if (StringUtils.isNotEmpty(channels)) {
             String serviceUrl = urlResolver.buildWebURL() + "/tests/runs/" + tr.getId();
-            String jenkinsUrl = tr.getJob().getJobURL() + "/" + tr.getBuildNumber();
             String attachmentColor = determineColor(tr);
-            String mainMessage = customizedMessage + String.format(INFO_PATTERN, buildRunInfo(tr), serviceUrl, jenkinsUrl);
+            String mainMessage = customizedMessage + String.format(INFO_PATTERN, buildRunInfo(tr), serviceUrl);
+
+            Long automationServerId = tr.getJob().getAutomationServerId();
+            boolean appendJenkinsUrl = automationServerService.isAbleToShowJobUrl(automationServerId);
+            if (appendJenkinsUrl) {
+                String jenkinsUrl = tr.getJob().getJobURL() + "/" + tr.getBuildNumber();
+                mainMessage += String.format(OPEN_IN_JENKINS_INFO_PATTERN, jenkinsUrl);
+            }
             String resultsMessage = String.format(RESULTS_PATTERN, tr.getPassed(), tr.getFailed(), tr.getFailedAsKnown(), tr.getSkipped());
             SlackAttachment attachment = generateSlackAttachment(mainMessage, resultsMessage, attachmentColor, tr.getComments());
             Arrays.stream(channels.split(",")).forEach(channel -> {

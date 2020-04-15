@@ -23,6 +23,7 @@ public class TestRunResultsEmail implements IEmailMessage {
     private String jiraURL;
     private boolean showOnlyFailures = false;
     private boolean showStacktrace = true;
+    private boolean showJenkinsUrl;
     private int successRate;
     private String elapsed;
 
