@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service;
 
+import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSessionSearchCriteria;
 import com.zebrunner.reporting.persistence.repository.TestSessionRepository;
@@ -13,6 +14,7 @@ import com.zebrunner.reporting.domain.push.events.ZbrHubTokenRefreshMessage;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.IntegrationService;
+import com.zebrunner.reporting.service.integration.IntegrationTypeService;
 import com.zebrunner.reporting.service.util.EventPushService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.domain.Page;
@@ -39,11 +41,13 @@ public class TestSessionService {
 
     private final TestSessionRepository testSessionRepository;
     private final IntegrationService integrationService;
+    private final IntegrationTypeService integrationTypeService;
     private EventPushService<EventMessage> eventPushService;
 
-    public TestSessionService(TestSessionRepository testSessionRepository, IntegrationService integrationService, EventPushService<EventMessage> eventPushService) {
+    public TestSessionService(TestSessionRepository testSessionRepository, IntegrationService integrationService, IntegrationTypeService integrationTypeService, EventPushService<EventMessage> eventPushService) {
         this.testSessionRepository = testSessionRepository;
         this.integrationService = integrationService;
+        this.integrationTypeService = integrationTypeService;
         this.eventPushService = eventPushService;
     }
 
@@ -91,12 +95,12 @@ public class TestSessionService {
     }
 
     private void updateZbrHubPassword(Integration integration, String token) {
-        IntegrationParam password = integration.getType()
-                                               .getParams()
-                                               .stream()
-                                               .filter(integrationParam -> isParamPresent("ZEBRUNNER_PASSWORD", integrationParam))
-                                               .findFirst()
-                                               .orElse(new IntegrationParam());
+        IntegrationType integrationType = integrationTypeService.retrieveById(integration.getType().getId());
+        IntegrationParam password = integrationType.getParams()
+                                                   .stream()
+                                                   .filter(integrationParam -> isParamPresent("ZEBRUNNER_PASSWORD", integrationParam))
+                                                   .findFirst()
+                                                   .orElse(new IntegrationParam());
         updateIntegrationSetting(token, integration, password);
         integrationService.update(integration);
     }
