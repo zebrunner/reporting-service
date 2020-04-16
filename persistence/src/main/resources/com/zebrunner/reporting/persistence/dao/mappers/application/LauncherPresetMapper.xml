@@ -134,7 +134,7 @@
 		<result column="LAUNCHER_PRESET_NAME" property="name" />
 		<result column="LAUNCHER_PRESET_REFERENCE" property="ref" />
 		<result column="LAUNCHER_PRESET_PARAMS" property="params" />
-		<result column="PROVIDER_ID" property="providerId" />
+		<result column="LAUNCHER_PRESET_PROVIDER_ID" property="providerId" />
 		<result column="LAUNCHER_PRESET_MODIFIED_AT" property="modifiedAt" />
 		<result column="LAUNCHER_PRESET_CREATED_AT" property="createdAt" />
 	</resultMap>
