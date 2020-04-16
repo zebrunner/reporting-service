@@ -304,13 +304,14 @@ public class LauncherService {
     }
 
     @Transactional
-    public String buildLauncherJobByPresetRef(String ref, String callbackUrl, Long userId, Long providerId) throws IOException {
+    public String buildLauncherJobByPresetRef(String ref, String callbackUrl, Long userId) throws IOException {
         if (userId == 0) {
             User anonymous = userService.getDefaultUser();
             userId = anonymous.getId();
         }
         Launcher launcher = retrieveByPresetReference(ref);
         LauncherPreset preset = launcherPresetService.retrieveByRef(ref);
+        Long providerId = launcherPresetService.getTestEnvironmentProviderId(preset.getProviderId());
         launcher.setModel(preset.getParams());
         String ciRunId = buildLauncherJob(launcher, userId, providerId);
 

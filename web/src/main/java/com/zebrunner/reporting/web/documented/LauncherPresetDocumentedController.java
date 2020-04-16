@@ -39,15 +39,14 @@ public interface LauncherPresetDocumentedController {
     )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher preset id"),
-            @ApiImplicitParam(name = "providerId", paramType = "query", dataTypeClass = Long.class, value = "The test automation provider id")
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher preset id")
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the created launcher", response = String.class),
             @ApiResponse(code = 400, message = "Indicates that no automation servers were found (by id or default)", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Indicates that the launcher preset cannot be found by id", response = ErrorResponse.class)
     })
-    String buildWebHookUrl(Long id, Long providerId);
+    String buildWebHookUrl(Long id);
 
     @ApiOperation(
             value = "Revokes webhook url usage",

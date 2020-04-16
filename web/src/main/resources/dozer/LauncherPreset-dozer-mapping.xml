@@ -19,5 +19,9 @@
             <a>params</a>
             <b>params</b>
         </field>
+        <field>
+            <a>providerId</a>
+            <b>providerId</b>
+        </field>
     </mapping>
 </mappings>
