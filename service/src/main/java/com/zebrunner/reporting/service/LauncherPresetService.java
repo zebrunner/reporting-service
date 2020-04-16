@@ -21,7 +21,7 @@ public class LauncherPresetService {
     private static final String ERR_MSG_LAUNCHER_PRESET_NOT_FOUND_BY_ID = "Launcher preset not found by id '%d'";
     private static final String ERR_MSG_LAUNCHER_PRESET_NOT_FOUND_BY_REF = "Launcher preset not found by ref '%s'";
 
-    private static final String WEBHOOK_API_URL_PATTERN = "%s/api/launchers/hooks/%s?providerId=%d";
+    private static final String WEBHOOK_API_URL_PATTERN = "%s/api/launchers/hooks/%s";
 
     private final LauncherPresetMapper launcherPresetMapper;
     private final URLResolver urlResolver;
@@ -102,11 +102,10 @@ public class LauncherPresetService {
     }
 
     @Transactional(readOnly = true)
-    public String buildWebHookUrl(Long id, Long providerId) {
-        providerId = getTestEnvironmentProviderId(providerId);
+    public String buildWebHookUrl(Long id) {
         LauncherPreset launcherPreset = retrieveById(id);
         String webserviceUrl = urlResolver.buildWebserviceUrl();
-        return String.format(WEBHOOK_API_URL_PATTERN, webserviceUrl, launcherPreset.getRef(), providerId);
+        return String.format(WEBHOOK_API_URL_PATTERN, webserviceUrl, launcherPreset.getRef());
     }
 
     @Transactional

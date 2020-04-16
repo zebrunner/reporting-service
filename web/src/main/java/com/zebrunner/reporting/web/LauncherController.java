@@ -108,10 +108,9 @@ public class LauncherController extends AbstractController implements LauncherDo
     @Override
     public String buildByWebHook(
         @PathVariable("ref") String ref,
-        @RequestParam(value = "callbackUrl", required = false) String callbackUrl,
-        @RequestParam(name = "providerId", required = false) Long providerId
+        @RequestParam(value = "callbackUrl", required = false) String callbackUrl
     ) throws IOException {
-        return launcherService.buildLauncherJobByPresetRef(ref, callbackUrl, getPrincipalId(), providerId);
+        return launcherService.buildLauncherJobByPresetRef(ref, callbackUrl, getPrincipalId());
     }
 
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")
