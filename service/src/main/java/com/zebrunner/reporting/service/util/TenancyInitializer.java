@@ -64,9 +64,9 @@ public class TenancyInitializer {
         try {
             EventMessage eventMessage = new Gson().fromJson(new String(message.getBody()), EventMessage.class);
             String tenancy = eventMessage.getTenantName();
-            LOGGER.info("Tenancy '" + tenancy + "' initialization is started.");
+            LOGGER.info("Tenancy '{}' initialization is started.", tenancy);
             initTenancy(tenancy);
-            LOGGER.info("Tenancy '" + tenancy + "' initialization is finished.");
+            LOGGER.info("Tenancy '{}' initialization is finished.", tenancy);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -101,14 +101,14 @@ public class TenancyInitializer {
     }
 
     private boolean completeTenancyDBInitialization(String tenancy) {
-        LOGGER.info("Tenancy '" + tenancy + "' DB initialization is started.");
+        LOGGER.info("Tenancy '{}' DB initialization is started.", tenancy);
 
         tenancyDbInitials.forEach(tenancyInitial -> initTenancyDb(tenancy, tenancyInitial));
         processMessage(tenancy, () -> scmAccountService.reEncryptTokens());
 
         boolean tenancyDBInitialized = eventPushService.convertAndSend(TENANCIES, new EventMessage(tenancy));
 
-        LOGGER.info("Tenancy '" + tenancy + "' DB initialization is finished.");
+        LOGGER.info("Tenancy '{}' DB initialization is finished.", tenancy);
 
         return tenancyDBInitialized;
     }
@@ -116,13 +116,13 @@ public class TenancyInitializer {
     private void createTenancyInvitation(TenancyResponseEventMessage result, EmailEventMessage eventMessage, String tenancy) {
         processMessage(tenancy, () -> {
             try {
-                LOGGER.info("Invitation to tenancy '" + result.getTenantName() + "' generation is started.");
+                LOGGER.info("Invitation to tenancy '{}' generation is started.", result.getTenantName());
 
                 Invitation invitation = invitationService.createInitialInvitation(eventMessage.getEmail(), DEFAULT_USER_GROUP);
                 result.setToken(invitation.getToken());
                 result.setLogoUrl(urlResolver.buildWebURL());
 
-                LOGGER.info("Invitation to tenancy '" + result.getTenantName() + "' generation is finished.");
+                LOGGER.info("Invitation to tenancy '{}' generation is finished.", result.getTenantName());
             } catch (RuntimeException e) {
                 String errorMessage = e.getMessage();
                 result.setMessage(errorMessage);
