@@ -11,7 +11,7 @@ public class TenancyResponseEventMessage extends EventMessage {
 
     private String token;
     private String logoUrl;
-    private Boolean success;
+    private boolean success;
     private String message;
 
     public TenancyResponseEventMessage(String tenancy) {
