@@ -53,7 +53,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     @PostMapping()
     @Override
     public LauncherDTO createLauncher(@RequestBody @Valid LauncherDTO launcherDTO,
-                                      @RequestParam(name = "automationServerId", required = false) Long automationServerId) {
+                                      @RequestParam(name = "automationServerId") Long automationServerId) {
         Launcher launcher = mapper.map(launcherDTO, Launcher.class);
         Long principalId = getPrincipalId();
         launcher = launcherService.createLauncher(launcher, principalId, automationServerId);
@@ -98,7 +98,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     @PostMapping("/build")
     @Override
     public void build(@RequestBody @Valid LauncherDTO launcherDTO,
-                      @RequestParam(name = "providerId", required = false) Long providerId) throws IOException {
+                      @RequestParam(name = "providerId") Long providerId) throws IOException {
         Launcher launcher = mapper.map(launcherDTO, Launcher.class);
         String ciRunId = launcherService.buildLauncherJob(launcher, getPrincipalId(), providerId);
         websocketTemplate.convertAndSend(getLauncherRunsWebsocketPath(), new LauncherRunPush(launcher, ciRunId));
@@ -117,7 +117,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     @GetMapping("/build/number")
     @Override
     public Integer getBuildNumber(@RequestParam("queueItemUrl") String queueItemUrl,
-                                  @RequestParam(name = "automationServerId", required = false) Long automationServerId) {
+                                  @RequestParam(name = "automationServerId") Long automationServerId) {
         return launcherService.getBuildNumber(queueItemUrl, automationServerId);
     }
 
@@ -125,7 +125,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     @PostMapping("/scanner")
     @Override
     public JobResult runScanner(@RequestBody @Valid LauncherScannerType launcherScannerType,
-                                @RequestParam(name = "automationServerId", required = false) Long automationServerId) {
+                                @RequestParam(name = "automationServerId") Long automationServerId) {
         return launcherService.buildScannerJob(
                 getPrincipalId(),
                 launcherScannerType.getBranch(),
@@ -141,7 +141,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     public void cancelScanner(@PathVariable("buildNumber") int buildNumber,
                               @RequestParam("scmAccountId") Long scmAccountId,
                               @RequestParam("rescan") boolean rescan,
-                              @RequestParam(name = "automationServerId", required = false) Long automationServerId) {
+                              @RequestParam(name = "automationServerId") Long automationServerId) {
         launcherService.abortScannerJob(scmAccountId, buildNumber, rescan, automationServerId);
     }
 
@@ -150,7 +150,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     public boolean getScannerStatus(@PathVariable("buildNumber") int buildNumber,
                                     @RequestParam("scmAccountId") Long scmAccountId,
                                     @RequestParam("rescan") boolean rescan,
-                                    @RequestParam(name = "automationServerId", required = false) Long automationServerId) {
+                                    @RequestParam(name = "automationServerId") Long automationServerId) {
         return launcherService.isScannerJobInProgress(scmAccountId, buildNumber, rescan, automationServerId);
     }
 
