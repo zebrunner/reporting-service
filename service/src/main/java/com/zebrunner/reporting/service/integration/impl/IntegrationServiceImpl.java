@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service.integration.impl;
 
+import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
 import com.zebrunner.reporting.persistence.repository.IntegrationRepository;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.Job;
@@ -27,6 +28,7 @@ import org.springframework.util.StringUtils;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -192,6 +194,33 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Transactional(readOnly = true)
     public List<Integration> retrieveByIntegrationsTypeName(String integrationTypeName) {
         return integrationRepository.findIntegrationsByTypeName(integrationTypeName);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<IntegrationPublicInfo> retrievePublicInfo() {
+        List<Integration> integrations = integrationRepository.findIntegrationsWithUrlSetting();
+        return integrations.stream()
+                           .filter(integration -> getFirstUrlSetting(integration).isPresent())
+                           .map(integration -> {
+                               String name = integration.getName();
+                               String icon = integration.getType().getIconUrl();
+                               String url = getFirstUrlSetting(integration).get().getValue();
+                               return new IntegrationPublicInfo(name, icon, url);
+                           })
+                           .collect(Collectors.toList());
+    }
+
+    private Optional<IntegrationSetting> getFirstUrlSetting(Integration integration) {
+        return integration.getSettings().stream()
+                          .filter(this::isUrlSetting)
+                          .findFirst();
+    }
+
+    private boolean isUrlSetting(IntegrationSetting setting) {
+        boolean endsWithUrlKeyword = setting.getParam().getName().toLowerCase().endsWith("url");
+        boolean hasValue = !StringUtils.isEmpty(setting.getValue());
+        return hasValue && endsWithUrlKeyword;
     }
 
     @Override

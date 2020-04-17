@@ -2,6 +2,7 @@ package com.zebrunner.reporting.web.documented;
 
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;
+import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -29,6 +30,18 @@ public interface IntegrationInfoDocumentedController {
             @ApiResponse(code = 200, message = "Returns found integrations", response = Map.class)
     })
     Map<String, Map<String, List<IntegrationInfo>>> getIntegrationsInfo();
+
+    @ApiOperation(
+            value = "Retrieves public integrations information",
+            notes = "Information contains name, icon and url of integration",
+            nickname = "getPublicInfos",
+            httpMethod = "GET",
+            response = List.class
+    )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns found integrations", response = List.class)
+    })
+    List<IntegrationPublicInfo> getPublicInfos();
 
     @ApiOperation(
             value = "Retrieves integration connections info by id",
