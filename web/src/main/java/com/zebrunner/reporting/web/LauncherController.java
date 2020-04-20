@@ -98,7 +98,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     @PostMapping("/build")
     @Override
     public void build(@RequestBody @Valid LauncherDTO launcherDTO,
-                      @RequestParam(name = "providerId") Long providerId) throws IOException {
+                      @RequestParam(name = "providerId", required = false) Long providerId) throws IOException {
         Launcher launcher = mapper.map(launcherDTO, Launcher.class);
         String ciRunId = launcherService.buildLauncherJob(launcher, getPrincipalId(), providerId);
         websocketTemplate.convertAndSend(getLauncherRunsWebsocketPath(), new LauncherRunPush(launcher, ciRunId));

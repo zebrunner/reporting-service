@@ -311,9 +311,9 @@ public class LauncherService {
         }
         Launcher launcher = retrieveByPresetReference(ref);
         LauncherPreset preset = launcherPresetService.retrieveByRef(ref);
-        Long providerId = launcherPresetService.getTestEnvironmentProviderId(preset.getProviderId());
         launcher.setModel(preset.getParams());
-        String ciRunId = buildLauncherJob(launcher, userId, providerId);
+
+        String ciRunId = buildLauncherJob(launcher, userId, preset.getProviderId());
 
         LauncherCallback callback = null;
         if (callbackUrl != null) {
