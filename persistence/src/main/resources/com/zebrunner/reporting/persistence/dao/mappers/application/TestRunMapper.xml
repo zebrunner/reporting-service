@@ -72,7 +72,7 @@
                TR.ELAPSED                   AS TEST_RUN_ELAPSED,
                TR.ETA                       AS TEST_RUN_ETA,
                TR.COMMENTS                  AS TEST_RUN_COMMENTS,
-               TR.CHANNELS            AS TEST_RUN_CHANNELS,
+               TR.CHANNELS                  AS TEST_RUN_CHANNELS,
                TR.REVIEWED                  AS TEST_RUN_REVIEWED,
                TR.MODIFIED_AT               AS TEST_RUN_MODIFIED_AT,
                TR.CREATED_AT                AS TEST_RUN_CREATED_AT,
@@ -201,7 +201,7 @@
 				ON TR.PROJECT_ID = P.ID
 			LEFT JOIN TEST_RUN_ARTIFACTS TRA
 				ON TR.ID = TRA.TEST_RUN_ID
-				]]>
+        ]]>
 	</sql>
 
     <select id="getTestRunById" resultMap="TestRunResultMap">
@@ -571,10 +571,10 @@
         			WHERE
         				TC.ENV = #{env} AND TR.JOB_ID IN
         		]]>
-                <foreach item="jobId" index="index" collection="jobIds"
-                         open="(" separator="," close=")">
-                    #{jobId}
-                </foreach>
+        <foreach item="jobId" index="index" collection="jobIds"
+                 open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
     </select>
 
     <select id="getLatestJobTestRunByBranch"
@@ -779,7 +779,7 @@
 
         <collection property="artifacts"
                     ofType="com.zebrunner.reporting.domain.db.TestRunArtifact"
-                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper.TestRunArtifactResultMap" />
+                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper.TestRunArtifactResultMap"/>
 
     </resultMap>
 

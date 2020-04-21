@@ -28,8 +28,7 @@ public class MicrosoftTeamsIntegrationAdapter extends AbstractIntegrationAdapter
 
     public static final String EMPTY_JSON_REQUEST_RESPONSE = "Summary or Text is required";
 
-    public static final Map<String, String> NOTIFICATION_COLOR = Map.of("PASSED", "22CA88",
-            "FAILED", "D43A40", "SKIPPED", "FFD276");
+    public static final Map<String, String> NOTIFICATION_COLOR = Map.of("PASSED", "22CA88", "FAILED", "D43A40", "SKIPPED", "FFD276");
 
     private final String channelName;
     private final String webHookValue;
@@ -121,7 +120,7 @@ public class MicrosoftTeamsIntegrationAdapter extends AbstractIntegrationAdapter
     }
 
     /**
-     * Generate MessageCard card which is the object of predefiend structure
+     * Generate MessageCard card which is the object with predefined structure
      * accepted by Microsoft Teams webHook.
      *
      * @param testRun                - test run object to send notification about

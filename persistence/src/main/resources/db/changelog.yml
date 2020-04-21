@@ -231,7 +231,7 @@ databaseChangeLog:
             relativeToChangelogFile: true
             splitStatements: false
   - changeSet:
-        id: 021_add_microsoft_teams_integration
+        id: 022_add_microsoft_teams_integration
         validCheckSum: ANY
         labels: stable
         author: itsvirko
