@@ -43,7 +43,7 @@
 				#{elapsed},
 				#{eta},
 				#{comments},
-				#{slackChannels}
+				#{channels}
 			)
 		]]>
     </insert>
@@ -626,7 +626,7 @@
 				ELAPSED = #{elapsed},
 				ETA = #{eta},
 				COMMENTS = #{comments},
-				SLACK_CHANNELS = #{slackChannels},
+				SLACK_CHANNELS = #{channels},
 				REVIEWED = #{reviewed}
 			WHERE
 			    ID = #{id}
@@ -745,7 +745,7 @@
         <result column="TEST_RUN_ETA" property="eta"/>
         <result column="TEST_RUN_COMMENTS" property="comments"/>
         <result column="TEST_RUN_SLACK_CHANNELS"
-                property="slackChannels"/>
+                property="channels"/>
         <result column="TEST_RUN_REVIEWED" property="reviewed"/>
         <result column="TEST_RUN_PASSED" property="passed"/>
         <result column="TEST_RUN_FAILED" property="failed"/>

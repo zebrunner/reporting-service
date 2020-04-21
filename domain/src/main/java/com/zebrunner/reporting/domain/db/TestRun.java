@@ -47,7 +47,7 @@ public class TestRun extends AbstractEntity {
     private Integer elapsed;
     private Integer eta;
     private String comments;
-    private String slackChannels;
+    private String channels;
     private TestConfig config;
 
     private Integer passed;

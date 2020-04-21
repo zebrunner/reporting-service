@@ -3,7 +3,7 @@ package com.zebrunner.reporting.service;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
-import com.zebrunner.reporting.service.integration.tool.impl.SlackService;
+import com.zebrunner.reporting.service.integration.tool.impl.NotificationService;
 import com.zebrunner.reporting.service.integration.tool.impl.TestCaseManagementService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +23,7 @@ public class ConfigurationService {
     private final AutomationServerService automationServerService;
     private final TestCaseManagementService testCaseManagementService;
     private final TestRunService testRunService;
-    private final SlackService slackService;
+    private final NotificationService notificationService;
 
     @Value("${service.version}")
     private String serviceVersion;
@@ -33,13 +33,13 @@ public class ConfigurationService {
             AutomationServerService automationServerService,
             TestCaseManagementService testCaseManagementService,
             TestRunService testRunService,
-            SlackService slackService
+            NotificationService notificationService
     ) {
         this.urlResolver = urlResolver;
         this.automationServerService = automationServerService;
         this.testCaseManagementService = testCaseManagementService;
         this.testRunService = testRunService;
-        this.slackService = slackService;
+        this.notificationService = notificationService;
     }
 
     public Map<String, Object> getAppConfig() {
@@ -61,7 +61,7 @@ public class ConfigurationService {
         if (testRun == null) {
             throw new ResourceNotFoundException(TEST_RUN_NOT_FOUND, String.format(ERR_MSG_TEST_RUN_NOT_FOUND, testRunId));
         }
-        boolean available = isSlackAvailable() && StringUtils.isNotEmpty(testRun.getSlackChannels());
+        boolean available = isSlackAvailable() && StringUtils.isNotEmpty(testRun.getChannels());
         return Map.of("available", available);
     }
 
@@ -71,6 +71,6 @@ public class ConfigurationService {
     }
 
     private boolean isSlackAvailable() {
-        return slackService.isEnabledAndConnected(null) && slackService.getWebhook() != null;
+        return notificationService.isEnabledAndConnected(null) && notificationService.getWebhook(null) != null;
     }
 }
