@@ -154,7 +154,7 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Transactional(readOnly = true)
     public List<Integration> retrieveIntegrationsByGroupId(Long groupId) {
         List<Integration> integrations = integrationRepository.findByGroupId(groupId);
-        attachTypesAndSettings(integrations);
+        attachTypesAndGroupAndSettings(integrations);
         return integrations;
     }
 
@@ -165,9 +165,11 @@ public class IntegrationServiceImpl implements IntegrationService {
                                     .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.ResourceNotFoundErrorDetail.INTEGRATION_NOT_FOUND, ERR_MSG_DEFAULT_VALUE_IS_NOT_PROVIDED_BY_NAME, integrationTypeName));
     }
 
-    private void attachTypesAndSettings(List<Integration> integrations) {
+    private void attachTypesAndGroupAndSettings(List<Integration> integrations) {
         integrations.forEach(integration -> {
             IntegrationType type = integrationTypeService.retrieveByIntegrationId(integration.getId());
+            IntegrationGroup group = integrationGroupService.retrieveByIntegrationTypeId(type.getId());
+            type.setGroup(group);
             integration.setType(type);
             List<IntegrationSetting> settings = integrationSettingService.retrieveByIntegrationId(integration.getId());
             integration.setSettings(settings);
@@ -178,7 +180,7 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Transactional(readOnly = true)
     public List<Integration> retrieveAll() {
         List<Integration> integrations = integrationRepository.findAll();
-        attachTypesAndSettings(integrations);
+        attachTypesAndGroupAndSettings(integrations);
         return integrations;
     }
 
@@ -186,7 +188,7 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Transactional(readOnly = true)
     public List<Integration> retrieveIntegrationsByGroupName(String integrationGroupName) {
         List<Integration> integrations = integrationRepository.findIntegrationsByGroupName(integrationGroupName);
-        attachTypesAndSettings(integrations);
+        attachTypesAndGroupAndSettings(integrations);
         return integrations;
     }
 
@@ -257,12 +259,17 @@ public class IntegrationServiceImpl implements IntegrationService {
                            .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean isConnected(Long id, String groupName) {
+        AbstractIntegrationService<?> integrationService = integrationInitializer.getIntegrationServices().get(groupName);
+        return integrationService.isEnabledAndConnected(id);
+    }
+
     private IntegrationInfo collectRuntimeIntegrationInfo(String groupName, Integration integration) {
-        AbstractIntegrationService integrationService = integrationInitializer.getIntegrationServices().get(groupName);
         boolean enabled = integration.isEnabled();
         boolean connected = false;
         if (enabled) {
-            connected = integrationService.isEnabledAndConnected(integration.getId());
+            connected = isConnected(integration.getId(), groupName);
         }
         // TODO: 9/11/19 switch connected and enabled places to avoid confusion
         return new IntegrationInfo(integration.getId(), integration.getBackReferenceId(), integration.isDefault(), connected, enabled);

@@ -70,8 +70,17 @@ public class IntegrationController extends AbstractController implements Integra
             integrations = integrationService.retrieveAll();
         }
         return integrations.stream()
-                           .map(integration -> mapper.map(integration, IntegrationDTO.class))
+                           .map(this::mapIntegration)
                            .collect(Collectors.toList());
+    }
+
+    private IntegrationDTO mapIntegration(Integration integration) {
+        IntegrationDTO integrationDTO = mapper.map(integration, IntegrationDTO.class);
+        if (integrationDTO.isEnabled()) {
+            String gn = integration.getType().getGroup().getName();
+            integrationDTO.setConnected(integrationService.isConnected(integration.getId(), gn));
+        }
+        return integrationDTO;
     }
 
     @PreAuthorize("hasPermission('VIEW_INTEGRATIONS')")
