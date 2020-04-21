@@ -111,14 +111,13 @@ public class AutomationServerService extends AbstractIntegrationService<Automati
         return adapter.getFolder();
     }
 
-    public boolean isJobUrlVisibilityEnabled(Long integrationId) {
+    public boolean jobUrlVisibilityEnabled(Long integrationId) {
         Optional<IntegrationSetting> maybeSetting = getSetting(integrationId, "JENKINS_JOB_URL_VISIBILITY");
         return maybeSetting.isPresent() && Boolean.parseBoolean(maybeSetting.get().getValue());
     }
 
-    public boolean isAbleToShowJobUrl(Long integrationId) {
-        return integrationId == null
-                || isJobUrlVisibilityEnabled(integrationId);
+    public boolean showJobUrl(Long integrationId) {
+        return integrationId == null || jobUrlVisibilityEnabled(integrationId);
     }
 
     private Optional<IntegrationSetting> getSetting(Long integrationId, String name) {

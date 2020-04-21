@@ -793,7 +793,7 @@ public class TestRunService implements ProjectReassignable {
         testRunResultsEmail.getCustomValues().put("zafira_service_url", urlResolver.buildWebURL());
 
         Long automationServerId = testRun.getJob().getAutomationServerId();
-        boolean appendJenkinsUrl = automationServerService.isAbleToShowJobUrl(automationServerId);
+        boolean appendJenkinsUrl = automationServerService.showJobUrl(automationServerId);
         if (appendJenkinsUrl) {
             testRunResultsEmail.setShowJenkinsUrl(true);
         }
@@ -817,7 +817,7 @@ public class TestRunService implements ProjectReassignable {
 
     public void hideJobUrlsIfNeed(List<TestRun> testRuns) {
         testRuns.stream()
-                .filter(testRun -> !automationServerService.isJobUrlVisibilityEnabled(testRun.getJob().getAutomationServerId()))
+                .filter(testRun -> !automationServerService.jobUrlVisibilityEnabled(testRun.getJob().getAutomationServerId()))
                 .forEach(testRun -> testRun.getJob().setJobURL(null));
     }
 

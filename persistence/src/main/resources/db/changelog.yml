@@ -238,6 +238,6 @@ databaseChangeLog:
         changes:
             - sqlFile:
                   encoding: utf8
-                  path: changeset/021_add_microsoft_teams_integration.sql
+                  path: changeset/022_add_microsoft_teams_integration.sql
                   relativeToChangelogFile: true
                   splitStatements: false

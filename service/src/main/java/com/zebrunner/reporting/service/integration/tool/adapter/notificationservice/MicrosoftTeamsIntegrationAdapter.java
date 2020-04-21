@@ -179,7 +179,9 @@ public class MicrosoftTeamsIntegrationAdapter extends AbstractIntegrationAdapter
     private JsonArray getPotentialActions(String serviceUrl, String jenkinsUrl) {
         JsonArray potentialActions = new JsonArray();
         potentialActions.add(getPotentialAction("Open in Zebrunner", serviceUrl));
-        potentialActions.add(getPotentialAction("Open in Jenkins", jenkinsUrl));
+        if (jenkinsUrl != null) {
+            potentialActions.add(getPotentialAction("Open in Jenkins", jenkinsUrl));
+        }
         return potentialActions;
     }
 

@@ -3,12 +3,10 @@ package com.zebrunner.reporting.service.integration.tool.impl;
 import com.zebrunner.reporting.domain.db.TestConfig;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
-import com.zebrunner.reporting.domain.entity.integration.IntegrationGroup;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
 import com.zebrunner.reporting.service.TestRunService;
 import com.zebrunner.reporting.service.email.TestRunResultsEmail;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
-import com.zebrunner.reporting.service.integration.IntegrationGroupService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.service.integration.IntegrationTypeService;
 import com.zebrunner.reporting.service.integration.tool.AbstractIntegrationService;
@@ -21,10 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -37,21 +33,21 @@ public class NotificationService extends AbstractIntegrationService<Notification
     private final static String REVIEWED_PATTERN = "Test run #%1$d has been reviewed. Status: %2$s\n";
 
     private final IntegrationService integrationService;
-    private final IntegrationGroupService integrationGroupService;
     private final IntegrationTypeService integrationTypeService;
+    private final AutomationServerService automationServerService;
     private final TestRunService testRunService;
     private final URLResolver urlResolver;
 
-    public NotificationService(IntegrationService integrationService,
-                               IntegrationGroupService integrationGroupService,
-                               NotificationServiceProxy notificationServiceProxy,
+    public NotificationService(NotificationServiceProxy notificationServiceProxy,
+                               IntegrationService integrationService,
                                IntegrationTypeService integrationTypeService,
+                               AutomationServerService automationServerService,
                                TestRunService testRunService,
                                URLResolver urlResolver) {
         super(integrationService, notificationServiceProxy, "SLACK");
         this.integrationService = integrationService;
-        this.integrationGroupService = integrationGroupService;
         this.integrationTypeService = integrationTypeService;
+        this.automationServerService = automationServerService;
         this.testRunService = testRunService;
         this.urlResolver = urlResolver;
     }
@@ -93,8 +89,7 @@ public class NotificationService extends AbstractIntegrationService<Notification
         Map<String, String> notificationProperties = getNotificationProperties(testRun, message);
 
         IntegrationType defaultType = integrationTypeService.retrieveByName(getDefaultType());
-        IntegrationGroup integrationGroup = integrationGroupService.retrieveByIntegrationTypeId(defaultType.getId());
-        List<Integration> integrations = integrationService.retrieveIntegrationsByGroupId(integrationGroup.getId());
+        List<Integration> integrations = integrationService.retrieveIntegrationsByTypeId(defaultType.getId());
 
         integrations.forEach(integration -> {
             if (integration.isEnabled()) {
@@ -132,8 +127,13 @@ public class NotificationService extends AbstractIntegrationService<Notification
         String serviceUrl = urlResolver.buildWebURL() + "/tests/runs/" + testRun.getId();
         notificationProperties.put("serviceUrl", serviceUrl);
 
-        String jenkinsUrl = testRun.getJob().getJobURL() + "/" + testRun.getBuildNumber();
-        notificationProperties.put("jenkinsUrl", jenkinsUrl);
+        Long automationServerId = testRun.getJob().getAutomationServerId();
+        boolean showJobUrl = automationServerService.showJobUrl(automationServerId);
+        if (showJobUrl) {
+            String jenkinsUrl = testRun.getJob().getJobURL() + "/" + testRun.getBuildNumber();
+            notificationProperties.put("jenkinsUrl", jenkinsUrl);
+        }
+
         return notificationProperties;
     }
 

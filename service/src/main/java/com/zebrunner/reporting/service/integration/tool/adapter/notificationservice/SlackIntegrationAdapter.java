@@ -4,6 +4,7 @@ import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.service.integration.tool.adapter.AbstractIntegrationAdapter;
 import com.zebrunner.reporting.service.integration.tool.adapter.AdapterParam;
+import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
 import in.ashwanthkumar.slack.webhook.SlackAttachment;
 import in.ashwanthkumar.slack.webhook.SlackMessage;
 import in.ashwanthkumar.slack.webhook.service.SlackService;
@@ -18,13 +19,13 @@ import java.util.Map;
 public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implements NotificationServiceAdapter {
 
     private static final String ERR_MSG_SLACK_CONNECTION_IS_NOT_ESTABLISHED = "Slack connection is not established";
+    public static final String ERR_MSG_UNABLE_TO_PUSH_SLACK_NOTIFICATION = "Unable to push Slack notification in channel {} ";
 
     private static final String RESULTS_PATTERN = "Passed: %d, Failed: %d, Known Issues: %d, Skipped: %d";
-    private static final String INFO_PATTERN = "%1$s\n<%2$s|Open in Zebrunner>  |  <%3$s|Open in Jenkins>";
+    private final static String INFO_PATTERN = "%1$s\n<%2$s|Open in Zafira>";
+    private final static String OPEN_IN_JENKINS_INFO_PATTERN = "  |  <%1$s|Open in Jenkins>";
 
-    public static final Map<String, String> NOTIFICATION_COLOR = Map.of("PASSED", "good",
-            "FAILED", "danger", "SKIPPED", "warning");
-    public static final String ERR_MSG_UNABLE_TO_PUSH_SLACK_NOTIFICATION = "Unable to push Slack notification in channel {} ";
+    public static final Map<String, String> NOTIFICATION_COLOR = Map.of("PASSED", "good", "FAILED", "danger", "SKIPPED", "warning");
 
     private final String image;
     private final String author;
@@ -32,7 +33,7 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
     private final SlackService slackService;
 
     public SlackIntegrationAdapter(Integration integration,
-                                   Map<String, String> additionalProperties) {
+                                   Map<String, String> additionalProperties, AutomationServerService automationServerService) {
         super(integration);
 
         this.image = additionalProperties.get("image");
@@ -84,7 +85,10 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
         String testRunInfoMessage = notificationProperties.get("testRunInfoMessage");
         String attachmentColor = NOTIFICATION_COLOR.get(testRun.getStatus().name());
 
-        String mainMessage = testRunUpdateMessage + String.format(INFO_PATTERN, testRunInfoMessage, serviceUrl, jenkinsUrl);
+        String mainMessage = testRunUpdateMessage + String.format(INFO_PATTERN, testRunInfoMessage, serviceUrl);
+        if (jenkinsUrl != null) {
+            mainMessage += String.format(OPEN_IN_JENKINS_INFO_PATTERN, jenkinsUrl);
+        }
         String resultsMessage = String.format(RESULTS_PATTERN, testRun.getPassed(), testRun.getFailed(), testRun.getFailedAsKnown(), testRun.getSkipped());
 
         SlackAttachment slackAttachment = new SlackAttachment("");
