@@ -40,6 +40,8 @@ public interface IntegrationService {
 
     IntegrationInfo retrieveInfoByIntegration(Integration integration);
 
+    boolean isConnected(Long id, String groupName);
+
     Integration update(Integration integration);
 
 }
