@@ -11,4 +11,5 @@ public class LauncherPreset extends AbstractEntity {
     private String name;
     private String ref;
     private String params;
+    private Long providerId;
 }

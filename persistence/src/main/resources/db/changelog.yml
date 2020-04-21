@@ -220,13 +220,24 @@ databaseChangeLog:
             relativeToChangelogFile: true
             splitStatements: false
   - changeSet:
-      id: 021_add_microsoft_teams_integration
+      id: 021_add_test_environment_provider_column
       validCheckSum: ANY
       labels: stable
-      author: itsvirko
+      author: brutskov
       changes:
         - sqlFile:
             encoding: utf8
-            path: changeset/021_add_microsoft_teams_integration.sql
+            path: changeset/021_add_test_environment_provider_column.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+        id: 021_add_microsoft_teams_integration
+        validCheckSum: ANY
+        labels: stable
+        author: itsvirko
+        changes:
+            - sqlFile:
+                  encoding: utf8
+                  path: changeset/021_add_microsoft_teams_integration.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false

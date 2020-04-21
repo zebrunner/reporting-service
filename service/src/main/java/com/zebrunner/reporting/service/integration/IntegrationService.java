@@ -3,6 +3,7 @@ package com.zebrunner.reporting.service.integration;
 import com.zebrunner.reporting.domain.db.Job;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;
+import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,8 @@ public interface IntegrationService {
     List<Integration> retrieveIntegrationsByGroupName(String integrationGroupName);
 
     List<Integration> retrieveByIntegrationsTypeName(String integrationTypeName);
+
+    List<IntegrationPublicInfo> retrievePublicInfo();
 
     Map<String, Map<String, List<IntegrationInfo>>> retrieveInfo();
 
