@@ -89,16 +89,8 @@ public class ConfigurationService {
                                                   .filter(integration -> integrationName.equals(integration.getName()))
                                                   .findFirst()
                                                   .orElseThrow(() -> new ResourceNotFoundException(TEST_RUN_NOT_FOUND, String.format(ERR_MSG_TEST_INTEGRATION_NOT_FOUND, integrationName)));
-        return isEnabledAndConnected(defaultType, slackIntegration);
+
+        return notificationService.isEnabledAndConnected(slackIntegration.getId());
     }
 
-    private boolean isEnabledAndConnected(IntegrationType integrationType, Integration integration) {
-        AbstractIntegrationService integrationService = integrationInitializer.getIntegrationServices().get(integrationType.getGroup().getName());
-        boolean enabled = integration.isEnabled();
-        boolean connected = false;
-        if (enabled) {
-            connected = integrationService.isEnabledAndConnected(integration.getId());
-        }
-        return enabled & connected;
-    }
 }
