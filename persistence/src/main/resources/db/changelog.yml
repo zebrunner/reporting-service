@@ -230,3 +230,14 @@ databaseChangeLog:
             path: changeset/021_add_test_environment_provider_column.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+        id: 022_add_microsoft_teams_integration
+        validCheckSum: ANY
+        labels: stable
+        author: itsvirko
+        changes:
+            - sqlFile:
+                  encoding: utf8
+                  path: changeset/022_add_microsoft_teams_integration.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false

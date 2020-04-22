@@ -13,7 +13,7 @@
             PROJECT_ID,
         </if>
         <![CDATA[
-			STARTED_BY, KNOWN_ISSUE, BLOCKER, STARTED_AT, ELAPSED, ETA, COMMENTS, SLACK_CHANNELS)
+			STARTED_BY, KNOWN_ISSUE, BLOCKER, STARTED_AT, ELAPSED, ETA, COMMENTS, CHANNELS)
 			VALUES (
 				#{ciRunId},
 				#{user.id},
@@ -43,7 +43,7 @@
 				#{elapsed},
 				#{eta},
 				#{comments},
-				#{slackChannels}
+				#{channels}
 			)
 		]]>
     </insert>
@@ -72,7 +72,7 @@
                TR.ELAPSED                   AS TEST_RUN_ELAPSED,
                TR.ETA                       AS TEST_RUN_ETA,
                TR.COMMENTS                  AS TEST_RUN_COMMENTS,
-               TR.SLACK_CHANNELS            AS TEST_RUN_SLACK_CHANNELS,
+               TR.CHANNELS                  AS TEST_RUN_CHANNELS,
                TR.REVIEWED                  AS TEST_RUN_REVIEWED,
                TR.MODIFIED_AT               AS TEST_RUN_MODIFIED_AT,
                TR.CREATED_AT                AS TEST_RUN_CREATED_AT,
@@ -126,7 +126,7 @@
 				TR.ELAPSED AS TEST_RUN_ELAPSED,
 				TR.ETA AS TEST_RUN_ETA,
 				TR.COMMENTS AS TEST_RUN_COMMENTS,
-				TR.SLACK_CHANNELS AS TEST_RUN_SLACK_CHANNELS,
+				TR.CHANNELS AS TEST_RUN_CHANNELS,
 				TR.REVIEWED AS TEST_RUN_REVIEWED,
 				(SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'PASSED') AS TEST_RUN_PASSED,
 				(SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'FAILED') AS TEST_RUN_FAILED,
@@ -201,7 +201,7 @@
 				ON TR.PROJECT_ID = P.ID
 			LEFT JOIN TEST_RUN_ARTIFACTS TRA
 				ON TR.ID = TRA.TEST_RUN_ID
-				]]>
+        ]]>
 	</sql>
 
     <select id="getTestRunById" resultMap="TestRunResultMap">
@@ -528,7 +528,7 @@
                TR.ELAPSED                                            AS TEST_RUN_ELAPSED,
                TR.ETA                                                AS TEST_RUN_ETA,
                TR.COMMENTS                                           AS TEST_RUN_COMMENTS,
-               TR.SLACK_CHANNELS                                     AS TEST_RUN_SLACK_CHANNELS,
+               TR.CHANNELS                                     AS TEST_RUN_CHANNELS,
                TR.REVIEWED                                           AS TEST_RUN_REVIEWED,
                TR.MODIFIED_AT                                        AS TEST_RUN_MODIFIED_AT,
                TR.CREATED_AT                                         AS TEST_RUN_CREATED_AT,
@@ -571,10 +571,10 @@
         			WHERE
         				TC.ENV = #{env} AND TR.JOB_ID IN
         		]]>
-                <foreach item="jobId" index="index" collection="jobIds"
-                         open="(" separator="," close=")">
-                    #{jobId}
-                </foreach>
+        <foreach item="jobId" index="index" collection="jobIds"
+                 open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
     </select>
 
     <select id="getLatestJobTestRunByBranch"
@@ -626,7 +626,7 @@
 				ELAPSED = #{elapsed},
 				ETA = #{eta},
 				COMMENTS = #{comments},
-				SLACK_CHANNELS = #{slackChannels},
+				CHANNELS = #{channels},
 				REVIEWED = #{reviewed}
 			WHERE
 			    ID = #{id}
@@ -744,8 +744,8 @@
         <result column="TEST_RUN_ELAPSED" property="elapsed"/>
         <result column="TEST_RUN_ETA" property="eta"/>
         <result column="TEST_RUN_COMMENTS" property="comments"/>
-        <result column="TEST_RUN_SLACK_CHANNELS"
-                property="slackChannels"/>
+        <result column="TEST_RUN_CHANNELS"
+                property="channels"/>
         <result column="TEST_RUN_REVIEWED" property="reviewed"/>
         <result column="TEST_RUN_PASSED" property="passed"/>
         <result column="TEST_RUN_FAILED" property="failed"/>
@@ -779,7 +779,7 @@
 
         <collection property="artifacts"
                     ofType="com.zebrunner.reporting.domain.db.TestRunArtifact"
-                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper.TestRunArtifactResultMap" />
+                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper.TestRunArtifactResultMap"/>
 
     </resultMap>
 
