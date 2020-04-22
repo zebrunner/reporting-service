@@ -15,7 +15,7 @@ public interface IntegrationRepository extends JpaRepository<Integration, Long> 
     @EntityGraph(value = "integration.expanded")
     Optional<Integration> findById(Long name);
 
-    @EntityGraph(value = "integration.expanded")
+//    @EntityGraph(value = "integration.expanded")
     List<Integration> findAll();
 
     @EntityGraph(value = "integration.expanded")
@@ -42,5 +42,9 @@ public interface IntegrationRepository extends JpaRepository<Integration, Long> 
 
     @EntityGraph(value = "integration.expanded")
     List<Integration> findIntegrationsByTypeName(String integrationTypeName);
+
+    @EntityGraph(value = "integration.expanded")
+    @Query("Select i From Integration  i join fetch i.settings s join fetch s.param p Where Lower(p.name) Like '%url%' And i.enabled = true")
+    List<Integration> findIntegrationsWithUrlSetting();
 
 }

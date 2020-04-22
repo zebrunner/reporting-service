@@ -99,7 +99,7 @@ td .es-button-border-1555487122413:hover {
                       <td align="center" height="15" bgcolor="#ffffff" style="padding:0;Margin:0;"> </td> 
                      </tr> 
                      <tr style="border-collapse:collapse;"> 
-                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"><img src="${zafiraLogoURL}" alt="" width="124" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;"></a> </td>
+                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"><img src="${logoUrl}" alt="" width="124" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;"></a> </td>
                      </tr> 
                    </table> </td> 
                  </tr> 
@@ -122,7 +122,7 @@ td .es-button-border-1555487122413:hover {
                       <td align="left" style="padding:0;Margin:0;padding-top:20px;padding-bottom:20px;"> <h2 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:20px;font-style:normal;font-weight:normal;color:#333333;text-align:center;">Join the workspace</h2> </td>
                      </tr> 
                      <tr style="border-collapse:collapse;"> 
-                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"> <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:16px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:32px;color:#333333;">You where invited to join <strong>${workspaceURL?split("://")[1]?split("/")[0]}</strong> workspace.</p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:16px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:32px;color:#333333;">Click the button below to start collaborating.</p> </td>
+                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"> <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:16px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:32px;color:#333333;">You were invited to join <strong>${workspaceURL?split("://")[1]?split("/")[0]}</strong> workspace.</p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:16px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:32px;color:#333333;">Click the button below to start collaborating.</p> </td>
                      </tr> 
                    </table> </td> 
                  </tr> 
@@ -162,7 +162,7 @@ td .es-button-border-1555487122413:hover {
                   <td width="560" align="center" valign="top" style="padding:0;Margin:0;"> 
                    <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;"> 
                      <tr style="border-collapse:collapse;"> 
-                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"> <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:14px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:21px;color:#333333;"><span style="color:#808080;">Use the link</span> <a target="_blank" href="${invitationUrl}" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:14px;text-decoration:underline;color:#3D85C6;">${workspaceURL}</a>&nbsp;<span style="color:#808080;">if the button is not clickable.</span></p> </td>
+                      <td align="center" class="es-m-txt-c" style="padding:0;Margin:0;"> <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:14px;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:21px;color:#333333;"><span style="color:#808080;">Use the link</span> <a target="_blank" href="${invitationUrl}" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;font-size:14px;text-decoration:underline;color:#3D85C6;">${invitationUrl}</a>&nbsp;<span style="color:#808080;">if the button is not clickable.</span></p> </td>
                      </tr> 
                    </table> </td> 
                  </tr> 

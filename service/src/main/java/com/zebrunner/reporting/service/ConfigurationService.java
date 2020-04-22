@@ -1,52 +1,62 @@
 package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.domain.db.TestRun;
+import com.zebrunner.reporting.domain.entity.integration.Integration;
+import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import com.zebrunner.reporting.service.integration.IntegrationService;
+import com.zebrunner.reporting.service.integration.IntegrationTypeService;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
-import com.zebrunner.reporting.service.integration.tool.impl.SlackService;
+import com.zebrunner.reporting.service.integration.tool.impl.NotificationService;
 import com.zebrunner.reporting.service.integration.tool.impl.TestCaseManagementService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
+import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.INTEGRATION_NOT_FOUND;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.TEST_RUN_NOT_FOUND;
 
 @Service
 public class ConfigurationService {
 
     private static final String ERR_MSG_TEST_RUN_NOT_FOUND = "Test run with id %s can not be found";
+    private static final String ERR_MSG_TEST_INTEGRATION_NOT_FOUND = "Integration with name %s can not be found";
 
-    private final VersionService versionService;
     private final URLResolver urlResolver;
     private final AutomationServerService automationServerService;
+    private final IntegrationTypeService integrationTypeService;
+    private final IntegrationService integrationService;
     private final TestCaseManagementService testCaseManagementService;
     private final TestRunService testRunService;
-    private final SlackService slackService;
+    private final NotificationService notificationService;
+
+    @Value("${service.version}")
+    private String serviceVersion;
 
     public ConfigurationService(
-            VersionService versionService,
             URLResolver urlResolver,
             AutomationServerService automationServerService,
+            IntegrationTypeService integrationTypeService,
+            IntegrationService integrationService,
             TestCaseManagementService testCaseManagementService,
             TestRunService testRunService,
-            SlackService slackService
+            NotificationService notificationService
     ) {
-        this.versionService = versionService;
         this.urlResolver = urlResolver;
         this.automationServerService = automationServerService;
+        this.integrationTypeService = integrationTypeService;
+        this.integrationService = integrationService;
         this.testCaseManagementService = testCaseManagementService;
         this.testRunService = testRunService;
-        this.slackService = slackService;
+        this.notificationService = notificationService;
     }
 
     public Map<String, Object> getAppConfig() {
-        return Map.of(
-                "service", versionService.getServiceVersion(),
-                "client", versionService.getClientVersion(),
-                "service_url", urlResolver.buildWebserviceUrl()
-        );
+        return Map.of("service", serviceVersion, "service_url", urlResolver.buildWebserviceUrl());
     }
 
     public Map<String, Object> getJenkinsConfig() {
@@ -64,7 +74,7 @@ public class ConfigurationService {
         if (testRun == null) {
             throw new ResourceNotFoundException(TEST_RUN_NOT_FOUND, String.format(ERR_MSG_TEST_RUN_NOT_FOUND, testRunId));
         }
-        boolean available = isSlackAvailable() && StringUtils.isNotEmpty(testRun.getSlackChannels());
+        boolean available = isSlackAvailable() && StringUtils.isNotEmpty(testRun.getChannels());
         return Map.of("available", available);
     }
 
@@ -74,6 +84,15 @@ public class ConfigurationService {
     }
 
     private boolean isSlackAvailable() {
-        return slackService.isEnabledAndConnected(null) && slackService.getWebhook() != null;
+        IntegrationType defaultType = integrationTypeService.retrieveByName(notificationService.getDefaultType());
+        List<Integration> integrations = integrationService.retrieveIntegrationsByGroupId(defaultType.getGroup().getId());
+        String integrationName = "SLACK";
+        Integration slackIntegration = integrations.stream()
+                                                   .filter(integration -> integrationName.equals(integration.getName()))
+                                                   .findFirst()
+                                                   .orElseThrow(() -> new ResourceNotFoundException(INTEGRATION_NOT_FOUND, String.format(ERR_MSG_TEST_INTEGRATION_NOT_FOUND, integrationName)));
+
+        return notificationService.isEnabledAndConnected(slackIntegration.getId());
     }
+
 }

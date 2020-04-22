@@ -30,6 +30,7 @@ public class TestRunSearchCriteria extends SearchCriteria implements DateSearchC
     private Status status;
     private Boolean reviewed;
     private FilterSearchCriteria filterSearchCriteria;
+    private String locale;
 
     public TestRunSearchCriteria() {
         super.setSortOrder(SortOrder.DESC);

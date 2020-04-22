@@ -221,7 +221,7 @@
 		]]>
 	</delete>
 
-	<resultMap type="com.zebrunner.reporting.domain.db.WorkItem"
+	<resultMap type="com.zebrunner.reporting.domain.db.workitem.WorkItem"
 		id="WorkItemResultMap" autoMapping="false">
 		<id column="WORK_ITEM_ID" property="id" />
 		<result column="WORK_ITEM_JIRA_ID" property="jiraId" />

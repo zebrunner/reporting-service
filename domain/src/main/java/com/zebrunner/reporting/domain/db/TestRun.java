@@ -3,6 +3,7 @@ package com.zebrunner.reporting.domain.db;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,7 +48,7 @@ public class TestRun extends AbstractEntity {
     private Integer elapsed;
     private Integer eta;
     private String comments;
-    private String slackChannels;
+    private String channels;
     private TestConfig config;
 
     private Integer passed;

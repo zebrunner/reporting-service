@@ -64,8 +64,9 @@ public class TenancyInitializer {
         try {
             EventMessage eventMessage = new Gson().fromJson(new String(message.getBody()), EventMessage.class);
             String tenancy = eventMessage.getTenantName();
-            LOGGER.info("Tenancy with name '" + tenancy + "' initialization is starting....");
+            LOGGER.info("Tenancy '{}' initialization is started.", tenancy);
             initTenancy(tenancy);
+            LOGGER.info("Tenancy '{}' initialization is finished.", tenancy);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -75,41 +76,61 @@ public class TenancyInitializer {
     public void initTenancyDb(Message message) {
         TenancyResponseEventMessage result;
         try {
-            boolean success = false;
             EmailEventMessage eventMessage = new Gson().fromJson(new String(message.getBody()), EmailEventMessage.class);
             String tenancy = eventMessage.getTenantName();
             result = new TenancyResponseEventMessage(tenancy);
             try {
-                LOGGER.info("Tenancy with name '" + tenancy + "' DB initialization is starting....");
-                tenancyDbInitials.forEach(tenancyInitial -> initTenancyDb(tenancy, tenancyInitial));
+                boolean tenancyDBInitCompleted = completeTenancyDBInitialization(tenancy);
 
-                processMessage(tenancy, () -> scmAccountService.reEncryptTokens());
+                result.setSuccess(tenancyDBInitCompleted);
 
-                success = eventPushService.convertAndSend(TENANCIES, new EventMessage(tenancy));
-                processMessage(tenancy, () -> {
-                    try {
-                        Invitation invitation = invitationService.createInitialInvitation(eventMessage.getEmail(), DEFAULT_USER_GROUP);
-                        result.setToken(invitation.getToken());
-                        result.setZafiraURL(urlResolver.buildWebURL());
-                    } catch (RuntimeException e) {
-                        String errorMessage = e.getMessage();
-                        result.setMessage(errorMessage);
-
-                        LOGGER.error(errorMessage, e);
-                    }
-                });
+                createTenancyInvitation(result, eventMessage, tenancy);
             } catch (Exception e) {
                 String errorMessage = e.getMessage();
                 result.setMessage(errorMessage);
+                // Set success false whenever exception is thrown
+                result.setSuccess(false);
 
                 LOGGER.error(errorMessage, e);
             } finally {
-                result.setSuccess(success);
                 eventPushService.convertAndSend(ZFR_CALLBACKS, result, "Type", "ZFR_INIT_TENANCY");
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
+    }
+
+    private boolean completeTenancyDBInitialization(String tenancy) {
+        LOGGER.info("Tenancy '{}' DB initialization is started.", tenancy);
+
+        tenancyDbInitials.forEach(tenancyInitial -> initTenancyDb(tenancy, tenancyInitial));
+        processMessage(tenancy, () -> scmAccountService.reEncryptTokens());
+
+        boolean tenancyDBInitialized = eventPushService.convertAndSend(TENANCIES, new EventMessage(tenancy));
+
+        LOGGER.info("Tenancy '{}' DB initialization is finished.", tenancy);
+
+        return tenancyDBInitialized;
+    }
+
+    private void createTenancyInvitation(TenancyResponseEventMessage result, EmailEventMessage eventMessage, String tenancy) {
+        processMessage(tenancy, () -> {
+            try {
+                LOGGER.info("Invitation to tenancy '{}' generation is started.", result.getTenantName());
+
+                Invitation invitation = invitationService.createInitialInvitation(eventMessage.getEmail(), DEFAULT_USER_GROUP);
+                result.setToken(invitation.getToken());
+                result.setLogoUrl(urlResolver.buildWebURL());
+
+                LOGGER.info("Invitation to tenancy '{}' generation is finished.", result.getTenantName());
+            } catch (RuntimeException e) {
+                String errorMessage = e.getMessage();
+                result.setMessage(errorMessage);
+                // Set success false whenever exception is thrown
+                result.setSuccess(false);
+                LOGGER.error(errorMessage, e);
+            }
+        });
     }
 
     private void initTenancy(String tenancy) {

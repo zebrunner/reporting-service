@@ -1,6 +1,7 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;
+import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.web.documented.IntegrationInfoDocumentedController;
 import org.springframework.http.MediaType;
@@ -29,6 +30,12 @@ public class IntegrationInfoController extends AbstractController implements Int
     @Override
     public Map<String, Map<String, List<IntegrationInfo>>> getIntegrationsInfo() {
         return integrationService.retrieveInfo();
+    }
+
+    @GetMapping("/public")
+    @Override
+    public List<IntegrationPublicInfo> getPublicInfos() {
+        return integrationService.retrievePublicInfo();
     }
 
     @GetMapping("/{id}")

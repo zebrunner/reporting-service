@@ -39,16 +39,32 @@ public interface LauncherPresetDocumentedController {
     )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher preset id"),
-            @ApiImplicitParam(name = "launcherId", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher id"),
-            @ApiImplicitParam(name = "providerId", paramType = "query", dataTypeClass = Long.class, value = "The test automation provider id")
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher preset id")
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the created launcher", response = String.class),
             @ApiResponse(code = 400, message = "Indicates that no automation servers were found (by id or default)", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Indicates that the launcher preset cannot be found by id", response = ErrorResponse.class)
     })
-    String buildWebHookUrl(Long id, Long launcherId, Long providerId);
+    String buildWebHookUrl(Long id);
+
+    @ApiOperation(
+            value = "Revokes webhook url usage",
+            notes = "Updates launcher preset reference",
+            nickname = "revokeReference",
+            httpMethod = "DELETE"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher preset id"),
+            @ApiImplicitParam(name = "ref", paramType = "path", dataTypeClass = String.class, required = true, value = "The old launcher preset reference"),
+            @ApiImplicitParam(name = "launcherId", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns the created launcher", response = String.class),
+            @ApiResponse(code = 404, message = "Indicates that the launcher preset cannot be found by id", response = ErrorResponse.class)
+    })
+    void revokeReference(Long id, String ref, Long launcherId);
 
     @ApiOperation(
             value = "Updates a launcher preset",
@@ -68,5 +84,21 @@ public interface LauncherPresetDocumentedController {
             @ApiResponse(code = 400, message = "Indicates that a launcher preset with the specified name already exists", response = ErrorResponse.class)
     })
     LauncherPresetDTO updateLauncherPreset(LauncherPresetDTO launcherPresetDTO, Long id, Long launcherId);
+
+    @ApiOperation(
+            value = "Deletes launcher preset",
+            notes = "Deletes launcher preset by id and launcher id",
+            nickname = "deleteLauncherPreset",
+            httpMethod = "DELETE"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, value = "The launcher preset id"),
+            @ApiImplicitParam(name = "launcherId", paramType = "path", dataTypeClass = Long.class, value = "The launcher id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Launcher preset was deleted or id and launcher id are not referenced to launcher preset")
+    })
+    void deleteLauncherPreset(Long id, Long launcherId);
 
 }

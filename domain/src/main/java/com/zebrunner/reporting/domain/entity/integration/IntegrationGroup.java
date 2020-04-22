@@ -5,12 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedAttributeNode;
 import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.List;
@@ -20,9 +20,20 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@NamedEntityGraph(name = "integrationGroup.expanded", attributeNodes = {
-    @NamedAttributeNode("types")
-})
+@NamedEntityGraph(
+        name = "integrationGroup.expanded",
+        attributeNodes = {
+                @NamedAttributeNode(value = "types", subgraph = "types-subgraph")
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "types-subgraph",
+                        attributeNodes = {
+                                @NamedAttributeNode("params")
+                        }
+                )
+        }
+)
 @Table(name = "integration_groups")
 public class IntegrationGroup {
 
@@ -34,7 +45,7 @@ public class IntegrationGroup {
     private String displayName;
     private boolean multipleAllowed;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "group")
+    @OneToMany(mappedBy = "group")
     private List<IntegrationType> types;
 
 }

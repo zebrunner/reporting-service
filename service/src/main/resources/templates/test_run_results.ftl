@@ -148,7 +148,7 @@
                         <span>Queued: </span>
                         <span style="color: #A7AEB3">${testRun.queued}</span>
                     </#if>
-                    <#if successRate?number != 100>
+                    <#if showJenkinsUrl && successRate?number != 100>
                         <span>
                             <a href="${testRun.job.jobURL}/${testRun.buildNumber?c}/rebuild/parameterized">(Rebuild)</a>
                         </span>

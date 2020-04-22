@@ -6,8 +6,8 @@ public class ResetPasswordEmail extends AbstractEmail {
 
     private final String token;
 
-    public ResetPasswordEmail(String token, String zafiraLogoURL, String workspaceURL) {
-        super(SUBJECT, EmailType.FORGOT_PASSWORD, zafiraLogoURL, workspaceURL);
+    public ResetPasswordEmail(String token, String logoUrl, String workspaceURL) {
+        super(SUBJECT, EmailType.FORGOT_PASSWORD, logoUrl, workspaceURL);
         this.token = token;
     }
 

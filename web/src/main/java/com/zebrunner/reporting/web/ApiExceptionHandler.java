@@ -23,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,13 +39,14 @@ public class ApiExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
     private static final String ERR_MSG_METHOD_ARGUMENT_TYPE_MISMATCH = "Request parameter has invalid type.";
+    private static final String ERR_MSG_REQUEST_PARAMETER_MISMATCH = "Request parameter %s of type %s is required.";
     private static final String ERR_MSG_UNACCEPTABLE_MIME_TYPE = "Requested content type can not be served. Supported types: %s";
     private static final String ERR_MSG_INTERNAL_SERVER_ERROR = "Unexpected error has occurred. Please try again later.";
     private static final String ERR_MSG_DEBUG_INFO = "Error message: [%s]. Caused by: [%s]";
 
     private boolean debugEnabled;
 
-    public void setDebugEnabled(@Value("${zafira.debug-enabled:false}") boolean debugEnabled) {
+    public void setDebugEnabled(@Value("${service.debug-enabled:false}") boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
     }
 
@@ -174,6 +176,14 @@ public class ApiExceptionHandler {
     public ErrorResponse handleBindException(BindException e) {
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.INVALID_VALUE, ERR_MSG_METHOD_ARGUMENT_TYPE_MISMATCH));
+        return response;
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        ErrorResponse response = new ErrorResponse();
+        response.setError(new Error(ErrorCode.INVALID_VALUE, String.format(ERR_MSG_REQUEST_PARAMETER_MISMATCH, e.getParameterName(), e.getParameterType())));
         return response;
     }
 

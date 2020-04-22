@@ -12,19 +12,19 @@ public class URLResolver {
 
     private static final String SIGNUP_PATH_PATTERN = "%s/signup?token=%s";
 
-    @Value("${zafira.multitenant}")
+    @Value("${service.multitenant}")
     private boolean isMultitenant;
 
-    @Value("${zafira.web-url}")
+    @Value("${service.web-url}")
     private String webURL;
 
-    @Value("${zafira.api-url}")
+    @Value("${service.api-url}")
     private String webserviceURL;
 
     /**
-     * In case if multitenancy will resolve current tenancy id into the URL pattern: http://demo.qaprosoft.com/zafira.
+     * Build service web url. In case of multitenant deployment subdomain will be included
      *
-     * @return Zafira web URL
+     * @return web URL
      */
     public String buildWebURL() {
         return isMultitenant ? String.format(webURL, TenancyContext.getTenantName()) : webURL;

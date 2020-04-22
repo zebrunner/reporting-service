@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.persistence.dao.mysql.application.WorkItemMapper;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

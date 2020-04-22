@@ -187,13 +187,68 @@ databaseChangeLog:
             relativeToChangelogFile: true
             splitStatements: false
   - changeSet:
-      id: 018_add_registration_additional_info
+      id: 018_remove_views_table
       validCheckSum: ANY
       labels: stable
       author: brutskov
       changes:
         - sqlFile:
             encoding: utf8
-            path: changeset/018_add_registration_additional_info.sql
+            path: changeset/018_remove_views_table.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+  - changeSet:
+      id: 019_user_launcher_preferences_table
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/019_user_launcher_preferences_table.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+  - changeSet:
+      id: 020_add_system_column_dashboards_table
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/020_add_system_column_dashboards_table.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+  - changeSet:
+      id: 021_add_test_environment_provider_column
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/021_add_test_environment_provider_column.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+  - changeSet:
+      id: 022_add_microsoft_teams_integration
+      validCheckSum: ANY
+      labels: stable
+      author: itsvirko
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/022_add_microsoft_teams_integration.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+  - changeSet:
+      id: 023_add_registration_additional_info
+      validCheckSum: ANY
+      labels: stable
+      author: itsvirko
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/023_add_registration_additional_info.sql
             relativeToChangelogFile: true
             splitStatements: false

@@ -32,6 +32,10 @@
 			<b>editable</b>
 		</field>
 		<field>
+			<a>system</a>
+			<b>system</b>
+		</field>
+		<field>
 			<a>attributes</a>
 			<b>attributes</b>
 		</field>

@@ -16,6 +16,8 @@ public interface DashboardMapper {
 
     Dashboard getDefaultDashboardByUserId(Long userId);
 
+    Dashboard getByAttributeId(Long attributeId);
+
     List<Dashboard> getAllDashboards();
 
     void updateDashboard(Dashboard dashboard);
@@ -37,6 +39,8 @@ public interface DashboardMapper {
     Attribute getAttributeById(long attributeId);
 
     void createDashboardAttribute(@Param("dashboardId") long dashboardId, @Param("attribute") Attribute attribute);
+
+    void createDashboardAttributes(@Param("dashboardId") long dashboardId, @Param("attributes") List<Attribute> attributes);
 
     void updateAttribute(Attribute attribute);
 

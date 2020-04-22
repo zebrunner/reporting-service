@@ -13,7 +13,7 @@
             PROJECT_ID,
         </if>
         <![CDATA[
-			STARTED_BY, KNOWN_ISSUE, BLOCKER, STARTED_AT, ELAPSED, ETA, COMMENTS, SLACK_CHANNELS, FRAMEWORK)
+			STARTED_BY, KNOWN_ISSUE, BLOCKER, STARTED_AT, ELAPSED, ETA, COMMENTS, CHANNELS, FRAMEWORK)
 			VALUES (
 				#{ciRunId},
 				#{user.id},
@@ -43,7 +43,7 @@
 				#{elapsed},
 				#{eta},
 				#{comments},
-				#{slackChannels},
+				#{channels},
 				#{framework}
 			)
 		]]>
@@ -74,7 +74,7 @@
                TR.ELAPSED                   AS TEST_RUN_ELAPSED,
                TR.ETA                       AS TEST_RUN_ETA,
                TR.COMMENTS                  AS TEST_RUN_COMMENTS,
-               TR.SLACK_CHANNELS            AS TEST_RUN_SLACK_CHANNELS,
+               TR.CHANNELS                  AS TEST_RUN_CHANNELS,
                TR.REVIEWED                  AS TEST_RUN_REVIEWED,
                TR.FRAMEWORK                 AS TEST_RUN_FRAMEWORK,
                TR.MODIFIED_AT               AS TEST_RUN_MODIFIED_AT,
@@ -130,7 +130,7 @@
 				TR.ELAPSED AS TEST_RUN_ELAPSED,
 				TR.ETA AS TEST_RUN_ETA,
 				TR.COMMENTS AS TEST_RUN_COMMENTS,
-				TR.SLACK_CHANNELS AS TEST_RUN_SLACK_CHANNELS,
+				TR.CHANNELS AS TEST_RUN_CHANNELS,
 				TR.REVIEWED AS TEST_RUN_REVIEWED,
 				TR.FRAMEWORK AS TEST_RUN_FRAMEWORK,
 				(SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'PASSED') AS TEST_RUN_PASSED,
@@ -206,7 +206,7 @@
 				ON TR.PROJECT_ID = P.ID
 			LEFT JOIN TEST_RUN_ARTIFACTS TRA
 				ON TR.ID = TRA.TEST_RUN_ID
-				]]>
+        ]]>
 	</sql>
 
     <select id="getTestRunById" resultMap="TestRunResultMap">
@@ -240,6 +240,7 @@
                   AND T.STATUS = 'FAILED'
                   AND T.BLOCKER = TRUE)                                                            AS TEST_RUN_FAILED_AS_BLOCKER,
                (SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'SKIPPED') AS TEST_RUN_SKIPPED,
+               (SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'ABORTED') AS TEST_RUN_ABORTED,
                (SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'QUEUED')  AS TEST_RUN_QUEUED
         FROM TEST_RUNS TR
         ]]>
@@ -312,6 +313,11 @@
             <if test="null != browser">
                 <![CDATA[
 				   AND LOWER(C.BROWSER) = LOWER(#{browser})
+				]]>
+            </if>
+            <if test="null != locale">
+                <![CDATA[
+				   AND LOWER(C.LOCALE) = LOWER(#{locale})
 				]]>
             </if>
             <if test="null != date">
@@ -528,7 +534,7 @@
                TR.ELAPSED                                            AS TEST_RUN_ELAPSED,
                TR.ETA                                                AS TEST_RUN_ETA,
                TR.COMMENTS                                           AS TEST_RUN_COMMENTS,
-               TR.SLACK_CHANNELS                                     AS TEST_RUN_SLACK_CHANNELS,
+               TR.CHANNELS                                     AS TEST_RUN_CHANNELS,
                TR.REVIEWED                                           AS TEST_RUN_REVIEWED,
                TR.FRAMEWORK                                           AS TEST_RUN_FRAMEWORK,
                TR.MODIFIED_AT                                        AS TEST_RUN_MODIFIED_AT,
@@ -572,10 +578,10 @@
         			WHERE
         				TC.ENV = #{env} AND TR.JOB_ID IN
         		]]>
-                <foreach item="jobId" index="index" collection="jobIds"
-                         open="(" separator="," close=")">
-                    #{jobId}
-                </foreach>
+        <foreach item="jobId" index="index" collection="jobIds"
+                 open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
     </select>
 
     <select id="getLatestJobTestRunByBranch"
@@ -628,7 +634,7 @@
 				ELAPSED = #{elapsed},
 				ETA = #{eta},
 				COMMENTS = #{comments},
-				SLACK_CHANNELS = #{slackChannels},
+				CHANNELS = #{channels},
 				REVIEWED = #{reviewed}
 			WHERE
 			    ID = #{id}
@@ -747,8 +753,8 @@
         <result column="TEST_RUN_ELAPSED" property="elapsed"/>
         <result column="TEST_RUN_ETA" property="eta"/>
         <result column="TEST_RUN_COMMENTS" property="comments"/>
-        <result column="TEST_RUN_SLACK_CHANNELS"
-                property="slackChannels"/>
+        <result column="TEST_RUN_CHANNELS"
+                property="channels"/>
         <result column="TEST_RUN_REVIEWED" property="reviewed"/>
         <result column="TEST_RUN_PASSED" property="passed"/>
         <result column="TEST_RUN_FAILED" property="failed"/>
@@ -783,7 +789,7 @@
 
         <collection property="artifacts"
                     ofType="com.zebrunner.reporting.domain.db.TestRunArtifact"
-                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper.TestRunArtifactResultMap" />
+                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper.TestRunArtifactResultMap"/>
 
     </resultMap>
 
@@ -799,6 +805,7 @@
         <result column="TEST_RUN_FAILED_AS_BLOCKER"
                 property="failedAsBlocker"/>
         <result column="TEST_RUN_SKIPPED" property="skipped"/>
+        <result column="TEST_RUN_ABORTED" property="aborted"/>
         <result column="TEST_RUN_QUEUED" property="queued"/>
     </resultMap>
 

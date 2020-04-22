@@ -54,6 +54,11 @@ public class TestCaseService implements ProjectReassignable {
     }
 
     @Transactional
+    public void batchStatusUpdate(List<Long> ids, Status status) {
+        testCaseMapper.updateStatuses(ids, status);
+    }
+
+    @Transactional
     public TestCase createOrUpdateCase(TestCase testCase, String projectName) {
         Project project = projectService.getProjectByNameOrDefault(projectName);
         testCase.setProject(project);

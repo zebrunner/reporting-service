@@ -8,7 +8,7 @@ import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestConfig;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.db.TestRunArtifact;
-import com.zebrunner.reporting.domain.db.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import com.zebrunner.reporting.domain.db.filter.Filter;
 import com.zebrunner.reporting.domain.db.filter.FilterAdapter;
 import com.zebrunner.reporting.domain.dto.BuildParameterType;
@@ -642,7 +642,7 @@ public class TestRunService implements ProjectReassignable {
         // Aborted testruns don't need status recalculation (already recalculated on abort end-point)
         if (!Status.ABORTED.equals(testRun.getStatus())) {
             // Do not update test run status if tests are running and one clicks mark as passed or mark as known issue
-            // (https://github.com/qaprosoft/zafira/issues/34)
+            // (https://github.com/zebrunner/zebrunner/issues/34)
             boolean onTestRunFinish = finishTestRun || !Status.IN_PROGRESS.equals(testRun.getStatus());
             if (onTestRunFinish) {
                 tests.stream()
@@ -667,7 +667,7 @@ public class TestRunService implements ProjectReassignable {
 
     private void setTestRunElapsedTime(TestRun testRun) {
         Integer elapsed = ((Long) DateTimeUtil.toSecondsSinceDateToNow(testRun.getStartedAt())).intValue();
-        // according to https://github.com/qaprosoft/zafira/issues/748
+        // according to https://github.com/zebrunner/zebrunner/issues/748
         Integer elapsedToInsert = testRun.getElapsed() != null ? testRun.getElapsed() + elapsed : elapsed;
         testRun.setElapsed(elapsedToInsert);
     }
@@ -797,6 +797,12 @@ public class TestRunService implements ProjectReassignable {
         TestRunResultsEmail testRunResultsEmail = new TestRunResultsEmail(testRun, tests);
         testRunResultsEmail.getCustomValues().put("zafira_service_url", urlResolver.buildWebURL());
 
+        Long automationServerId = testRun.getJob().getAutomationServerId();
+        boolean appendJenkinsUrl = automationServerService.showJobUrl(automationServerId);
+        if (appendJenkinsUrl) {
+            testRunResultsEmail.setShowJenkinsUrl(true);
+        }
+
         return testRunResultsEmail;
     }
 
@@ -816,7 +822,7 @@ public class TestRunService implements ProjectReassignable {
 
     public void hideJobUrlsIfNeed(List<TestRun> testRuns) {
         testRuns.stream()
-                .filter(testRun -> !automationServerService.isJobUrlVisibilityEnabled(testRun.getJob().getAutomationServerId()))
+                .filter(testRun -> !automationServerService.jobUrlVisibilityEnabled(testRun.getJob().getAutomationServerId()))
                 .forEach(testRun -> testRun.getJob().setJobURL(null));
     }
 
