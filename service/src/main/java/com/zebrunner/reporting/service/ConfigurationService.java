@@ -87,11 +87,10 @@ public class ConfigurationService {
         IntegrationType defaultType = integrationTypeService.retrieveByName(notificationService.getDefaultType());
         List<Integration> integrations = integrationService.retrieveByIntegrationsTypeName(defaultType.getName());
         String integrationName = "SLACK";
-        Integration slackIntegration = integrations
-                                                  .stream()
-                                                  .filter(integration -> integrationName.equals(integration.getName()))
-                                                  .findFirst()
-                                                  .orElseThrow(() -> new ResourceNotFoundException(TEST_RUN_NOT_FOUND, String.format(ERR_MSG_TEST_INTEGRATION_NOT_FOUND, integrationName)));
+        Integration slackIntegration = integrations.stream()
+                                                   .filter(integration -> integrationName.equals(integration.getName()))
+                                                   .findFirst()
+                                                   .orElseThrow(() -> new ResourceNotFoundException(TEST_RUN_NOT_FOUND, String.format(ERR_MSG_TEST_INTEGRATION_NOT_FOUND, integrationName)));
 
         return notificationService.isEnabledAndConnected(slackIntegration.getId());
     }
