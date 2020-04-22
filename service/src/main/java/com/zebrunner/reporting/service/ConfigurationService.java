@@ -14,10 +14,10 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.Map;
 
+import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.INTEGRATION_NOT_FOUND;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.TEST_RUN_NOT_FOUND;
 
 @Service
@@ -85,12 +85,12 @@ public class ConfigurationService {
 
     private boolean isSlackAvailable() {
         IntegrationType defaultType = integrationTypeService.retrieveByName(notificationService.getDefaultType());
-        List<Integration> integrations = integrationService.retrieveByIntegrationsTypeName(defaultType.getName());
+        List<Integration> integrations = integrationService.retrieveIntegrationsByGroupId(defaultType.getGroup().getId());
         String integrationName = "SLACK";
         Integration slackIntegration = integrations.stream()
                                                    .filter(integration -> integrationName.equals(integration.getName()))
                                                    .findFirst()
-                                                   .orElseThrow(() -> new ResourceNotFoundException(TEST_RUN_NOT_FOUND, String.format(ERR_MSG_TEST_INTEGRATION_NOT_FOUND, integrationName)));
+                                                   .orElseThrow(() -> new ResourceNotFoundException(INTEGRATION_NOT_FOUND, String.format(ERR_MSG_TEST_INTEGRATION_NOT_FOUND, integrationName)));
 
         return notificationService.isEnabledAndConnected(slackIntegration.getId());
     }

@@ -89,7 +89,7 @@ public class NotificationService extends AbstractIntegrationService<Notification
         Map<String, String> notificationProperties = getNotificationProperties(testRun, message);
 
         IntegrationType defaultType = integrationTypeService.retrieveByName(getDefaultType());
-        List<Integration> integrations = integrationService.retrieveIntegrationsByTypeId(defaultType.getId());
+        List<Integration> integrations = integrationService.retrieveIntegrationsByGroupId(defaultType.getGroup().getId());
 
         integrations.forEach(integration -> {
             if (integration.isEnabled()) {

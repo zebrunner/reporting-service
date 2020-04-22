@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implements NotificationServiceAdapter {
 
-    private static final String ERR_MSG_SLACK_CONNECTION_IS_NOT_ESTABLISHED = "Slack connection is not established";
+    private static final String ERR_MSG_SLACK_CONNECTION_IS_NOT_ESTABLISHED = "Slack connection is not established ";
 
     private static final String RESULTS_PATTERN = "Passed: %d, Failed: %d, Known Issues: %d, Skipped: %d";
     private final static String INFO_PATTERN = "%1$s\n<%2$s|Open in Zafira>";
@@ -68,7 +68,7 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
             push(null, new SlackMessage(StringUtils.EMPTY));
             result = true;
         } catch (IOException e) {
-            LOGGER.error(ERR_MSG_SLACK_CONNECTION_IS_NOT_ESTABLISHED + "\n" + e.getMessage());
+            LOGGER.error(ERR_MSG_SLACK_CONNECTION_IS_NOT_ESTABLISHED + e.getMessage());
              /*
              Based on slackService functionality method push is void and in case of 4** response
              throws exception with message containing status code.
