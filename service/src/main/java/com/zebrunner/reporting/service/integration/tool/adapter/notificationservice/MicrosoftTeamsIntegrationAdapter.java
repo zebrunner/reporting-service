@@ -9,6 +9,7 @@ import com.zebrunner.reporting.service.integration.tool.adapter.AdapterParam;
 import kong.unirest.Config;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
+import kong.unirest.UnirestException;
 import kong.unirest.UnirestInstance;
 import kong.unirest.UnirestParsingException;
 import org.apache.commons.lang.StringUtils;
@@ -86,7 +87,7 @@ public class MicrosoftTeamsIntegrationAdapter extends AbstractIntegrationAdapter
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (UnirestException e) {
             LOGGER.error(e.getMessage());
         }
         return connected;

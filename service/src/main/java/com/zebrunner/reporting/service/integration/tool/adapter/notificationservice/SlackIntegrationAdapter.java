@@ -32,7 +32,7 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
     private final SlackService slackService;
 
     public SlackIntegrationAdapter(Integration integration,
-                                   Map<String, String> additionalProperties, AutomationServerService automationServerService) {
+                                   Map<String, String> additionalProperties) {
         super(integration);
 
         this.image = additionalProperties.get("image");
