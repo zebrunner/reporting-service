@@ -15,18 +15,18 @@ public class TestCaseManagementService extends AbstractIntegrationService<TestCa
     }
 
     public IssueDTO getIssue(String ticket) {
-        TestCaseManagementAdapter adapter = getAdapterByIntegrationId(null);
+        TestCaseManagementAdapter adapter = getDefaultAdapterByType();
         return adapter.getIssue(ticket);
     }
 
     // TODO: 10/2/19 url should not be obrained from adapter; use integration settings instead
     public String getUrl() {
-        TestCaseManagementAdapter adapter = getAdapterByIntegrationId(null);
+        TestCaseManagementAdapter adapter = getDefaultAdapterByType();
         return adapter.getUrl();
     }
 
     public boolean isIssueClosed(String ticket) {
-        TestCaseManagementAdapter adapter = getAdapterByIntegrationId(null);
+        TestCaseManagementAdapter adapter = getDefaultAdapterByType();
         return adapter.isIssueClosed(ticket);
     }
 

@@ -43,7 +43,8 @@ public class IllegalOperationException extends ApplicationException {
         DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED(2083),
         UNSUPPORTED_PATCH_OPERATION(2084),
         ILLEGAL_ATTRIBUTE_VALUE(2085),
-        ILLEGAL_BATCH_OPERATION(2086);
+        ILLEGAL_BATCH_OPERATION(2086),
+        INTEGRATION_USAGE_NOT_POSSIBLE(2087);
 
         private final Integer code;
         private String messageKey;

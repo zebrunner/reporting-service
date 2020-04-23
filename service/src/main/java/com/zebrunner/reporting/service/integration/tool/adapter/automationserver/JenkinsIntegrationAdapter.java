@@ -92,13 +92,18 @@ public class JenkinsIntegrationAdapter extends AbstractIntegrationAdapter implem
 
     @Override
     public JobResult buildJob(String jobURL, Map<String, String> jobParameters) {
-
         return buildJobByURL(jobURL, jobParameters);
     }
 
     @Override
     public void abortJob(String jobURL, Integer buildNumber) {
         abortJobByURL(jobURL, buildNumber);
+    }
+
+
+    public boolean isBuildInProgress(String jobURL, Integer buildNumber) {
+        BuildWithDetails details = getBuildWithDetails(jobURL, buildNumber);
+        return details.isBuilding();
     }
 
     @Override
@@ -367,7 +372,7 @@ public class JenkinsIntegrationAdapter extends AbstractIntegrationAdapter implem
         return scannerJobUrl;
     }
 
-    private void sleep(long millis) {
+    private static void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {

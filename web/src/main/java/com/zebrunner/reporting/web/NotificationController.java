@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.service.integration.tool.impl.SlackService;
+import com.zebrunner.reporting.service.integration.tool.impl.NotificationService;
 import com.zebrunner.reporting.web.util.swagger.ApiResponseStatuses;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api("Slack API")
+@Api("Notification Service API")
 @CrossOrigin
-@RequestMapping(path = "api/slack", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = {"api/notification", "api/slack"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
-public class SlackController extends AbstractController {
+public class NotificationController extends AbstractController {
 
-    private final SlackService slackService;
+    private final NotificationService notificationService;
 
-    public SlackController(SlackService slackService) {
-        this.slackService = slackService;
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
     @ApiResponseStatuses
@@ -31,7 +31,7 @@ public class SlackController extends AbstractController {
     @ApiImplicitParams({@ApiImplicitParam(name = "Authorization", paramType = "header")})
     @GetMapping("/testrun/{id}/review")
     public void sendOnReviewNotification(@PathVariable("id") long testRunId) {
-        slackService.sendStatusReviewed(testRunId);
+        notificationService.sendStatusOnReview(testRunId);
     }
 
     @ApiResponseStatuses
@@ -40,7 +40,7 @@ public class SlackController extends AbstractController {
     @GetMapping("/testrun/{ciRunId}/finish")
     public void sendOnFinishNotification(@PathVariable("ciRunId") String ciRunId,
                                          @RequestParam(name = "channels", required = false) String channels) {
-        slackService.sendStatusOnFinish(ciRunId, channels);
+        notificationService.sendStatusOnFinish(ciRunId, channels);
     }
 
 }

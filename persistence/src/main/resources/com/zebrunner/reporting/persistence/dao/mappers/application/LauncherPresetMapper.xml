@@ -5,11 +5,12 @@
 
 	<insert id="create" useGeneratedKeys="true" keyProperty="preset.id">
         <![CDATA[
-			INSERT INTO LAUNCHER_PRESETS (NAME, REFERENCE, PARAMS, LAUNCHER_ID)
+			INSERT INTO LAUNCHER_PRESETS (NAME, REFERENCE, PARAMS, PROVIDER_ID, LAUNCHER_ID)
 			VALUES (
 				#{preset.name},
 				#{preset.ref},
 				#{preset.params},
+				#{preset.providerId},
 				#{launcherId}
 			)
         ]]>
@@ -21,6 +22,7 @@
 			LP.NAME AS LAUNCHER_PRESET_NAME,
 			LP.REFERENCE AS LAUNCHER_PRESET_REFERENCE,
 			LP.PARAMS AS LAUNCHER_PRESET_PARAMS,
+			LP.PROVIDER_ID AS LAUNCHER_PRESET_PROVIDER_ID,
 			LP.CREATED_AT AS LAUNCHER_PRESET_CREATED_AT,
 			LP.MODIFIED_AT AS LAUNCHER_PRESET_MODIFIED_AT
         ]]>
@@ -87,6 +89,11 @@
                    PARAMS = #{params},
                 ]]>
 			</if>
+			<if test="null != providerId">
+				<![CDATA[
+                   PROVIDER_ID = #{providerId},
+                ]]>
+			</if>
 		</set>
         <![CDATA[
 			WHERE ID = #{id}
@@ -115,10 +122,10 @@
         ]]>
 	</sql>
 
-	<delete id="deleteById">
+	<delete id="deleteByIdAndLauncherId">
 		<include refid="delete" />
 		<![CDATA[
-			WHERE ID = #{id}
+			WHERE ID = #{id} AND LAUNCHER_ID = #{launcherId}
         ]]>
 	</delete>
 
@@ -127,6 +134,7 @@
 		<result column="LAUNCHER_PRESET_NAME" property="name" />
 		<result column="LAUNCHER_PRESET_REFERENCE" property="ref" />
 		<result column="LAUNCHER_PRESET_PARAMS" property="params" />
+		<result column="LAUNCHER_PRESET_PROVIDER_ID" property="providerId" />
 		<result column="LAUNCHER_PRESET_MODIFIED_AT" property="modifiedAt" />
 		<result column="LAUNCHER_PRESET_CREATED_AT" property="createdAt" />
 	</resultMap>

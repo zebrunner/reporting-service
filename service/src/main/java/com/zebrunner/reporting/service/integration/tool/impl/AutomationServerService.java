@@ -70,6 +70,12 @@ public class AutomationServerService extends AbstractIntegrationService<Automati
         adapter.abortJob(job.getJobURL(), buildNumber);
     }
 
+    public boolean isScannerJobInProgress(String repositoryName, Integer buildNumber, boolean rescan, Long automationServerId) {
+        AutomationServerAdapter adapter = getAdapterByIntegrationId(automationServerId);
+        String jobUrl = adapter.buildScannerJobUrl(repositoryName, rescan);
+        return adapter.isBuildInProgress(jobUrl, buildNumber);
+    }
+
     public List<BuildParameterType> getBuildParameters(Job job, Integer buildNumber) {
         AutomationServerAdapter adapter = getAdapterByIntegrationId(job.getAutomationServerId());
         return adapter.getBuildParameters(job, buildNumber);
@@ -105,9 +111,13 @@ public class AutomationServerService extends AbstractIntegrationService<Automati
         return adapter.getFolder();
     }
 
-    public boolean isJobUrlVisibilityEnabled(Long integrationId) {
+    public boolean jobUrlVisibilityEnabled(Long integrationId) {
         Optional<IntegrationSetting> maybeSetting = getSetting(integrationId, "JENKINS_JOB_URL_VISIBILITY");
         return maybeSetting.isPresent() && Boolean.parseBoolean(maybeSetting.get().getValue());
+    }
+
+    public boolean showJobUrl(Long integrationId) {
+        return integrationId == null || jobUrlVisibilityEnabled(integrationId);
     }
 
     private Optional<IntegrationSetting> getSetting(Long integrationId, String name) {

@@ -1,6 +1,7 @@
 package com.zebrunner.reporting.service.integration.tool;
 
 import com.zebrunner.reporting.domain.entity.integration.Integration;
+import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.IntegrationException;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.service.integration.tool.adapter.IntegrationAdapter;
@@ -9,10 +10,13 @@ import com.zebrunner.reporting.service.integration.tool.proxy.IntegrationAdapter
 
 import java.util.Optional;
 
+import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.INTEGRATION_USAGE_NOT_POSSIBLE;
+
 public abstract class AbstractIntegrationService<T extends IntegrationGroupAdapter> {
 
-    private static final String ERR_MSG_ADAPTER_NOT_FOUND = "Requested adapter with id %s can not be found";
+    private static final String ERR_MSG_ADAPTER_NOT_FOUND = "Requested adapter with id %d can not be found";
     private static final String ERR_MSG_ADAPTER_NOT_FOUND_BY_TYPE = "Requested adapter of type %s can not be found";
+    private static final String ERR_MSG_INTEGRATION_USAGE_NOT_POSSIBLE = "Requested adapter with id %d can not be used. It is not enabled or connected";
 
     private final IntegrationService integrationService;
     private final IntegrationAdapterProxy integrationAdapterProxy;
@@ -32,6 +36,10 @@ public abstract class AbstractIntegrationService<T extends IntegrationGroupAdapt
 
         IntegrationAdapter adapter = maybeAdapter.get();
         // adapter presence is already verified
+        return isEnabledAndConnected(adapter);
+    }
+
+    private boolean isEnabledAndConnected(IntegrationAdapter adapter) {
         Long adapterIntegrationId = adapter.getIntegrationId();
         // we now use proper integration id since it can be null prior to this point, but never for adapter
         Integration integration = integrationService.retrieveById(adapterIntegrationId);
@@ -41,6 +49,20 @@ public abstract class AbstractIntegrationService<T extends IntegrationGroupAdapt
 
     @SuppressWarnings("unchecked")
     public T getAdapterByIntegrationId(Long integrationId) {
+        IntegrationAdapter adapter = (IntegrationAdapter) getNotNullAdapterByIntegrationId(integrationId);
+        boolean adapterEnabledAndConnected = isEnabledAndConnected(adapter);
+        if (!adapterEnabledAndConnected) {
+            throw new IllegalOperationException(INTEGRATION_USAGE_NOT_POSSIBLE, String.format(ERR_MSG_INTEGRATION_USAGE_NOT_POSSIBLE, integrationId));
+        }
+        return (T) adapter;
+    }
+
+    public T getDefaultAdapterByType() {
+        return getAdapterByIntegrationId(null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private T getNotNullAdapterByIntegrationId(Long integrationId) {
         Optional<IntegrationAdapter> maybeAdapter = getAdapter(integrationId);
         if (integrationId == null) {
             return (T) maybeAdapter.orElseThrow(() -> new IntegrationException(String.format(ERR_MSG_ADAPTER_NOT_FOUND_BY_TYPE, defaultType)));
@@ -63,7 +85,7 @@ public abstract class AbstractIntegrationService<T extends IntegrationGroupAdapt
     @SuppressWarnings("unchecked")
     public T getAdapterByBackReferenceId(String backReferenceId) {
         return (T) integrationAdapterProxy.getAdapter(backReferenceId)
-                                          .orElseThrow(() -> new IntegrationException(String.format(ERR_MSG_ADAPTER_NOT_FOUND, defaultType)));
+                                          .orElseThrow(() -> new IntegrationException(String.format(ERR_MSG_ADAPTER_NOT_FOUND_BY_TYPE, defaultType)));
     }
 
     public IntegrationAdapterProxy getIntegrationAdapterProxy() {

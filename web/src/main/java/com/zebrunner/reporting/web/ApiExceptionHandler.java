@@ -23,11 +23,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +41,7 @@ public class ApiExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
     private static final String ERR_MSG_METHOD_ARGUMENT_TYPE_MISMATCH = "Request parameter has invalid type.";
+    private static final String ERR_MSG_REQUEST_PARAMETER_MISMATCH = "Request parameter %s of type %s is required.";
     private static final String ERR_MSG_UNACCEPTABLE_MIME_TYPE = "Requested content type can not be served. Supported types: %s";
     private static final String ERR_MSG_INTERNAL_SERVER_ERROR = "Unexpected error has occurred. Please try again later.";
     private static final String ERR_MSG_DEBUG_INFO = "Error message: [%s]. Caused by: [%s]";
@@ -177,6 +181,14 @@ public class ApiExceptionHandler {
         return response;
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        ErrorResponse response = new ErrorResponse();
+        response.setError(new Error(ErrorCode.INVALID_VALUE, String.format(ERR_MSG_REQUEST_PARAMETER_MISMATCH, e.getParameterName(), e.getParameterType())));
+        return response;
+    }
+
     /**
      * This handler will only be invoked if certain application exception occures. It provides generic handling
      * to compensate lack of error context. Once such exception occurs it should be properly addressed ASAP.
@@ -193,8 +205,19 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleOtherException(Exception e) {
-        LOGGER.error("Unexpected internal server error", e);
+    public ErrorResponse handleOtherException(HttpServletRequest request, Exception e) {
+        if (request == null) {
+            LOGGER.error("Unexpected internal server error", e);
+        } else {
+            StringBuilder headersBuilder = new StringBuilder("Headers [");
+            request.getHeaderNames()
+                   .asIterator()
+                   .forEachRemaining(headerName -> headersBuilder.append(" '").append(headerName).append(": ").append(request.getHeader(headerName)).append("'; "));
+            headersBuilder.append("]");
+
+
+            LOGGER.error("Unexpected internal server error processing " + request.getMethod() + " " + request.getRequestURI() + " with headers " + headersBuilder.toString());
+        }
 
         ErrorResponse response = new ErrorResponse();
         if (debugEnabled) {

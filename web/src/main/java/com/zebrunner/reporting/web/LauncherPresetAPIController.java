@@ -44,13 +44,10 @@ public class LauncherPresetAPIController extends AbstractController implements L
     }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
-    @GetMapping(value = "/{id}/hook")
+    @GetMapping(value = "/{id}/hook", produces = MediaType.TEXT_PLAIN_VALUE)
     @Override
-    public String buildWebHookUrl(
-            @PathVariable("id") Long id,
-            @RequestParam(name = "providerId", required = false) Long providerId
-    ) {
-        return launcherPresetService.buildWebHookUrl(id, providerId);
+    public String buildWebHookUrl(@PathVariable("id") Long id) {
+        return launcherPresetService.buildWebHookUrl(id);
     }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
@@ -72,5 +69,12 @@ public class LauncherPresetAPIController extends AbstractController implements L
         launcherPreset.setId(id);
         launcherPreset = launcherPresetService.update(launcherPreset, launcherId);
         return mapper.map(launcherPreset, LauncherPresetDTO.class);
+    }
+
+    @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
+    @DeleteMapping("/{id}")
+    @Override
+    public void deleteLauncherPreset(@PathVariable("id") Long id, @PathVariable("launcherId") Long launcherId) {
+        launcherPresetService.deleteByIdAndLauncherId(id, launcherId);
     }
 }
