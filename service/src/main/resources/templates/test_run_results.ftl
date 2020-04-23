@@ -19,17 +19,6 @@
                            background: #ffffff;
                            font-family: Arial, serif;">
 	<div id="summary">
-        <h2 style="background-color: #F3F3F4;
-                   padding: 10px;
-                   margin: 0;
-                   clear: both;
-                   font-size: 20px;
-                   font-weight: bold;
-                   line-height: 1.5;
-                   text-align: left;
-                   color: #011627;">${subject}</h2>
-        <br/>
-        <hr/>
         <table>
            	<#if testRun.config.env??>
             <tr style="font-size: 16px;
