@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -34,7 +35,11 @@ import java.util.UUID;
 public class FileUtilController extends AbstractController implements FileUtilDocumentedController {
 
     private static final String DATA_FOLDER = "/opt/apk/%s";
-    private static final String[] ALLOWED_CONTENT_TYPES = {"image/png", "image/jpeg"};
+    private static final String[] ALLOWED_IMAGE_CONTENT_TYPES = {"image/png", "image/jpeg"};
+    private static final String[] APP_EXTENSIONS = {"app", "ipa", "apk"};
+
+    private static final long _2MB = 2_097_152;
+    private static final long _100MB = 104_857_600;
 
     private final EmailService emailService;
     private final UploadService uploadService;
@@ -56,15 +61,31 @@ public class FileUtilController extends AbstractController implements FileUtilDo
         String resourceURL;
         if (FileUploadType.Type.COMMON.equals(type) || FileUploadType.Type.USERS.equals(type)) {
             // Performing size (less than 2 MB) and file type (JPG/PNG only) validation for images
-            if (file.getSize() > 2_097_152 || !ArrayUtils.contains(ALLOWED_CONTENT_TYPES, file.getContentType())) {
-                throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_IMAGE_FILE, "File size should be less than 2MB and have format JPEG or PNG");
+            if (file.getSize() > _2MB || !ArrayUtils.contains(ALLOWED_IMAGE_CONTENT_TYPES, file.getContentType())) {
+                throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File size should be less than 2MB and have format JPEG or PNG");
             }
-            resourceURL = uploadService.uploadImages(type, file.getInputStream(), file.getOriginalFilename(), file.getSize());
+            resourceURL = uploadService.uploadImage(type, file.getInputStream(), file.getOriginalFilename(), file.getSize());
         } else {
-            resourceURL = uploadService.uploadArtifacts(type, file.getInputStream(), file.getOriginalFilename(), file.getSize());
+            String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+            if (ArrayUtils.contains(APP_EXTENSIONS, extension) && file.getSize() > _100MB) {
+                throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File size should be less than 100MB and have format APP, IPA or APK");
+            }
+            resourceURL = uploadService.uploadArtifact(type, file.getInputStream(), file.getOriginalFilename(), file.getSize());
         }
         return resourceURL;
     }
+
+    @DeleteMapping("api/file")
+    @Override
+    public void deleteFile(@RequestHeader("FileType") FileUploadType.Type type, @RequestParam("key") String key) {
+        if (FileUploadType.Type.COMMON.equals(type) || FileUploadType.Type.USERS.equals(type)) {
+            uploadService.removeImage(key);
+        } else {
+            uploadService.removeArtifact(key);
+        }
+    }
+
+
 
     @PostMapping("api/upload/email")
     @Override

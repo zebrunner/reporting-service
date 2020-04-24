@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +33,23 @@ public interface FileUtilDocumentedController {
             @ApiResponse(code = 200, message = "Returns the URL of the uploaded file", response = String.class)
     })
     String uploadFile(FileUploadType.Type type, MultipartFile file) throws IOException;
+
+    @ApiOperation(
+            value = "Deletes a file from needed location using the file type",
+            notes = "Stores file in local filesystem or in S3",
+            nickname = "deleteFile",
+            httpMethod = "DELETE"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "type", paramType = "header", dataType = "string", required = true, value = "The file type (USERS, COMMON, VIDEOS or SCREENSHOTS)"),
+            @ApiImplicitParam(name = "key", paramType = "query", dataType = "string", required = true, value = "The file url")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "File was deleted successfully"),
+            @ApiResponse(code = 400, message = "Indicates that a file cannot be deleted", response = ResponseEntity.class)
+    })
+    void deleteFile(FileUploadType.Type type, String key);
 
     @ApiOperation(
             value = "Sends a file by email",
