@@ -6,7 +6,10 @@ import com.zebrunner.reporting.domain.db.TestArtifact;
 import org.apache.ibatis.annotations.Param;
 
 public interface TestArtifactMapper {
+
     void createTestArtifact(TestArtifact testArtifact);
+
+    void createTestArtifacts(@Param("testArtifacts") List<TestArtifact> testArtifacts);
 
     TestArtifact getTestArtifactById(long id);
 

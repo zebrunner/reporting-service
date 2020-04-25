@@ -262,18 +262,33 @@ public interface TestDocumentedController {
     boolean getConnectionToJira();
 
     @ApiOperation(
-            value = "Creates a test artifact and attaches it to a test",
+            value = "Creates a test artifact and attaches they to a test",
             nickname = "addTestArtifact",
             httpMethod = "POST"
     )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
             @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test id"),
-            @ApiImplicitParam(name = "artifact", paramType = "body", dataType = "TestArtifactType", required = true, value = "The test artifact to create and attach")
+            @ApiImplicitParam(name = "artifact", paramType = "body", dataTypeClass = TestArtifactDTO.class, required = true, value = "Test artifacts to create and attach")
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "The test artifact was created and attached to the test successfully")
     })
     void addTestArtifact(long id, TestArtifactDTO artifact);
+
+    @ApiOperation(
+            value = "Creates a test artifacts and attaches they to a test",
+            nickname = "addTestArtifacts",
+            httpMethod = "POST"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test id"),
+            @ApiImplicitParam(name = "testArtifactDTOS", paramType = "body", dataTypeClass = List.class, required = true, value = "Test artifacts to create and attach")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "The test artifact was created and attached to the test successfully")
+    })
+    void addTestArtifacts(long id, List<TestArtifactDTO> testArtifactDTOS);
 
 }

@@ -17,6 +17,22 @@
 		]]>
 	</insert>
 
+	<insert id="createTestArtifacts" useGeneratedKeys="true" keyProperty="id">
+		<![CDATA[
+        INSERT INTO TEST_ARTIFACTS (NAME, LINK, EXPIRES_AT, TEST_ID) VALUES
+        ]]>
+		<foreach item="testArtifact" collection="testArtifacts" open="" separator="," close="">
+			<![CDATA[
+                (
+                    #{testArtifact.name},
+                    #{testArtifact.link},
+                    #{testArtifact.expiresAt},
+                    #{testArtifact.testId}
+                )
+            ]]>
+		</foreach>
+	</insert>
+
 	<sql id="getTestArtifact">
 		<![CDATA[
 			SELECT

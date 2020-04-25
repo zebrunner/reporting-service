@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class TestArtifactService {
 
@@ -47,5 +49,14 @@ public class TestArtifactService {
             updateTestArtifact(newTestArtifact);
         }
         return newTestArtifact;
+    }
+
+    @Transactional
+    public List<TestArtifact> attachTestArtifacts(Long testId, List<TestArtifact> testArtifacts) {
+        testArtifacts.forEach(testArtifact -> testArtifact.setTestId(testId));
+
+        testArtifactMapper.createTestArtifacts(testArtifacts);
+
+        return testArtifacts;
     }
 }

@@ -49,6 +49,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -288,22 +289,17 @@ public class TestRunService implements ProjectReassignable {
     }
 
     @Transactional
-    public Set<TestRunArtifact> attachTestRunArtifacts(Set<TestRunArtifact> testRunArtifacts, Long id) {
-        Set<TestRunArtifact> attachedArtifacts = new HashSet<>();
+    public List<TestRunArtifact> attachTestRunArtifacts(List<TestRunArtifact> testRunArtifacts, Long id) {
+        List<TestRunArtifact> attachedArtifacts = new ArrayList<>();
         if (!CollectionUtils.isEmpty(testRunArtifacts)) {
             TestRun testRun = getNotNullTestRunById(id);
-            attachedArtifacts = createTestArtifacts(testRunArtifacts, testRun.getId());
+            attachedArtifacts = createTestRunArtifacts(testRunArtifacts, testRun.getId());
         }
         return attachedArtifacts;
     }
 
-    private Set<TestRunArtifact> createTestArtifacts(Set<TestRunArtifact> testArtifacts, Long testRunId) {
-        return testArtifacts.stream()
-                .filter(TestRunArtifact::isValid)
-                .map(artifact -> {
-                    artifact.setTestRunId(testRunId);
-                    return testRunArtifactService.createTestRunArtifact(artifact);
-                }).collect(Collectors.toSet());
+    private List<TestRunArtifact> createTestRunArtifacts(List<TestRunArtifact> testRunArtifacts, Long testRunId) {
+        return testRunArtifactService.createTestRunArtifacts(testRunArtifacts);
     }
 
     @CacheEvict(value = "environments", allEntries = true)

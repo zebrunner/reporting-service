@@ -7,12 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED;
 
 @Service
 public class TestRunArtifactService {
 
-    private static final String TEST_RUN_ARTIFACT_ALREADY_EXISTS = "TestRunArtifact with name '%s' already exists";
+    private static final String TEST_RUN_ARTIFACT_ALREADY_EXISTS = "Test run artifacts with names '%s' already exist";
     private final TestRunArtifactMapper testRunArtifactMapper;
 
     @Autowired
@@ -21,18 +24,21 @@ public class TestRunArtifactService {
     }
 
     @Transactional
-    public TestRunArtifact createTestRunArtifact(TestRunArtifact testRunArtifact) {
-        TestRunArtifact dbTestRunArtifact = getTestRunArtifactByNameAndTestRunId(testRunArtifact.getName(), testRunArtifact.getTestRunId());
-        if (dbTestRunArtifact != null) {
-            throw new IllegalOperationException(TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED, String.format(TEST_RUN_ARTIFACT_ALREADY_EXISTS, dbTestRunArtifact.getName()));
+    public List<TestRunArtifact> createTestRunArtifacts(List<TestRunArtifact> testRunArtifacts) {
+        List<String> alreadyExistingNames = testRunArtifacts.stream()
+                                                            .filter(testRunArtifact -> existsByNameAndTestRunId(testRunArtifact.getName(), testRunArtifact.getTestRunId()))
+                                                            .map(TestRunArtifact::getName)
+                                                            .collect(Collectors.toList());
+        if (!alreadyExistingNames.isEmpty()) {
+            String names = String.join(", ", alreadyExistingNames);
+            throw new IllegalOperationException(TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED, String.format(TEST_RUN_ARTIFACT_ALREADY_EXISTS, names));
         }
-        testRunArtifactMapper.createTestRunArtifact(testRunArtifact);
-        return testRunArtifact;
+        testRunArtifactMapper.createTestRunArtifacts(testRunArtifacts);
+        return testRunArtifacts;
     }
 
     @Transactional(readOnly = true)
-    public TestRunArtifact getTestRunArtifactByNameAndTestRunId(String name, long testRunId) {
-        return testRunArtifactMapper.getTestRunArtifactByNameAndTestRunId(name, testRunId);
+    public boolean existsByNameAndTestRunId(String name, Long testRunId) {
+        return testRunArtifactMapper.existsByNameAndTestRunId(name, testRunId);
     }
-
 }

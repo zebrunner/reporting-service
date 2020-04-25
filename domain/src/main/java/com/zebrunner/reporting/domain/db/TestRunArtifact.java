@@ -18,8 +18,4 @@ public class TestRunArtifact implements Serializable {
     private LocalDateTime expiresAt;
     private Long testRunId;
 
-    public boolean isValid() {
-        return name != null && !name.isEmpty() && link != null && !link.isEmpty();
-    }
-
 }
