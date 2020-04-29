@@ -78,17 +78,15 @@ public class UploadService {
      * @return url single-attribute JSON containing document url to be returned to REST API client invoking this API
      */
     private String getLocalFilesystemResourceURL(String filename) {
-        String resourceUrl = urlResolver.buildWebserviceUrl() + ASSETS_DIRECTORY + filename;
+        String resourceUrl = urlResolver.buildWebserviceUrl() + ASSETS_DIRECTORY + adjustFilename(filename);
         return String.format("{\"url\": \"%s\"}", resourceUrl);
     }
-
-
 
     private String storeToLocalFilesystem(String filename, InputStream fileStream) {
         try {
             byte[] buffer = new byte[fileStream.available()];
             fileStream.read(buffer);
-            Path path = Paths.get(ASSETS_LOCATION + filename);
+            Path path = Paths.get(ASSETS_LOCATION + adjustFilename(filename));
             Files.write(path, buffer);
             return filename;
         } catch (IOException e) {
@@ -99,10 +97,14 @@ public class UploadService {
 
     private void removeFromLocalFilesystem(String filename) {
         try {
-            Path path = Paths.get(ASSETS_LOCATION + filename);
+            Path path = Paths.get(ASSETS_LOCATION + adjustFilename(filename));
             Files.delete(path);
         } catch (IOException e) {
             throw new ProcessingException(UNPROCESSABLE_DOCUMENT, "Unable to delete document");
         }
+    }
+
+    private String adjustFilename(String filename) {
+        return filename.startsWith("/") ? filename.substring(1) : filename;
     }
 }

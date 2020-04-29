@@ -38,8 +38,8 @@ public class FileUtilController extends AbstractController implements FileUtilDo
     private static final String[] ALLOWED_IMAGE_CONTENT_TYPES = {"image/png", "image/jpeg"};
     private static final String[] APP_EXTENSIONS = {"app", "ipa", "apk"};
 
-    private static final long _2MB = 2_097_152;
-    private static final long _100MB = 104_857_600;
+    private static final long MAX_IMAGE_SIZE = 2 * 1024 * 1024;
+    private static final long MAX_APP_PACKAGE_SIZE = 100 * 1024 * 1024;
 
     private final EmailService emailService;
     private final UploadService uploadService;
@@ -61,13 +61,13 @@ public class FileUtilController extends AbstractController implements FileUtilDo
         String resourceURL;
         if (FileUploadType.Type.COMMON.equals(type) || FileUploadType.Type.USERS.equals(type)) {
             // Performing size (less than 2 MB) and file type (JPG/PNG only) validation for images
-            if (file.getSize() > _2MB || !ArrayUtils.contains(ALLOWED_IMAGE_CONTENT_TYPES, file.getContentType())) {
+            if (file.getSize() > MAX_IMAGE_SIZE || !ArrayUtils.contains(ALLOWED_IMAGE_CONTENT_TYPES, file.getContentType())) {
                 throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File size should be less than 2MB and have format JPEG or PNG");
             }
             resourceURL = uploadService.uploadImage(type, file.getInputStream(), file.getOriginalFilename(), file.getSize());
         } else {
             String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-            if (ArrayUtils.contains(APP_EXTENSIONS, extension) && file.getSize() > _100MB) {
+            if (ArrayUtils.contains(APP_EXTENSIONS, extension) && file.getSize() > MAX_APP_PACKAGE_SIZE) {
                 throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File size should be less than 100MB and have format APP, IPA or APK");
             }
             resourceURL = uploadService.uploadArtifact(type, file.getInputStream(), file.getOriginalFilename(), file.getSize());
