@@ -75,14 +75,6 @@
                     <td style="font-weight: bold;color: #011627;">${elapsed}</td>
                 </#if>
             </tr>
-            <#if testRun.config.appVersion ?? && testRun.config.appVersion != ''>
-                <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;">
-                    <td style="color: #808a93">Version:</td>
-                    <td style="font-weight: bold;color: #011627;">${testRun.config.appVersion} </td>
-                </tr>
-            </#if>
             <tr style="font-size: 16px;
                        line-height: 1.63;
                        text-align: left;">
@@ -139,6 +131,14 @@
                     </#if>
                 </td>
             </tr>
+            <#if testRun.config.appVersion ?? && testRun.config.appVersion != ''>
+                <tr style="font-size: 16px;
+                       line-height: 1.63;
+                       text-align: left;">
+                    <td style="color: #808a93">Version:</td>
+                    <td style="font-weight: bold;color: #011627;">${testRun.config.appVersion} </td>
+                </tr>
+            </#if>
             <#if testRun.comments??>
                 <tr style="font-size: 16px;
                        line-height: 1.63;
