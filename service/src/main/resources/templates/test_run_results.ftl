@@ -23,7 +23,7 @@
             <tr style="font-size: 16px;
                        line-height: 1.63;
                        text-align: left;">
-                <td style="color: #808a93;">Name :</td>
+                <td style="color: #808a93;">Name:</td>
                 <td style="font-weight: bold;color: #011627;">
                     ${testRun.testSuite.name}
                 </td>
@@ -33,8 +33,7 @@
                 <#if testRun.status == 'ABORTED'>#828A92</#if>
                 <#if testRun.status == 'FAILED'>#ec4e5d</#if>
                 <#if testRun.status == 'SKIPPED'>#eab73d</#if>
-                <#if testRun.status == 'QUEUED'>#A7AEB3</#if>
-                        ">
+                <#if testRun.status == 'QUEUED'>#A7AEB3</#if>">
                     ${testRun.status}
                 </td>
             </tr>
