@@ -287,9 +287,9 @@ public class TestController extends AbstractController implements TestDocumented
     @Override
     public void addTestArtifacts(
             @PathVariable("id") long id,
-            @RequestBody List<TestArtifactDTO> testArtifactDTOS
+            @RequestBody List<TestArtifactDTO> testArtifactDTOs
     ) {
-        List<TestArtifact> artifacts = testArtifactDTOS.stream()
+        List<TestArtifact> artifacts = testArtifactDTOs.stream()
                                                        .map(testArtifactDTO -> mapper.map(testArtifactDTO, TestArtifact.class))
                                                        .collect(Collectors.toList());
         testArtifactService.attachTestArtifacts(id, artifacts);

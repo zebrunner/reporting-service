@@ -26,7 +26,7 @@ public class TestRunArtifactService {
     @Transactional
     public List<TestRunArtifact> createTestRunArtifacts(List<TestRunArtifact> testRunArtifacts) {
         List<String> alreadyExistingNames = testRunArtifacts.stream()
-                                                            .filter(testRunArtifact -> existsByNameAndTestRunId(testRunArtifact.getName(), testRunArtifact.getTestRunId()))
+                                                            .filter(artifact -> existsByNameAndTestRunId(artifact.getName(), artifact.getTestRunId()))
                                                             .map(TestRunArtifact::getName)
                                                             .collect(Collectors.toList());
         if (!alreadyExistingNames.isEmpty()) {

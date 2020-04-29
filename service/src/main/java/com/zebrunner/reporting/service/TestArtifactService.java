@@ -54,9 +54,7 @@ public class TestArtifactService {
     @Transactional
     public List<TestArtifact> attachTestArtifacts(Long testId, List<TestArtifact> testArtifacts) {
         testArtifacts.forEach(testArtifact -> testArtifact.setTestId(testId));
-
         testArtifactMapper.createTestArtifacts(testArtifacts);
-
         return testArtifacts;
     }
 }

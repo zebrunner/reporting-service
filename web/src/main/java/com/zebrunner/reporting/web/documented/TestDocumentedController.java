@@ -262,7 +262,7 @@ public interface TestDocumentedController {
     boolean getConnectionToJira();
 
     @ApiOperation(
-            value = "Creates a test artifact and attaches they to a test",
+            value = "Creates a test artifacts and attaches them to a test",
             nickname = "addTestArtifact",
             httpMethod = "POST"
     )

@@ -168,10 +168,10 @@ public class TestRunController extends AbstractController implements TestRunDocu
     @Override
     // TODO: 4/25/20 get rid of interface to validate list
     public List<TestRunArtifactDTO> attachArtifacts(@PathVariable("id") Long id,
-                                                   @RequestBody @Valid List<TestRunArtifactDTO> testRunArtifacts) {
+                                                    @RequestBody @Valid List<TestRunArtifactDTO> testRunArtifacts) {
         List<TestRunArtifact> artifacts = testRunArtifacts.stream()
-                                                                .map(artifact -> mapper.map(artifact, TestRunArtifact.class))
-                                                                .collect(Collectors.toList());
+                                                          .map(artifact -> mapper.map(artifact, TestRunArtifact.class))
+                                                          .collect(Collectors.toList());
         List<TestRunArtifact> attachedArtifacts = testRunService.attachTestRunArtifacts(artifacts, id);
         return attachedArtifacts.stream()
                                 .map(artifact -> mapper.map(artifact, TestRunArtifactDTO.class))
