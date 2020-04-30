@@ -22,7 +22,8 @@
         <table style="width: 80%;">
             <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
+                       text-align: left;
+                       vertical-align:top;">
                 <td style="color: #808a93;">Name:</td>
                 <td style="font-weight: bold;color: #011627;">
                     ${testRun.testSuite.name}
@@ -33,13 +34,14 @@
                 <#if testRun.status == 'ABORTED'>#828A92</#if>
                 <#if testRun.status == 'FAILED'>#ec4e5d</#if>
                 <#if testRun.status == 'SKIPPED'>#eab73d</#if>
-                <#if testRun.status == 'QUEUED'>#A7AEB3</#if>">
+                        <#if testRun.status == 'QUEUED'>#A7AEB3</#if>">
                     ${testRun.status}
                 </td>
             </tr>
             <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
+                       text-align: left;
+                       vertical-align:top;">
                 <#if testRun.config.env??>
                     <td style="color: #808a93;">Environment:</td>
                     <td style="font-weight: bold;color: #011627;">
@@ -54,7 +56,8 @@
             </tr>
             <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
+                       text-align: left;
+                       vertical-align:top;">
                 <td style="color: #808a93">Platform:</td>
                 <td style="font-weight: bold;color: #011627;">
                     <#if testRun.config.platform ??>
@@ -77,7 +80,8 @@
             </tr>
             <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
+                       text-align: left;
+                       vertical-align:top;">
                 <td style="color: #808a93">Test job URL:</td>
                 <td style="font-weight: bold;color: #011627;">
                     <#if customValues['zafira_service_url']?? && (customValues['zafira_service_url'] != 'NULL') && (customValues['zafira_service_url'] != '')>
@@ -89,7 +93,8 @@
             </tr>
             <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
+                       text-align: left;
+                       vertical-align:top;">
                 <td style="color: #808a93">Test suite:</td>
                 <td style="font-weight: bold;color: #011627;">
                     ${testRun.testSuite.fileName}
@@ -134,7 +139,8 @@
             <#if testRun.config.appVersion ?? && testRun.config.appVersion != ''>
                 <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
+                       text-align: left;
+                       vertical-align:top;">
                     <td style="color: #808a93">Version:</td>
                     <td style="font-weight: bold;color: #011627;">${testRun.config.appVersion} </td>
                 </tr>
@@ -142,19 +148,19 @@
             <#if testRun.comments??>
                 <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
+                       text-align: left;
+                       vertical-align:top;">
                     <td style="color: #808a93">Comments:</td>
                     <td style="font-weight: bold;color: #011627; ">
-                    <pre style="white-space: pre-line; margin: 0; font-family: Arial, serif;">
-                        ${testRun.comments?trim[0..*255]}
-                    </pre>
+                        <pre style="white-space: pre-line; margin: 0; font-family: Arial, serif;">${testRun.comments?trim[0..*255]}</pre>
                     </td>
                 </tr>
             </#if>
             <#if testRun.config.language ?? && testRun.config.language != 'en_US'>
                 <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
+                       text-align: left;
+                       vertical-align:top;">
                     <td style="color: #808a93">Language:</td>
                     <td style="font-weight: bold;color: #011627;">
                         ${testRun.config.language}
@@ -164,7 +170,8 @@
             <#if testRun.config.locale ?? && testRun.config.locale != 'en_US'>
                 <tr style="font-size: 16px;
                            line-height: 1.63;
-                           text-align: left;">
+                           text-align: left;
+                           vertical-align:top;">
                     <td style="color: #808a93">Locale:</td>
                     <td style="font-weight: bold;color: #011627;">
                         ${testRun.config.locale}
