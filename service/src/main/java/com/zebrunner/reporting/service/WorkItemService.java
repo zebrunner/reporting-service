@@ -41,8 +41,8 @@ public class WorkItemService {
     }
 
     @Transactional(readOnly = true)
-    public WorkItem getWorkItemByJiraIdAndTypeAndHashcode(String jiraId, WorkItem.Type type, int hashcode) {
-        return workItemMapper.getWorkItemByJiraIdAndTypeAndHashcode(jiraId, type, hashcode);
+    public WorkItem getWorkItemByTestCaseIdAndJiraIdAndTypeAndHashcode(Long testCaseId, String jiraId, WorkItem.Type type, int hashcode) {
+        return workItemMapper.getWorkItemByTestCaseIdAndJiraIdAndTypeAndHashcode(testCaseId, jiraId, type, hashcode);
     }
 
     @Transactional(readOnly = true)
