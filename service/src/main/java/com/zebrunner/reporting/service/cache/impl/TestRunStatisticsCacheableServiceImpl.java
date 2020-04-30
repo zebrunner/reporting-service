@@ -33,7 +33,7 @@ public class TestRunStatisticsCacheableServiceImpl implements TestRunStatisticsC
      * @param testRunId - to get statistic for
      * @return test run statistics
      */
-    @Cacheable(value = TEST_RUN_STATISTICS_CACHE_NAME, unless = "#result == null", condition = "#testRunId != null", key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #testRunId", sync = true)
+    @Cacheable(value = TEST_RUN_STATISTICS_CACHE_NAME, unless = "#result == null", condition = "#testRunId != null", key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #testRunId")
     @Transactional(readOnly = true)
     @Override
     public TestRunStatistics getTestRunStatistic(Long testRunId) {
