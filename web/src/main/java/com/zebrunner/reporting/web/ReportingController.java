@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @CrossOrigin
-@RequestMapping(path = "api/v1/reporting", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "v1/test-runs", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class ReportingController extends AbstractController {
 
@@ -51,7 +51,7 @@ public class ReportingController extends AbstractController {
 
     private final Mapper mapper;
 
-    @PostMapping("/test-runs")
+    @PostMapping
     public TestRunDTO startTestRun(
             @RequestBody @Validated(TestRunDTO.ValidationGroups.TestRunStartGroup.class) TestRunDTO testRunDTO,
             @RequestParam(name = "projectKey", required = false) String projectKey
@@ -66,7 +66,7 @@ public class ReportingController extends AbstractController {
         return testRunDTO;
     }
 
-    @PutMapping("/test-runs/{id}")
+    @PutMapping("/{id}")
     public void finishTestRun(
             @RequestBody @Validated(TestRunDTO.ValidationGroups.TestRunFinishGroup.class) TestRunDTO testRunDTO,
             @PathVariable("id") @NotNull @Positive Long id
@@ -81,7 +81,7 @@ public class ReportingController extends AbstractController {
         notifyAboutRunByWebsocket(testRunFull);
     }
 
-    @PostMapping("/test-runs/{id}/tests")
+    @PostMapping("/{id}/tests")
     public TestDTO startTest(
             @RequestBody @Validated(TestDTO.ValidationGroups.TestStartGroup.class) TestDTO testDTO,
             @PathVariable("id") @NotNull @Positive Long id
@@ -96,7 +96,7 @@ public class ReportingController extends AbstractController {
         return testDTO;
     }
 
-    @PutMapping("/test-runs/{id}/tests/{testId}")
+    @PutMapping("/{id}/tests/{testId}")
     public void finishTest(
             @RequestBody @Validated(TestDTO.ValidationGroups.TestFinishGroup.class) TestDTO testDTO,
             @PathVariable("id") @NotNull @Positive Long id,
@@ -111,7 +111,7 @@ public class ReportingController extends AbstractController {
         notifyAboutTestByWebsocket(oldTest);
     }
 
-    @GetMapping("/test-runs/{ciRunId}/tests")
+    @GetMapping("/{ciRunId}/tests")
     public List<TestDTO> getTestsByCiRunId(
             @PathVariable("ciRunId") String ciRunId,
             @RequestParam(name = "statuses", required = false) List<Status> statuses,
