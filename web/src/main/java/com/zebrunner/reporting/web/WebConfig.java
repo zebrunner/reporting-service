@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.zebrunner.reporting.web.util.dozer.NullSafeDozerBeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
@@ -58,8 +56,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final boolean multitenant;
 
-    public WebConfig(@Value("${service.multitenant}") boolean multitenant) {
+    public WebConfig(ObjectMapper objectMapper, @Value("${service.multitenant}") boolean multitenant) {
         this.multitenant = multitenant;
+
+        objectMapper(objectMapper);
     }
 
     @Bean
@@ -174,11 +174,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     // TODO: 3/24/20 got rid of the block if jackson.serialization.write-dates-as-timestamps will be false
-    @Primary
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
+    public ObjectMapper objectMapper(ObjectMapper objectMapper) {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(OffsetDateTime.class, new JsonSerializer<>() {
             @Override

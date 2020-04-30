@@ -26,7 +26,6 @@ dependencies {
     implementation libraries.jackson_databind
     implementation libraries.jwt
     implementation libraries.integration_clients
-    implementation libraries.jackson_databind
     implementation libraries.hibernate_validator
 
 }
