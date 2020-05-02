@@ -1,5 +1,7 @@
 package com.zebrunner.reporting.web;
 
+import com.zebrunner.reporting.domain.db.TestResult;
+import com.zebrunner.reporting.domain.dto.TestResultDTO;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
 import com.zebrunner.reporting.domain.db.TestCase;
@@ -7,6 +9,7 @@ import com.zebrunner.reporting.domain.db.TestMetric;
 import com.zebrunner.reporting.domain.dto.TestCaseType;
 import com.zebrunner.reporting.service.TestCaseService;
 import com.zebrunner.reporting.service.TestMetricService;
+import com.zebrunner.reporting.service.TestService;
 import com.zebrunner.reporting.web.documented.TestCaseDocumentedController;
 import org.apache.commons.lang3.ArrayUtils;
 import org.dozer.Mapper;
@@ -17,12 +20,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequestMapping(path = "api/tests/cases", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
@@ -30,11 +35,13 @@ public class TestCaseController extends AbstractController implements TestCaseDo
 
     private final Mapper mapper;
     private final TestCaseService testCaseService;
+    private final TestService testService;
     private final TestMetricService testMetricService;
 
-    public TestCaseController(Mapper mapper, TestCaseService testCaseService, TestMetricService testMetricService) {
+    public TestCaseController(Mapper mapper, TestCaseService testCaseService, TestService testService, TestMetricService testMetricService) {
         this.mapper = mapper;
         this.testCaseService = testCaseService;
+        this.testService = testService;
         this.testMetricService = testMetricService;
     }
 
@@ -48,6 +55,16 @@ public class TestCaseController extends AbstractController implements TestCaseDo
     @Override
     public Map<String, List<TestMetric>> getTestMetricsByTestCaseId(@PathVariable("id") Long id) {
         return testMetricService.getTestMetricsByTestCaseId(id);
+    }
+
+    @GetMapping("/{id}/stability")
+    @Override
+    public List<TestResultDTO> getTestCaseStabilityById(@PathVariable("id") Long id,
+                                                        @RequestParam("number") Long number) {
+        List<TestResult> testCaseStability = testService.getTestResultsByTestCaseId(id, number);
+        return testCaseStability.stream()
+                                .map(stability -> mapper.map(stability, TestResultDTO.class))
+                                .collect(Collectors.toList());
     }
 
     @PostMapping()

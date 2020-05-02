@@ -1,10 +1,11 @@
 package com.zebrunner.reporting.web.documented;
 
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
 import com.zebrunner.reporting.domain.db.TestCase;
 import com.zebrunner.reporting.domain.db.TestMetric;
 import com.zebrunner.reporting.domain.dto.TestCaseType;
+import com.zebrunner.reporting.domain.dto.TestResultDTO;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -49,6 +50,23 @@ public interface TestCaseDocumentedController {
             @ApiResponse(code = 200, message = "Returns found test metrics", response = Map.class)
     })
     Map<String, List<TestMetric>> getTestMetricsByTestCaseId(Long id);
+
+    @ApiOperation(
+            value = "Retrieves test results(simplified test objects) by the test case id",
+            notes = "Returns found test results",
+            nickname = "getTestCaseStabilityById",
+            httpMethod = "GET",
+            response = Map.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test case id"),
+            @ApiImplicitParam(name = "id", paramType = "query", dataTypeClass = Long.class, required = true, value = "Number of testcase test results to be returned")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns found test metrics", response = Map.class)
+    })
+    List<TestResultDTO> getTestCaseStabilityById(Long id, Long number);
 
     @ApiOperation(
             value = "Creates or updates test case",
