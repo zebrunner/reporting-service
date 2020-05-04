@@ -25,7 +25,7 @@ public interface TestMapper {
 
     List<Test> getTestsByTestRunId(long testRunId);
 
-    List<TestResult> getTestResultsByTestCaseId(@Param("testCaseId") Long testCaseId, @Param("number") Long number);
+    List<TestResult> getTestResultsByTestCaseId(@Param("testCaseId") Long testCaseId, @Param("limit") Long limit);
 
     List<Test> getTestsByTestRunCiRunId(String ciRunId);
 

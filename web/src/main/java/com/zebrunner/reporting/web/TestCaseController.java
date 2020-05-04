@@ -57,11 +57,11 @@ public class TestCaseController extends AbstractController implements TestCaseDo
         return testMetricService.getTestMetricsByTestCaseId(id);
     }
 
-    @GetMapping("/{id}/stability")
+    @GetMapping("/{id}/results")
     @Override
-    public List<TestResultDTO> getTestCaseStabilityById(@PathVariable("id") Long id,
-                                                        @RequestParam("number") Long number) {
-        List<TestResult> testCaseStability = testService.getTestResultsByTestCaseId(id, number);
+    public List<TestResultDTO> getTestCaseResultsById(@PathVariable("id") Long id,
+                                                      @RequestParam("limit") Long limit) {
+        List<TestResult> testCaseStability = testService.getTestResultsByTestCaseId(id, limit);
         return testCaseStability.stream()
                                 .map(stability -> mapper.map(stability, TestResultDTO.class))
                                 .collect(Collectors.toList());

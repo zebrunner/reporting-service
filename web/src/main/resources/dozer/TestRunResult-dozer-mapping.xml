@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://dozer.sourceforge.net http://dozer.sourceforge.net/schema/beanmapping.xsd">
+
+    <mapping type="bi-directional" wildcard="false">
+        <class-a>com.zebrunner.reporting.domain.dto.TestRunResultDTO</class-a>
+        <class-b>com.zebrunner.reporting.domain.db.TestRunResult</class-b>
+
+        <field>
+            <a>testRunId</a>
+            <b>testRunId</b>
+        </field>
+        <field>
+            <a>status</a>
+            <b>status</b>
+        </field>
+        <field>
+            <a>elapsed</a>
+            <b>elapsed</b>
+        </field>
+    </mapping>
+
+</mappings>

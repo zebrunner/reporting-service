@@ -414,8 +414,8 @@ public class TestService {
     }
 
     @Transactional(readOnly = true)
-    public List<TestResult> getTestResultsByTestCaseId(Long testCaseId, Long number) {
-        List<TestResult> testResults = testMapper.getTestResultsByTestCaseId(testCaseId, number);
+    public List<TestResult> getTestResultsByTestCaseId(Long testCaseId, Long limit) {
+        List<TestResult> testResults = testMapper.getTestResultsByTestCaseId(testCaseId, limit);
         testResults.forEach(result -> {
             Duration elapsed = Duration.between(result.getStartTime(), result.getFinishTime());
             result.setElapsed(elapsed.toMillis());

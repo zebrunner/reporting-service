@@ -308,7 +308,7 @@
         <include refid="getTestResults"/>
         <![CDATA[
 			WHERE T.TEST_CASE_ID = #{testCaseId}
-            LIMIT #{number}
+            LIMIT #{limit}
 		]]>
     </select>
 
