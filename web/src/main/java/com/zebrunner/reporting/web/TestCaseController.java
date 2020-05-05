@@ -11,6 +11,7 @@ import com.zebrunner.reporting.service.TestCaseService;
 import com.zebrunner.reporting.service.TestMetricService;
 import com.zebrunner.reporting.service.TestService;
 import com.zebrunner.reporting.web.documented.TestCaseDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
@@ -31,19 +32,13 @@ import java.util.stream.Collectors;
 
 @RequestMapping(path = "api/tests/cases", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class TestCaseController extends AbstractController implements TestCaseDocumentedController {
 
     private final Mapper mapper;
     private final TestCaseService testCaseService;
     private final TestService testService;
     private final TestMetricService testMetricService;
-
-    public TestCaseController(Mapper mapper, TestCaseService testCaseService, TestService testService, TestMetricService testMetricService) {
-        this.mapper = mapper;
-        this.testCaseService = testCaseService;
-        this.testService = testService;
-        this.testMetricService = testMetricService;
-    }
 
     @PostMapping("/search")
     @Override

@@ -7,6 +7,7 @@ import com.zebrunner.reporting.domain.dto.TestSuiteType;
 import com.zebrunner.reporting.service.TestRunService;
 import com.zebrunner.reporting.service.TestSuiteService;
 import com.zebrunner.reporting.web.documented.TestSuiteDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,17 +24,12 @@ import java.util.stream.Collectors;
 
 @RequestMapping(path = "api/tests/suites", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class TestSuiteController extends AbstractController implements TestSuiteDocumentedController {
 
     private final Mapper mapper;
     private final TestSuiteService testSuiteService;
     private final TestRunService testRunService;
-
-    public TestSuiteController(Mapper mapper, TestSuiteService testSuiteService, TestRunService testRunService) {
-        this.mapper = mapper;
-        this.testSuiteService = testSuiteService;
-        this.testRunService = testRunService;
-    }
 
     @PostMapping()
     @Override
