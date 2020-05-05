@@ -413,7 +413,6 @@ public class TestService {
         return testMapper.getTestsByTestRunId(testRunId);
     }
 
-    @Transactional(readOnly = true)
     public List<TestResult> getTestResultsByTestCaseId(Long testCaseId, Long limit) {
         List<TestResult> testResults = testMapper.getTestResultsByTestCaseId(testCaseId, limit);
         testResults.forEach(result -> {

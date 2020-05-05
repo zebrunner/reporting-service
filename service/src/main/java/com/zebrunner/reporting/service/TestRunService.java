@@ -250,7 +250,6 @@ public class TestRunService implements ProjectReassignable {
         return automationServerService.getBuildConsoleOutput(testRun.getJob(), testRun.getBuildNumber(), count, fullCount);
     }
 
-    @Transactional(readOnly = true)
     public List<TestRunResult> getTestRunResultsByTestSuiteId(Long testSuiteId, Long limit) {
         return testRunMapper.getTestRunResultsByTestSuiteId(testSuiteId, limit);
     }
