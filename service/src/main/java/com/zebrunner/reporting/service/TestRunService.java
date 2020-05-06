@@ -8,6 +8,7 @@ import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestConfig;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.db.TestRunArtifact;
+import com.zebrunner.reporting.domain.db.TestRunResult;
 import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import com.zebrunner.reporting.domain.db.filter.Filter;
 import com.zebrunner.reporting.domain.db.filter.FilterAdapter;
@@ -247,6 +248,10 @@ public class TestRunService implements ProjectReassignable {
             testRun = getTestRunByCiRunIdFull(testRun.getCiRunId());
         }
         return automationServerService.getBuildConsoleOutput(testRun.getJob(), testRun.getBuildNumber(), count, fullCount);
+    }
+
+    public List<TestRunResult> getTestRunResultsByTestSuiteId(Long testSuiteId, Long limit) {
+        return testRunMapper.getTestRunResultsByTestSuiteId(testSuiteId, limit);
     }
 
     @Transactional(readOnly = true)

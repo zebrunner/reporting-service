@@ -6,6 +6,7 @@ import java.util.Set;
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.Tag;
 import com.zebrunner.reporting.domain.db.Test;
+import com.zebrunner.reporting.domain.db.TestResult;
 import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import org.apache.ibatis.annotations.Param;
 
@@ -25,6 +26,8 @@ public interface TestMapper {
     boolean existsTestByIdAndTestRunId(@Param("id") long id, @Param("testRunId") long testRunId);
 
     List<Test> getTestsByTestRunId(long testRunId);
+
+    List<TestResult> getTestResultsByTestCaseId(@Param("testCaseId") Long testCaseId, @Param("limit") Long limit);
 
     List<Test> getTestsByTestRunCiRunId(String ciRunId);
 
