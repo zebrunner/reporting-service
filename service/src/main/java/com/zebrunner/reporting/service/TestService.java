@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service;
 
+import com.zebrunner.reporting.domain.db.TestResult;
 import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
 import com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +48,7 @@ public class TestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestService.class);
 
     private static final String ERR_MSG_TEST_NOT_FOUND = "Test with id %s can not be found";
-    private static final String ERR_MSG_KNOWN_ISSUE_TEST_STATUS= "Known issue cannot be attached to test with status '%s'";
+    private static final String ERR_MSG_KNOWN_ISSUE_TEST_STATUS = "Known issue cannot be attached to test with status '%s'";
     private static final String ERR_MSG_TESTS_NOT_FOUND = "Tests can not be found";
 
     private static final String INV_COUNT = "InvCount";
@@ -150,16 +152,16 @@ public class TestService {
             String message = String.format("name(%d)", test.getName().length());
             messageParts.add(message);
         }
-        if (is255SymbolsLengthExceeded(test.getTestGroup())){
+        if (is255SymbolsLengthExceeded(test.getTestGroup())) {
             String message = String.format("testGroup(%d)", test.getTestGroup().length());
             messageParts.add(message);
         }
-        if (is255SymbolsLengthExceeded(test.getDependsOnMethods())){
+        if (is255SymbolsLengthExceeded(test.getDependsOnMethods())) {
             String message = String.format("dependsOnMethods(%d)", test.getDependsOnMethods().length());
             messageParts.add(message);
         }
         String builtMessage = String.join(", ", messageParts);
-        if(!builtMessage.isBlank()){
+        if (!builtMessage.isBlank()) {
             LOGGER.error(String.format("Test ID: %d, Test name: %s\nFields exceeding 255 symbols restriction: %s", test.getId(), test.getName(), builtMessage));
         }
     }
@@ -316,6 +318,7 @@ public class TestService {
 
     /**
      * Need test update to avoid issues in the future
+     *
      * @param test to proccess
      */
     private void unlinkStatisticsFailureItems(Test test) {
@@ -329,7 +332,7 @@ public class TestService {
         }
     }
 
-    private void updateTestCaseStatus(Long testCaseId, Status status)  {
+    private void updateTestCaseStatus(Long testCaseId, Status status) {
         TestCase testCase = testCaseService.getTestCaseById(testCaseId);
         if (testCase != null) {
             testCase.setStatus(status);
@@ -410,6 +413,15 @@ public class TestService {
         return testMapper.getTestsByTestRunId(testRunId);
     }
 
+    public List<TestResult> getTestResultsByTestCaseId(Long testCaseId, Long limit) {
+        List<TestResult> testResults = testMapper.getTestResultsByTestCaseId(testCaseId, limit);
+        testResults.forEach(result -> {
+            Duration elapsed = Duration.between(result.getStartTime(), result.getFinishTime());
+            result.setElapsed(elapsed.toMillis());
+        });
+        return testResults;
+    }
+
     @Transactional(readOnly = true)
     public List<Test> getTestsByTestRunId(String testRunId) {
         return testRunId.matches("\\d+") ?
@@ -460,8 +472,8 @@ public class TestService {
 
     @Transactional()
     public List<WorkItemBatch> linkWorkItems(List<WorkItemBatch> workItemBatches, Long testRunId) {
-       boolean illegalOperation = workItemBatches.stream()
-                                                 .anyMatch(workItemBatch -> !existsTestByIdAndTestRunId(workItemBatch.getTestId(), testRunId));
+        boolean illegalOperation = workItemBatches.stream()
+                                                  .anyMatch(workItemBatch -> !existsTestByIdAndTestRunId(workItemBatch.getTestId(), testRunId));
         if (illegalOperation) {
             throw new IllegalOperationException(ILLEGAL_BATCH_OPERATION, ERR_MSG_TESTS_NOT_FOUND);
         }
@@ -533,7 +545,7 @@ public class TestService {
     private void linkWorkItem(Test test, WorkItem workItemToLink) {
         WorkItem.Type workItemType = workItemToLink.getType();
         updateSimilarWorkItems(workItemToLink);
-        WorkItem dbWorkItem =  workItemService.getWorkItemByJiraIdAndTypeAndHashcode(workItemToLink.getJiraId(),
+        WorkItem dbWorkItem = workItemService.getWorkItemByJiraIdAndTypeAndHashcode(workItemToLink.getJiraId(),
                 workItemToLink.getType(),
                 workItemToLink.getHashCode());
         if (dbWorkItem != null) {
@@ -628,7 +640,6 @@ public class TestService {
             List<TestCase> testCases = testCaseService.searchTestCases(sc).getResults();
 
 
-
             for (TestCase testCase : testCases) {
                 testCasesByMethod.putIfAbsent(testCase.getTestMethod(), new ArrayList<>());
 
@@ -681,9 +692,9 @@ public class TestService {
 
     /**
      * Adds set of tags to specified test.
-     * 
+     *
      * @param testId - test ID for tags
-     * @param tags - set of tags
+     * @param tags   - set of tags
      */
     @Transactional(rollbackFor = Exception.class)
     public Set<Tag> saveTags(Long testId, Set<Tag> tags) {

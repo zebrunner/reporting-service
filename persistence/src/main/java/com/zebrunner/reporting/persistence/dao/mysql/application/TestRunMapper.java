@@ -1,16 +1,16 @@
 package com.zebrunner.reporting.persistence.dao.mysql.application;
 
-import java.util.Date;
-import java.util.List;
-
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
-import com.zebrunner.reporting.domain.dto.TestRunStatistics;
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.TestRun;
+import com.zebrunner.reporting.domain.db.TestRunResult;
 import com.zebrunner.reporting.domain.db.config.Argument;
+import com.zebrunner.reporting.domain.dto.TestRunStatistics;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
 import org.apache.ibatis.annotations.Param;
 
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
+import java.util.Date;
+import java.util.List;
 
 public interface TestRunMapper {
     void createTestRun(TestRun testRun);
@@ -25,10 +25,12 @@ public interface TestRunMapper {
 
     TestRun getLatestJobTestRunByBranch(@Param("branch") String branch, @Param("jobId") Long jobId);
 
+    List<TestRunResult> getTestRunResultsByTestSuiteId(@Param("testSuiteId") Long testSuiteId, @Param("limit") Long limit);
+
     TestRunStatistics getTestRunStatistics(Long id);
 
     List<TestRun> getTestRunsForRerun(@Param("testSuiteId") long testSuiteId, @Param("jobId") long jobId, @Param("upstreamJobId") long upstreamJobId,
-            @Param("upstreamBuildNumber") long upstreamBuildNumber, @Param("uniqueArgs") List<Argument> uniqueArgs);
+                                      @Param("upstreamBuildNumber") long upstreamBuildNumber, @Param("uniqueArgs") List<Argument> uniqueArgs);
 
     void updateTestRun(TestRun testRun);
 
