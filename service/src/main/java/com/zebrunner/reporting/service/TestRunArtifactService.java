@@ -25,13 +25,12 @@ public class TestRunArtifactService {
 
     @Transactional
     public List<TestRunArtifact> createTestRunArtifacts(List<TestRunArtifact> testRunArtifacts) {
-        List<String> alreadyExistingNames = testRunArtifacts.stream()
-                                                            .filter(artifact -> existsByNameAndTestRunId(artifact.getName(), artifact.getTestRunId()))
-                                                            .map(TestRunArtifact::getName)
-                                                            .collect(Collectors.toList());
+        String alreadyExistingNames = testRunArtifacts.stream()
+                                                      .filter(artifact -> existsByNameAndTestRunId(artifact.getName(), artifact.getTestRunId()))
+                                                      .map(TestRunArtifact::getName)
+                                                      .collect(Collectors.joining(", "));
         if (!alreadyExistingNames.isEmpty()) {
-            String names = String.join(", ", alreadyExistingNames);
-            throw new IllegalOperationException(TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED, String.format(TEST_RUN_ARTIFACT_ALREADY_EXISTS, names));
+            throw new IllegalOperationException(TEST_RUN_ARTIFACT_CAN_NOT_BE_CREATED, String.format(TEST_RUN_ARTIFACT_ALREADY_EXISTS, alreadyExistingNames));
         }
         testRunArtifactMapper.createTestRunArtifacts(testRunArtifacts);
         return testRunArtifacts;
