@@ -250,6 +250,23 @@
 		]]>
     </select>
 
+    <sql id="getTestRunResults">
+		<![CDATA[
+        SELECT TR.ID      AS TEST_RUN_ID,
+               TR.STATUS  AS TEST_RUN_STATUS,
+               TR.ELAPSED AS TEST_RUN_ELAPSED
+        FROM TEST_RUNS TR
+        ]]>
+	</sql>
+
+    <select id="getTestRunResultsByTestSuiteId" resultMap="TestRunResultsResultMap">
+        <include refid="getTestRunResults"/>
+        <![CDATA[
+			WHERE TR.TEST_SUITE_ID = #{testSuiteId}
+            LIMIT #{limit}
+		]]>
+    </select>
+
     <select id="getTestRunsByUpstreamJobIdAndUpstreamJobBuildNumber"
             resultMap="TestRunResultMap">
         <include refid="getTestRunFull"/>
@@ -797,6 +814,12 @@
         <result column="TEST_RUN_SKIPPED" property="skipped"/>
         <result column="TEST_RUN_ABORTED" property="aborted"/>
         <result column="TEST_RUN_QUEUED" property="queued"/>
+    </resultMap>
+
+    <resultMap type="com.zebrunner.reporting.domain.db.TestRunResult" id="TestRunResultsResultMap" autoMapping="false">
+        <id column="TEST_RUN_ID" property="testRunId"/>
+        <result column="TEST_RUN_STATUS" property="status"/>
+        <result column="TEST_RUN_ELAPSED" property="elapsed"/>
     </resultMap>
 
 </mapper>

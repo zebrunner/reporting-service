@@ -9,13 +9,14 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service uses for test runs caching
  * <h1>(isolation need for Spring target proxy objects)</h1>
  */
-@Component
+@Service
 public class TestRunStatisticsCacheableServiceImpl implements TestRunStatisticsCacheableService {
 
     private static final String TEST_RUN_STATISTICS_CACHE_NAME = "testRunStatistics";
@@ -32,14 +33,14 @@ public class TestRunStatisticsCacheableServiceImpl implements TestRunStatisticsC
      * @param testRunId - to get statistic for
      * @return test run statistics
      */
-    @Cacheable(value = TEST_RUN_STATISTICS_CACHE_NAME, key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #testRunId")
+    @Cacheable(value = TEST_RUN_STATISTICS_CACHE_NAME, unless = "#result == null", condition = "#testRunId != null", key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #testRunId")
     @Transactional(readOnly = true)
     @Override
     public TestRunStatistics getTestRunStatistic(Long testRunId) {
         return testRunMapper.getTestRunStatistics(testRunId);
     }
 
-    @CachePut(value = TEST_RUN_STATISTICS_CACHE_NAME, key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #statistic.testRunId")
+    @CachePut(value = TEST_RUN_STATISTICS_CACHE_NAME, condition = "#statistic != null", key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #statistic.testRunId")
     @Override
     public TestRunStatistics setTestRunStatistic(TestRunStatistics statistic) {
         return statistic;

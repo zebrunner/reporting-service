@@ -12,102 +12,42 @@
     </#if>
     <#return result>
 </#function>
-
 <div id="container" style="width: 98%;
                            padding: 10px;
                            margin: 0;
                            background: #ffffff;
                            font-family: Arial, serif;">
-	<div id="summary">
-        <table>
-           	<#if testRun.config.env??>
+    <div id="summary">
+        <table style="width: 100%;">
             <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
-                <td style="width: 120px;color: #808a93;">Environment:</td>
+                       text-align: left;
+                       vertical-align:top;">
+                <td style="font-weight: bold;
+                        text-align: center;
+                        width: 10%;
+                        color:
+                <#if testRun.status == 'PASSED'>#44c480</#if>
+                <#if testRun.status == 'ABORTED'>#828A92</#if>
+                <#if testRun.status == 'FAILED'>#ec4e5d</#if>
+                <#if testRun.status == 'SKIPPED'>#eab73d</#if>
+                        <#if testRun.status == 'QUEUED'>#A7AEB3</#if>">
+                    ${testRun.status}
+                </td>
                 <td style="font-weight: bold;color: #011627;">
-                    ${testRun.config.env}
-                    <#if testRun.config.url ??>
-                         - <a href="${testRun.config.url}">${testRun.config.url}</a>
-                    </#if>
+                    ${testRun.testSuite.name} (${testRun.testSuite.fileName})
                 </td>
             </tr>
-            </#if>
-            <#if testRun.config.appVersion ??>
             <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
-                <td style="color: #808a93" >Version:</td>
-                <td style="font-weight: bold;color: #011627;">${testRun.config.appVersion} </td>
-            </tr>
-            </#if>
-            <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;">
-            <#if testRun.config.platform ?? || testRun.config.browser ??>
-                <td style="color: #808a93">Platform:</td>
-                <td style="font-weight: bold;color: #011627;">
-                    <#if testRun.config.platform ??>
-                        ${testRun.config.platform}
-                        <#if testRun.config.platformVersion ??>
-                            - ${testRun.config.platformVersion}
-                        </#if>
-                    </#if>
-                    <#if testRun.config.browser ??>
-                        ${testRun.config.browser}
-                        <#if (testRun.config.browserVersion)??>
-                            - ${testRun.config.browserVersion}
-                        </#if>
-                    </#if>
+                       text-align: left;
+                       vertical-align:top;">
+                <td style="font-weight: bold;
+                color: #011627;
+                text-align: center;
+                        width: 10%;">
+                    ${successRate}%
                 </td>
-            </#if>
-            </tr>
-            <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;">
-                <td style="color: #808a93" >Finished:</td>
-                <td  style="font-weight: bold;color: #011627;">${testRun.modifiedAt?string["HH:mm yyyy.MM.dd"]}</td>
-            </tr>
-            <#if elapsed??>
-            <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;">
-                <td style="color: #808a93">Elapsed:</td>
-                <td style="font-weight: bold;color: #011627;">${elapsed}</td>
-            </tr>
-            </#if>
-            <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;">
-                <td style="color: #808a93">Test job URL:</td>
-                <td style="font-weight: bold;color: #011627;">
-                    <#if customValues['zafira_service_url']?? && (customValues['zafira_service_url'] != 'NULL') && (customValues['zafira_service_url'] != '')>
-                        <a href="${customValues['zafira_service_url']}/tests/runs/${testRun.id?c}">Zafira</a>
-                    </#if>
-                </td>
-            </tr>
-            <#if testRun.comments??>
-            <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;">
-                <td style="color: #808a93" >Comments:</td>
-                <td style="font-weight: bold;color: #011627; ">
-                    <pre style="white-space: pre-line; margin: 0; font-family: Arial, serif;">
-                        ${testRun.comments?trim[0..*255]}
-                    </pre>
-                </td>
-            </tr>
-            </#if>
-            <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;">
-                <td style="color: #808a93">Success rate:</td>
-                <td style="font-weight: bold;color: #011627;">${successRate}%</td>
-            </tr>
-            <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;">
-                <td style="color: #808a93"></td>
                 <td style="font-weight: bold;color: #011627;">
                     <#if (testRun.passed > 0)>
                         <span>Passed: </span>
@@ -137,29 +77,104 @@
                         <span>Queued: </span>
                         <span style="color: #A7AEB3">${testRun.queued}</span>
                     </#if>
+                    <#if customValues['zafira_service_url']?? && (customValues['zafira_service_url'] != 'NULL') && (customValues['zafira_service_url'] != '')>
+                        <a href="${customValues['zafira_service_url']}/tests/runs/${testRun.id?c}">Insights</a>
+                    </#if>
                     <#if showJenkinsUrl && successRate?number != 100>
                         <span>
-                            <a href="${testRun.job.jobURL}/${testRun.buildNumber?c}/rebuild/parameterized">(Rebuild)</a>
+                            <a href="${testRun.job.jobURL}/${testRun.buildNumber?c}/rebuild/parameterized">Rebuild</a>
                         </span>
                     </#if>
                 </td>
             </tr>
-            <#if testRun.config.language ?? && testRun.config.language != 'en_US'>
             <tr style="font-size: 16px;
                        line-height: 1.63;
-                       text-align: left;">
-                <td style="color: #808a93">Language: </td>
+                       text-align: left;
+                       vertical-align:top;">
+                <#if testRun.config.env??>
+                    <td style="color: #808a93;">Environment:</td>
+                    <td style="font-weight: bold;color: #011627;">
+                        <#if testRun.config.url ??>
+                            <a href="${testRun.config.url}">${testRun.config.env}</a>
+                        <#else>
+                            ${testRun.config.env}
+                        </#if>
+                    </td>
+                </#if>
+            </tr>
+            <tr style="font-size: 16px;
+                       line-height: 1.63;
+                       text-align: left;
+                       vertical-align:top;">
+                <td style="color: #808a93">Platform:</td>
                 <td style="font-weight: bold;color: #011627;">
-                    ${testRun.config.language}
+                    <#if testRun.config.platform ??>
+                        ${testRun.config.platform}
+                        <#if testRun.config.platformVersion ??>
+                            - ${testRun.config.platformVersion}
+                        </#if>
+                    </#if>
+                    <#if testRun.config.browser ??>
+                        ${testRun.config.browser}
+                        <#if (testRun.config.browserVersion)??>
+                            - ${testRun.config.browserVersion}
+                        </#if>
+                    </#if>
                 </td>
             </tr>
+            <#if testRun.config.appVersion ?? && testRun.config.appVersion != ''>
+                <tr style="font-size: 16px;
+                       line-height: 1.63;
+                       text-align: left;
+                       vertical-align:top;">
+                    <td style="color: #808a93">Version:</td>
+                    <td style="font-weight: bold;color: #011627;">${testRun.config.appVersion} </td>
+                </tr>
             </#if>
-            <#if testRun.config.locale ?? && testRun.config.locale != 'en_US'
-            >
+            <tr style="font-size: 16px;
+                       line-height: 1.63;
+                       text-align: left;
+                       vertical-align:top;">
+                <td style="color: #808a93">Finished:</td>
+                <td style="font-weight: bold;color: #011627;">${testRun.modifiedAt?string["HH:mm yyyy.MM.dd"]}</td>
+            </tr>
+            <#if elapsed??>
+                <tr style="font-size: 16px;
+                       line-height: 1.63;
+                       text-align: left;
+                       vertical-align:top;">
+                    <td style="color: #808a93">Elapsed:</td>
+                    <td style="font-weight: bold;color: #011627;">${elapsed}</td>
+                </tr>
+            </#if>
+            <#if testRun.comments??>
+                <tr style="font-size: 16px;
+                       line-height: 1.63;
+                       text-align: left;
+                       vertical-align:top;">
+                    <td style="color: #808a93">Comments:</td>
+                    <td style="font-weight: bold;color: #011627; ">
+                        <pre style="white-space: pre-line; margin: 0; font-family: Arial, serif;">${testRun.comments?trim[0..*255]}</pre>
+                    </td>
+                </tr>
+            </#if>
+            <#if testRun.config.language ?? && testRun.config.language != 'en_US'>
+                <tr style="font-size: 16px;
+                       line-height: 1.63;
+                       text-align: left;
+                       vertical-align:top;">
+                    <td style="color: #808a93">Language:</td>
+                    <td style="font-weight: bold;color: #011627;">
+                        ${testRun.config.language}
+                    </td>
+                </tr>
+            </#if>
+            <#if testRun.config.locale ?? && testRun.config.locale != 'en_US'>
                 <tr style="font-size: 16px;
                            line-height: 1.63;
-                           text-align: left;">
-                    <td style="color: #808a93">Locale: </td>
+                           text-align: left;
+                           vertical-align:top;">
+                    <td style="color: #808a93">Locale:</td>
                     <td style="font-weight: bold;color: #011627;">
                         ${testRun.config.locale}
                     </td>
@@ -168,7 +183,7 @@
         </table>
     </div>
     <br/>
-	<div id="results">
+    <div id="results">
         <table style="width: 100%;">
             <tr style="background-color: #EEEFF0;
                        padding: 7px;
@@ -193,7 +208,7 @@
                                color: #011627;
                                text-align: left;
                                padding-left: 7px;">
-                        <td style="padding-left: 7px;" colspan="4" >
+                        <td style="padding-left: 7px;" colspan="4">
                             ${currentGroup}
                         </td>
                     </tr>
@@ -201,28 +216,28 @@
                 <#assign previousGroup = currentGroup>
 
                 <#if !(showOnlyFailures == true && test.status == 'PASSED')>
-                    <tr  style="background:
+                    <tr style="background:
                     <#if test.status == 'PASSED'>#44c480</#if>
                     <#if test.status == 'ABORTED'>#828A92</#if>
                     <#if test.status == 'FAILED'>
                         <#if test.knownIssue?? && test.knownIssue != true || test.blocker>#ec4e5d<#else>#BD4D50</#if>
                     </#if>
                     <#if test.status == 'SKIPPED'>#eab73d</#if>
-                    <#if test.status == 'QUEUED'>#A7AEB3</#if>">
-	            		<td style="font-size: 13px;
+                            <#if test.status == 'QUEUED'>#A7AEB3</#if>">
+                        <td style="font-size: 13px;
                             font-weight: bold;
                             line-height: 1.38;
                             text-align: center;
                             color: #ffffff;">
-	            			${test.status}
-	            		</td>
-	            		<td style="font-size: 14px;
+                            ${test.status}
+                        </td>
+                        <td style="font-size: 14px;
                             line-height: 1.29;
                             text-align: left;
                             color: #ffffff;
                             padding: 5px;
                             margin: 2px;">
-	            			<span>${test.name}</span>
+                            <span>${test.name}</span>
                             <#if ((test.startTime ?? && test.finishTime??) || (test.testConfig ?? && test.testConfig.device ??) || test.owner ??)>
                                 <div>
                                     <#if (test.startTime ?? && test.finishTime??)>
@@ -234,9 +249,9 @@
                                         </span>
                                     </#if>
                                     <span> ${test.owner}</span>
-                                        <#if test.secondaryOwner ??>
-                                            ${test.secondaryOwner}
-                                        </#if>
+                                    <#if test.secondaryOwner ??>
+                                        ${test.secondaryOwner}
+                                    </#if>
                                     <#if (test.testConfig ?? && test.testConfig.device ??)>
                                         <span>
                                             ${test.testConfig.device}
@@ -244,7 +259,7 @@
                                     </#if>
                                 </div>
                             </#if>
-	            			<#if test.status == 'FAILED' && test.message?? && test.message != ''>
+                            <#if test.status == 'FAILED' && test.message?? && test.message != ''>
                                 <#if test.knownIssue?? && test.knownIssue != true || test.blocker>
                                     <pre style="background-color: #EBACB1;
                                                 font-family: Arial, serif;
@@ -282,9 +297,9 @@
                                     </#if>
 	            				    </pre>
                                 </#if>
-	            			</#if>
-	            			<#if test.status == 'SKIPPED' && test.message?? && test.message != ''>
-	            				<pre style="background-color: #f3d688;
+                            </#if>
+                            <#if test.status == 'SKIPPED' && test.message?? && test.message != ''>
+                                <pre style="background-color: #f3d688;
                                             font-family: Arial, serif;
                                             font-size: 14px;
                                             line-height: 1.29;
@@ -301,8 +316,8 @@
                                         ${test.message?trim}
                                     </#if>
 	            				</pre>
-	            			</#if>
-	            		</td>
+                            </#if>
+                        </td>
                         <td style="font-size: 13px;
                             font-weight: bold;
                             line-height: 1.38;
@@ -354,7 +369,7 @@
                                     </a>
                                 </#if>
                             </#list>
-	                    </td>
+                        </td>
                         <td style="font-size: 13px;
                                    font-weight: bold;
                                    line-height: 1.38;
@@ -369,9 +384,9 @@
                                    href="${customValues['zafira_service_url']}/tests/runs/${testRun.id?c}/info/${test.id?c}">Logs</a>
                             </#if>
                         </td>
-	            	</tr>
-            	</#if>
+                    </tr>
+                </#if>
             </#list>
-		</table>
-	</div>
+        </table>
+    </div>
 </div>

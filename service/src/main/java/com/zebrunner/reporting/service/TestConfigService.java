@@ -88,7 +88,7 @@ public class TestConfigService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "environments", key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #result", condition = "#result != null && #result.size() != 0")
+    @Cacheable(value = "environments", key = "new com.zebrunner.reporting.persistence.utils.TenancyContext().getTenantName() + ':' + #result", unless = "#result == null || #result.isEmpty()")
     public List<String> getEnvironments() {
         return testConfigMapper.getEnvironments();
     }
