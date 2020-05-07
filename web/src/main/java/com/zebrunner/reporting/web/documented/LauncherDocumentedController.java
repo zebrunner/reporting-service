@@ -3,6 +3,7 @@ package com.zebrunner.reporting.web.documented;
 import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JenkinsJobsScanResultDTO;
 import com.zebrunner.reporting.domain.dto.JobResult;
+import com.zebrunner.reporting.domain.dto.LauncherArtifactDTO;
 import com.zebrunner.reporting.domain.dto.LauncherDTO;
 import com.zebrunner.reporting.domain.dto.LauncherScannerType;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
@@ -243,5 +244,22 @@ public interface LauncherDocumentedController {
             @ApiResponse(code = 404, message = "Indicates that launcher or user cannot be found by id", response = ErrorResponse.class)
     })
     UserLauncherPreference patchUserLauncherPreference(PatchDescriptor descriptor, Long id);
+
+    @ApiOperation(
+            value = "Creates launcher artifact",
+            notes = "Returns created artifact",
+            nickname = "addLauncherArtifact",
+            httpMethod = "POST",
+            response = LauncherArtifactDTO.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "launcherArtifactDTO", paramType = "body", dataTypeClass = LauncherArtifactDTO.class, required = true, value = "The launcher artifact"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The launcher id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns created artifact", response = LauncherArtifactDTO.class)
+    })
+    LauncherArtifactDTO addLauncherArtifact(LauncherArtifactDTO launcherArtifactDTO, Long id);
 
 }

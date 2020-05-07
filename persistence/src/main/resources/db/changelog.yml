@@ -252,3 +252,14 @@ databaseChangeLog:
             path: changeset/023_adjust_work_items_indices.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 024_add_launcher_artifacts_table
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/024_add_launcher_artifacts_table.sql
+            relativeToChangelogFile: true
+            splitStatements: false

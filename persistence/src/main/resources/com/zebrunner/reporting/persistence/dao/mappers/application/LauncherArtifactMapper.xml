@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherArtifactMapper">
+
+	<insert id="create" useGeneratedKeys="true" keyProperty="artifact.id">
+		<![CDATA[
+			INSERT INTO LAUNCHER_ARTIFACTS (NAME, LINK, EXPIRES_AT, LAUNCHER_ID)
+			VALUES (
+				#{artifact.name},
+			    #{artifact.link},
+				#{artifact.expiresAt},
+				#{launcherId}
+			)
+		]]>
+	</insert>
+
+	<sql id="body">
+		<![CDATA[
+			LA.ID AS LAUNCHER_ARTIFACT_ID,
+			LA.NAME AS LAUNCHER_ARTIFACT_NAME,
+			LA.LINK AS LAUNCHER_ARTIFACT_LINK,
+			LA.EXPIRES_AT AS LAUNCHER_ARTIFACT_EXPIRES_AT
+		]]>
+	</sql>
+
+	<select id="existsByNameAndLauncherId" resultType="java.lang.Boolean">
+		<![CDATA[
+		SELECT EXISTS (
+					   SELECT ID FROM LAUNCHER_ARTIFACTS LA
+					   WHERE
+						   LA.NAME = #{name} AND LA.LAUNCHER_ID = #{launcherId}
+				   )
+		]]>
+	</select>
+
+	<resultMap id="LauncherArtifactMap" type="com.zebrunner.reporting.domain.db.launcher.LauncherArtifact" autoMapping="false">
+		<id property="id" column="LAUNCHER_ARTIFACT_ID"/>
+		<result property="name" column="LAUNCHER_ARTIFACT_NAME"/>
+		<result property="link" column="LAUNCHER_ARTIFACT_LINK"/>
+		<result property="expiresAt" column="LAUNCHER_ARTIFACT_EXPIRES_AT"/>
+	</resultMap>
+
+</mapper>
