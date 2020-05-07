@@ -263,3 +263,14 @@ databaseChangeLog:
             path: changeset/024_add_launcher_artifacts_table.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 025_system_dashboards_update
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/025_system_dashboards_update.sql
+            relativeToChangelogFile: true
+            splitStatements: false
