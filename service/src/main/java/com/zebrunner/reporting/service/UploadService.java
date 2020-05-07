@@ -39,9 +39,13 @@ public class UploadService {
      * @param type artifact type
      * @return url single-attribute JSON containing document url to be returned to REST API client invoking this API
      */
-    public String uploadArtifacts(FileUploadType.Type type, InputStream inputStream, String filename, long fileSize) {
+    public String uploadArtifact(FileUploadType.Type type, InputStream inputStream, String filename, long fileSize) {
         String resourceUrl = storageProviderService.saveFile(new FileUploadType(inputStream, type, filename, fileSize));
         return String.format("{\"url\": \"%s\"}", resourceUrl);
+    }
+
+    public void removeArtifact(String key) {
+        storageProviderService.removeFile(key);
     }
 
     /**
@@ -50,12 +54,20 @@ public class UploadService {
      * and is not controlled by service client
      * @return url single-attribute JSON containing document url to be returned to REST API client invoking this API
      */
-    public String uploadImages(FileUploadType.Type type, InputStream inputStream, String filename, long fileSize) {
+    public String uploadImage(FileUploadType.Type type, InputStream inputStream, String filename, long fileSize) {
         if (!multitenant) {
             filename = storeToLocalFilesystem(filename, inputStream);
             return getLocalFilesystemResourceURL(filename);
         } else {
-            return uploadArtifacts(type, inputStream, filename, fileSize);
+            return uploadArtifact(type, inputStream, filename, fileSize);
+        }
+    }
+
+    public void removeImage(String key) {
+        if (!multitenant) {
+            removeFromLocalFilesystem(key);
+        } else {
+            removeArtifact(key);
         }
     }
 
@@ -66,7 +78,7 @@ public class UploadService {
      * @return url single-attribute JSON containing document url to be returned to REST API client invoking this API
      */
     private String getLocalFilesystemResourceURL(String filename) {
-        String resourceUrl = urlResolver.buildWebserviceUrl() + ASSETS_DIRECTORY + filename;
+        String resourceUrl = urlResolver.buildWebserviceUrl() + ASSETS_DIRECTORY + adjustFilename(filename);
         return String.format("{\"url\": \"%s\"}", resourceUrl);
     }
 
@@ -74,7 +86,7 @@ public class UploadService {
         try {
             byte[] buffer = new byte[fileStream.available()];
             fileStream.read(buffer);
-            Path path = Paths.get(ASSETS_LOCATION + filename);
+            Path path = Paths.get(ASSETS_LOCATION + adjustFilename(filename));
             Files.write(path, buffer);
             return filename;
         } catch (IOException e) {
@@ -83,4 +95,16 @@ public class UploadService {
         }
     }
 
+    private void removeFromLocalFilesystem(String filename) {
+        try {
+            Path path = Paths.get(ASSETS_LOCATION + adjustFilename(filename));
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new ProcessingException(UNPROCESSABLE_DOCUMENT, "Unable to delete document");
+        }
+    }
+
+    private String adjustFilename(String filename) {
+        return filename.startsWith("/") ? filename.substring(1) : filename;
+    }
 }
