@@ -138,7 +138,7 @@
 			WHERE
 			    ID = #{id}
 			AND
-				EDITABLE = TRUE
+				SYSTEM = FALSE
 		]]>
 	</update>
 
@@ -150,6 +150,8 @@
 				POSITION = #{position}
 			WHERE
 				ID = #{id}
+			AND
+			    SYSTEM = FALSE
 		]]>
 	</update>
 
@@ -162,7 +164,7 @@
 	<delete id="deleteDashboardById">
 		<include refid="deleteDashboard" />
 		<![CDATA[
-			WHERE ID = #{id} AND EDITABLE = TRUE
+			WHERE ID = #{id} AND SYSTEM = FALSE
 		]]>
 	</delete>
 
@@ -246,7 +248,7 @@
 				#{attribute.value},
 				#{dashboardId}
 			WHERE NOT EXISTS (
-			    SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND EDITABLE = FALSE
+			    SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND SYSTEM = TRUE
 			)
 		]]>
 	</insert>
@@ -277,7 +279,7 @@
 				]) AS VALUE,
 			#{dashboardId} AS DASHBOARD_ID) DA
 			WHERE NOT EXISTS (
-    			SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND EDITABLE = FALSE
+    			SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND SYSTEM = TRUE
     		)
 		]]>
 	</insert>
@@ -321,7 +323,7 @@
 		WHERE
 			ID = #{id}
 	  	AND NOT EXISTS (
-				SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND EDITABLE = FALSE
+				SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND SYSTEM = TRUE
 			)
 	</delete>
 
@@ -346,7 +348,7 @@
             WHERE
             	ID = #{id}
 			AND NOT EXISTS (
-				SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND EDITABLE = FALSE
+				SELECT ID FROM DASHBOARDS WHERE ID = #{dashboardId} AND SYSTEM = TRUE
 			)
         ]]>
 	</update>

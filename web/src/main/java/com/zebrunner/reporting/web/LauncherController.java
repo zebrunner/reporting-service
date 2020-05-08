@@ -2,16 +2,13 @@ package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.db.JenkinsJob;
 import com.zebrunner.reporting.domain.db.launcher.Launcher;
-import com.zebrunner.reporting.domain.db.launcher.LauncherArtifact;
 import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JenkinsJobsScanResultDTO;
 import com.zebrunner.reporting.domain.dto.JobResult;
-import com.zebrunner.reporting.domain.dto.LauncherArtifactDTO;
 import com.zebrunner.reporting.domain.dto.LauncherDTO;
 import com.zebrunner.reporting.domain.dto.LauncherScannerType;
 import com.zebrunner.reporting.domain.push.LauncherPush;
 import com.zebrunner.reporting.domain.push.LauncherRunPush;
-import com.zebrunner.reporting.service.LauncherArtifactService;
 import com.zebrunner.reporting.service.LauncherService;
 import com.zebrunner.reporting.web.documented.LauncherDocumentedController;
 import com.zebrunner.reporting.web.util.patch.PatchDecorator;
@@ -43,13 +40,11 @@ import java.util.stream.Collectors;
 public class LauncherController extends AbstractController implements LauncherDocumentedController {
 
     private final LauncherService launcherService;
-    private final LauncherArtifactService launcherArtifactService;
     private final Mapper mapper;
     private final SimpMessagingTemplate websocketTemplate;
 
-    public LauncherController(LauncherService launcherService, LauncherArtifactService launcherArtifactService, Mapper mapper, SimpMessagingTemplate websocketTemplate) {
+    public LauncherController(LauncherService launcherService, Mapper mapper, SimpMessagingTemplate websocketTemplate) {
         this.launcherService = launcherService;
-        this.launcherArtifactService = launcherArtifactService;
         this.mapper = mapper;
         this.websocketTemplate = websocketTemplate;
     }
@@ -193,14 +188,6 @@ public class LauncherController extends AbstractController implements LauncherDo
 
     enum PatchOperation {
         SAVE_FAVORITE
-    }
-
-    @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
-    @PostMapping("/{id}/artifacts")
-    public LauncherArtifactDTO addLauncherArtifact(@RequestBody @Valid LauncherArtifactDTO launcherArtifactDTO, @PathVariable("id") Long id) {
-        LauncherArtifact artifact = mapper.map(launcherArtifactDTO, LauncherArtifact.class);
-        artifact = launcherArtifactService.create(artifact, id);
-        return mapper.map(artifact, LauncherArtifactDTO.class);
     }
 
 }

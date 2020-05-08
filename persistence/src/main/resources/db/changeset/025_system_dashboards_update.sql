@@ -1,5 +1,0 @@
-UPDATE DASHBOARDS SET SYSTEM = false, HIDDEN = false, EDITABLE = false WHERE TITLE = 'General';
-UPDATE DASHBOARDS SET SYSTEM = false, HIDDEN = false, EDITABLE = false WHERE TITLE = 'Personal';
-UPDATE DASHBOARDS SET SYSTEM = true, HIDDEN = false, EDITABLE = false WHERE TITLE = 'Failures analysis';
-UPDATE DASHBOARDS SET SYSTEM = false, HIDDEN = false, EDITABLE = false WHERE TITLE = 'User Performance';
-UPDATE DASHBOARDS SET SYSTEM = true, HIDDEN = false, EDITABLE = false WHERE TITLE = 'Stability';

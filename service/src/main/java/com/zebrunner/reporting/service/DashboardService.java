@@ -81,7 +81,8 @@ public class DashboardService {
     public Dashboard update(Dashboard updatedDashboard) {
         Dashboard dashboard = getDashboardById(updatedDashboard.getId());
         // only editable dashboard can be modified, throw exception otherwise
-        if (dashboard.isEditable()) {
+        boolean allowedToUpdate = dashboard.isEditable() && !dashboard.isSystem();
+        if (allowedToUpdate) {
             updatedDashboard.setEditable(true);
             dashboardMapper.updateDashboard(updatedDashboard);
 
@@ -107,7 +108,8 @@ public class DashboardService {
     public void removeById(Long id) {
         Dashboard dashboard = getDashboardById(id);
         // only editable dashboard can be deleted, throw exception otherwise
-        if (dashboard.isEditable()) {
+        boolean allowedToRemove = dashboard.isEditable() && !dashboard.isSystem();
+        if (allowedToRemove) {
             // reset dashboard preference first, then delete
             userPreferenceService.resetDefaultDashboardPreference(dashboard.getTitle());
             dashboardMapper.deleteDashboardById(id);
@@ -131,7 +133,7 @@ public class DashboardService {
     @Transactional
     public List<Widget> updateDashboardWidgets(Long dashboardId, List<Widget> widgets) {
         Dashboard dashboard = getDashboardById(dashboardId);
-        if (dashboard.isEditable()) {
+        if (!dashboard.isSystem()) {
             return widgets.stream()
                           .map(widget -> updateDashboardWidget(dashboardId, widget))
                           .collect(Collectors.toList());
@@ -153,7 +155,7 @@ public class DashboardService {
     @Transactional
     public Attribute createDashboardAttribute(Long dashboardId, Attribute attribute) {
         Dashboard dashboard = getDashboardById(dashboardId);
-        if (dashboard.isEditable()) {
+        if (!dashboard.isSystem()) {
             Attribute usedAttribute = retrieveAttributesByDashboardId(dashboardId).stream()
                                                                                   .filter(attr -> attr.getKey().equals(attribute.getKey()))
                                                                                   .findAny()
@@ -172,7 +174,7 @@ public class DashboardService {
     @Transactional
     public List<Attribute> createDashboardAttributes(Long dashboardId, List<Attribute> attributes) {
         Dashboard dashboard = getDashboardById(dashboardId);
-        if (dashboard.isEditable()) {
+        if (!dashboard.isSystem()) {
             List<String> dashboardAttributeKeys = retrieveAttributesByDashboardId(dashboardId).stream()
                                                                                               .map(Attribute::getKey)
                                                                                               .collect(Collectors.toList());
@@ -206,7 +208,7 @@ public class DashboardService {
     @Transactional
     public Attribute updateAttribute(Attribute attribute) {
         Dashboard dashboard = retrieveByAttributeId(attribute.getId());
-        if (dashboard.isEditable()) {
+        if (!dashboard.isSystem()) {
             dashboardMapper.updateAttribute(attribute);
         } else {
             throw new IllegalOperationException(DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED, ERR_MSG_CANNOT_PERSIST_ATTRIBUTE_TO_SYSTEM_DASHBOARD);
@@ -217,7 +219,7 @@ public class DashboardService {
     @Transactional
     public void removeByAttributeById(long attributeId) {
         Dashboard dashboard = retrieveByAttributeId(attributeId);
-        if (dashboard.isEditable()) {
+        if (!dashboard.isSystem()) {
             dashboardMapper.deleteDashboardAttributeById(attributeId);
         } else {
             throw new IllegalOperationException(DASHBOARD_ATTRIBUTE_CAN_NOT_BE_CREATED, ERR_MSG_CANNOT_PERSIST_ATTRIBUTE_TO_SYSTEM_DASHBOARD);

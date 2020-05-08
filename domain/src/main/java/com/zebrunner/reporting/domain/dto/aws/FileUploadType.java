@@ -20,8 +20,7 @@ public class FileUploadType {
         USERS("/users"),
         COMMON("/common"),
         VIDEOS("/artifacts/videos"),
-        SCREENSHOTS("/artifacts/screenshots"),
-        APP("/artifacts/applications");
+        SCREENSHOTS("/artifacts/screenshots");
 
         private final String path;
 
