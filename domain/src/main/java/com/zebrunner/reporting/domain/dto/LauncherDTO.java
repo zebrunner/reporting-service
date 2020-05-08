@@ -37,5 +37,7 @@ public class LauncherDTO extends AbstractType {
     private JobDTO job;
     private boolean autoScan;
 
+    private List<LauncherArtifactDTO> artifacts;
+
 
 }

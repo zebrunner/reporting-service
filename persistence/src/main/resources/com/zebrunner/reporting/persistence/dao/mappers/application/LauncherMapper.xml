@@ -59,6 +59,10 @@
             L.AUTO_SCAN AS LAUNCHER_AUTO_SCAN,
             L.TYPE AS LAUNCHER_TYPE,
 		]]>
+        <include refid="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherArtifactMapper.body"/>
+        <![CDATA[
+            ,
+        ]]>
         <include refid="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherPresetMapper.body"/>
         <![CDATA[
             ,
@@ -90,6 +94,10 @@
     <sql id="launcherSelectJoins">
         <![CDATA[
 				LAUNCHERS L
+            LEFT JOIN
+                LAUNCHER_ARTIFACTS LA
+            ON
+                L.ID = LA.LAUNCHER_ID
             LEFT JOIN
                 SCM S
             ON
@@ -289,6 +297,8 @@
                      resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.JobMapper.JobResultMap"/>
         <collection property="presets" ofType="com.zebrunner.reporting.domain.db.launcher.LauncherPreset"
                     resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherPresetMapper.LauncherPresetResultMap"/>
+        <collection property="artifacts" ofType="com.zebrunner.reporting.domain.db.launcher.LauncherArtifact"
+                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.LauncherArtifactMapper.LauncherArtifactMap"/>
     </resultMap>
 
 </mapper>
