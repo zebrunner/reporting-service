@@ -9,13 +9,13 @@ import com.zebrunner.reporting.domain.dto.testsession.SearchParameter;
 import com.zebrunner.reporting.domain.entity.TestSession;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationParam;
-import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.domain.push.events.ZbrHubTokenRefreshMessage;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.service.integration.IntegrationTypeService;
 import com.zebrunner.reporting.service.util.EventPushService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,22 +34,16 @@ import static com.zebrunner.reporting.service.exception.ResourceNotFoundExceptio
 import static com.zebrunner.reporting.service.util.EventPushService.Type.ZBR_EVENTS;
 
 @Service
+@RequiredArgsConstructor
 public class TestSessionService {
 
     private static final String ERR_MSG_TEST_SESSION_NOT_EXISTS_BY_SESSION_ID = "Test session does not exist by sessionId '%s'";
     private static final String ERR_MSG_FOR_INTEGRATION_TOKEN_REFRESH_IS_NOT_SUPPORTED = "For integration of type %s token refresh is not supported";
 
-    private final TestSessionRepository testSessionRepository;
+    private final EventPushService eventPushService;
     private final IntegrationService integrationService;
+    private final TestSessionRepository testSessionRepository;
     private final IntegrationTypeService integrationTypeService;
-    private EventPushService<EventMessage> eventPushService;
-
-    public TestSessionService(TestSessionRepository testSessionRepository, IntegrationService integrationService, IntegrationTypeService integrationTypeService, EventPushService<EventMessage> eventPushService) {
-        this.testSessionRepository = testSessionRepository;
-        this.integrationService = integrationService;
-        this.integrationTypeService = integrationTypeService;
-        this.eventPushService = eventPushService;
-    }
 
     @Transactional(readOnly = true)
     public TestSession retrieveBySessionId(String sessionId) {
