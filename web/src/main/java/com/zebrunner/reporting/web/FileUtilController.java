@@ -36,7 +36,7 @@ public class FileUtilController extends AbstractController implements FileUtilDo
 
     private static final String DATA_FOLDER = "/opt/apk/%s";
     private static final String[] ALLOWED_IMAGE_CONTENT_TYPES = {"image/png", "image/jpeg"};
-    private static final String[] APP_EXTENSIONS = {"app", "ipa", "apk"};
+    private static final String[] APP_EXTENSIONS = {"app", "ipa", "apk", "apks"};
 
     private static final long MAX_IMAGE_SIZE = 2 * 1024 * 1024;
     private static final long MAX_APP_PACKAGE_SIZE = 100 * 1024 * 1024;
