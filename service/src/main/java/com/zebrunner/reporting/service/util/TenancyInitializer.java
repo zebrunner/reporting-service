@@ -44,7 +44,7 @@ public class TenancyInitializer {
     private ScmAccountService scmAccountService;
 
     @Autowired
-    private EventPushService<EventMessage> eventPushService;
+    private EventPushService eventPushService;
 
     private final List<TenancyDbInitial> tenancyDbInitials;
     private final List<TenancyInitial> tenancyInitials;

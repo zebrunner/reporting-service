@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EventPushService<T extends EventMessage> {
+public class EventPushService {
 
     private static final String EXCHANGE_NAME = "events";
     private static final String SUPPLIER_QUEUE_NAME_HEADER = "SUPPLIER_QUEUE";
@@ -18,8 +18,7 @@ public class EventPushService<T extends EventMessage> {
     private final RabbitTemplate rabbitTemplate;
     private final MessageBrokerService messageBrokerService;
 
-    public EventPushService(RabbitTemplate rabbitTemplate,
-                            @Lazy MessageBrokerService messageBrokerService) {
+    public EventPushService(RabbitTemplate rabbitTemplate, @Lazy MessageBrokerService messageBrokerService) {
         this.rabbitTemplate = rabbitTemplate;
         this.messageBrokerService = messageBrokerService;
     }
@@ -29,7 +28,8 @@ public class EventPushService<T extends EventMessage> {
         SETTINGS("settings"),
         ZFR_CALLBACKS("zfr_callbacks"),
         ZBR_EVENTS("zbr_events"),
-        TENANCIES("tenancies");
+        TENANCIES("tenancies"),
+        INTEGRATION_SAVED("integration_saved");
 
         private final String routingKey;
 
@@ -42,18 +42,18 @@ public class EventPushService<T extends EventMessage> {
         }
     }
 
-    public boolean convertAndSend(Type type, T eventMessage) {
+    public <T extends EventMessage> boolean convertAndSend(Type type, T eventMessage) {
         return convertAndSend(type, eventMessage, setSupplierQueueNameHeader());
     }
 
-    public boolean convertAndSend(Type type, T eventMessage, String headerName, String headerValue) {
+    public <T extends EventMessage> boolean convertAndSend(Type type, T eventMessage, String headerName, String headerValue) {
         return convertAndSend(type, eventMessage, message -> {
             message.getMessageProperties().setHeader(headerName, headerValue);
             return message;
         });
     }
 
-    private boolean convertAndSend(Type type, T eventMessage, MessagePostProcessor messagePostProcessor) {
+    private <T extends EventMessage> boolean convertAndSend(Type type, T eventMessage, MessagePostProcessor messagePostProcessor) {
         try {
             rabbitTemplate.convertAndSend(EXCHANGE_NAME, type.getRoutingKey(), eventMessage, messagePostProcessor);
             return true;
@@ -62,9 +62,20 @@ public class EventPushService<T extends EventMessage> {
         }
     }
 
+    public <T extends EventMessage> boolean sendFanout(String exchange, T message) {
+        try {
+            rabbitTemplate.convertAndSend(exchange, "", message);
+            return true;
+        } catch (AmqpException e) {
+            return false;
+        }
+    }
+
     private MessagePostProcessor setSupplierQueueNameHeader() {
         return message -> {
-            message.getMessageProperties().getHeaders().putIfAbsent(SUPPLIER_QUEUE_NAME_HEADER, messageBrokerService.getSettingQueueName());
+            message.getMessageProperties()
+                   .getHeaders()
+                   .putIfAbsent(SUPPLIER_QUEUE_NAME_HEADER, messageBrokerService.getSettingQueueName());
             return message;
         };
     }
@@ -75,8 +86,10 @@ public class EventPushService<T extends EventMessage> {
     }
 
     private String getSupplierQueueNameHeader(Message message) {
-        Object supplier =  message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER);
-        return supplier != null ? message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER).toString() : null;
+        Object supplier = message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER);
+        return supplier != null
+                ? message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER).toString()
+                : null;
     }
 
 }
