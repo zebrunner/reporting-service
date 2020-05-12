@@ -506,6 +506,7 @@ public class TestService {
     @Transactional(rollbackFor = Exception.class)
     public WorkItem createOrUpdateTestWorkItem(long testId, WorkItem workItem) {
         Test test = getNotNullTestById(testId);
+        workItem.setTestCaseId(test.getTestCaseId());
 
         if (WorkItem.Type.BUG.equals(workItem.getType())) {
             if (!Arrays.asList(Status.FAILED, Status.SKIPPED).contains(test.getStatus())) {
@@ -545,7 +546,9 @@ public class TestService {
     private void linkWorkItem(Test test, WorkItem workItemToLink) {
         WorkItem.Type workItemType = workItemToLink.getType();
         updateSimilarWorkItems(workItemToLink);
-        WorkItem dbWorkItem = workItemService.getWorkItemByJiraIdAndTypeAndHashcode(workItemToLink.getJiraId(),
+        WorkItem dbWorkItem =  workItemService.getWorkItemByTestCaseIdAndJiraIdAndTypeAndHashcode(
+                workItemToLink.getTestCaseId(),
+                workItemToLink.getJiraId(),
                 workItemToLink.getType(),
                 workItemToLink.getHashCode());
         if (dbWorkItem != null) {
@@ -584,6 +587,7 @@ public class TestService {
     @Transactional(rollbackFor = Exception.class)
     public WorkItem createWorkItem(long testId, WorkItem workItem) {
         Test test = getNotNullTestById(testId);
+        workItem.setTestCaseId(test.getTestCaseId());
         workItemService.createWorkItem(workItem);
         testMapper.createTestWorkItem(test, workItem);
         return workItemService.getWorkItemByJiraIdAndType(workItem.getJiraId(), workItem.getType());
