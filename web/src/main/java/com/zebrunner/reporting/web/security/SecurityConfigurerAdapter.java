@@ -27,6 +27,7 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/auth/login",
             "/api/config/**",
             "/api/auth/refresh",
+            "/v1/api/auth/refresh",
             "/api/status/**",
             "/api/dashboards/email",
             "/api/settings/companyLogo",
