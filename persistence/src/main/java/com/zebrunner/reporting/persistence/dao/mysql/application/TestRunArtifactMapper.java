@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface TestRunArtifactMapper {
 
-    void createTestRunArtifact(TestRunArtifact testRunArtifact);
+    void createTestRunArtifacts(@Param("testRunArtifacts") List<TestRunArtifact> testRunArtifacts);
 
-    TestRunArtifact getTestRunArtifactByNameAndTestRunId(@Param("name") String name, @Param("testRunId") long testRunId);
+    boolean existsByNameAndTestRunId(@Param("name") String name, @Param("testRunId") long testRunId);
 
 }
