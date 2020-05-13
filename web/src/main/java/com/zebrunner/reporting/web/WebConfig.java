@@ -1,5 +1,10 @@
 package com.zebrunner.reporting.web;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.zebrunner.reporting.web.util.dozer.NullSafeDozerBeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +37,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -49,8 +56,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final boolean multitenant;
 
-    public WebConfig(@Value("${service.multitenant}") boolean multitenant) {
+    public WebConfig(ObjectMapper objectMapper, @Value("${service.multitenant}") boolean multitenant) {
         this.multitenant = multitenant;
+
+        objectMapper(objectMapper);
     }
 
     @Bean
@@ -162,6 +171,19 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public CommonsMultipartResolver multipartResolver() {
         return new CommonsMultipartResolver();
+    }
+
+    // TODO: 3/24/20 got rid of the block if jackson.serialization.write-dates-as-timestamps will be false
+    public ObjectMapper objectMapper(ObjectMapper objectMapper) {
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(OffsetDateTime.class, new JsonSerializer<>() {
+            @Override
+            public void serialize(OffsetDateTime offsetDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                jsonGenerator.writeString(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(offsetDateTime));
+            }
+        });
+        objectMapper.registerModule(simpleModule);
+        return objectMapper;
     }
 
 }

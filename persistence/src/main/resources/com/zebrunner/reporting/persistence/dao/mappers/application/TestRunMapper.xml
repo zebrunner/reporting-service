@@ -13,7 +13,7 @@
             PROJECT_ID,
         </if>
         <![CDATA[
-			STARTED_BY, KNOWN_ISSUE, BLOCKER, STARTED_AT, ELAPSED, ETA, COMMENTS, CHANNELS)
+			STARTED_BY, KNOWN_ISSUE, BLOCKER, STARTED_AT, ELAPSED, ETA, COMMENTS, CHANNELS, FRAMEWORK)
 			VALUES (
 				#{ciRunId},
 				#{user.id},
@@ -43,7 +43,8 @@
 				#{elapsed},
 				#{eta},
 				#{comments},
-				#{channels}
+				#{channels},
+				#{framework}
 			)
 		]]>
     </insert>
@@ -69,11 +70,13 @@
                TR.KNOWN_ISSUE               AS TEST_RUN_KNOWN_ISSUE,
                TR.BLOCKER                   AS TEST_RUN_BLOCKER,
                TR.STARTED_AT                AS TEST_RUN_STARTED_AT,
+               TR.ENDED_AT                  AS TEST_RUN_ENDED_AT,
                TR.ELAPSED                   AS TEST_RUN_ELAPSED,
                TR.ETA                       AS TEST_RUN_ETA,
                TR.COMMENTS                  AS TEST_RUN_COMMENTS,
                TR.CHANNELS                  AS TEST_RUN_CHANNELS,
                TR.REVIEWED                  AS TEST_RUN_REVIEWED,
+               TR.FRAMEWORK                 AS TEST_RUN_FRAMEWORK,
                TR.MODIFIED_AT               AS TEST_RUN_MODIFIED_AT,
                TR.CREATED_AT                AS TEST_RUN_CREATED_AT,
 
@@ -123,11 +126,13 @@
 				TR.KNOWN_ISSUE AS TEST_RUN_KNOWN_ISSUE,
 				TR.BLOCKER AS TEST_RUN_BLOCKER,
 				TR.STARTED_AT AS TEST_RUN_STARTED_AT,
+				TR.ENDED_AT AS TEST_RUN_ENDED_AT,
 				TR.ELAPSED AS TEST_RUN_ELAPSED,
 				TR.ETA AS TEST_RUN_ETA,
 				TR.COMMENTS AS TEST_RUN_COMMENTS,
 				TR.CHANNELS AS TEST_RUN_CHANNELS,
 				TR.REVIEWED AS TEST_RUN_REVIEWED,
+				TR.FRAMEWORK AS TEST_RUN_FRAMEWORK,
 				(SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'PASSED') AS TEST_RUN_PASSED,
 				(SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'FAILED') AS TEST_RUN_FAILED,
 				(SELECT COUNT(*) FROM TESTS T WHERE T.TEST_RUN_ID = TR.ID AND T.STATUS = 'FAILED' AND T.KNOWN_ISSUE = TRUE) AS TEST_RUN_FAILED_AS_KNOWN,
@@ -542,11 +547,13 @@
                TR.KNOWN_ISSUE                                        AS TEST_RUN_KNOWN_ISSUE,
                TR.BLOCKER                                            AS TEST_RUN_BLOCKER,
                TR.STARTED_AT                                         AS TEST_RUN_STARTED_AT,
+               TR.ENDED_AT                                           AS TEST_RUN_ENDED_AT,
                TR.ELAPSED                                            AS TEST_RUN_ELAPSED,
                TR.ETA                                                AS TEST_RUN_ETA,
                TR.COMMENTS                                           AS TEST_RUN_COMMENTS,
                TR.CHANNELS                                     AS TEST_RUN_CHANNELS,
                TR.REVIEWED                                           AS TEST_RUN_REVIEWED,
+               TR.FRAMEWORK                                           AS TEST_RUN_FRAMEWORK,
                TR.MODIFIED_AT                                        AS TEST_RUN_MODIFIED_AT,
                TR.CREATED_AT                                         AS TEST_RUN_CREATED_AT,
                (SELECT COUNT(*) FROM TESTS T
@@ -640,6 +647,7 @@
 			    KNOWN_ISSUE = #{knownIssue},
 			    BLOCKER = #{blocker},
 			    STARTED_AT = #{startedAt},
+			    ENDED_AT = #{endedAt},
 				ELAPSED = #{elapsed},
 				ETA = #{eta},
 				COMMENTS = #{comments},
@@ -758,6 +766,7 @@
         <result column="TEST_RUN_KNOWN_ISSUE" property="knownIssue"/>
         <result column="TEST_RUN_BLOCKER" property="blocker"/>
         <result column="TEST_RUN_STARTED_AT" property="startedAt"/>
+        <result column="TEST_RUN_ENDED_AT" property="endedAt"/>
         <result column="TEST_RUN_ELAPSED" property="elapsed"/>
         <result column="TEST_RUN_ETA" property="eta"/>
         <result column="TEST_RUN_COMMENTS" property="comments"/>
@@ -774,6 +783,7 @@
         <result column="TEST_RUN_IN_PROGRESS" property="inProgress"/>
         <result column="TEST_RUN_QUEUED" property="queued"/>
         <result column="TEST_RUN_ABORTED" property="aborted"/>
+        <result column="TEST_RUN_FRAMEWORK" property="framework"/>
         <result column="TEST_RUN_MODIFIED_AT" property="modifiedAt"/>
         <result column="TEST_RUN_CREATED_AT" property="createdAt"/>
 
