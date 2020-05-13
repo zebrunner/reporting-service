@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper
-        namespace="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper">
+<mapper namespace="com.zebrunner.reporting.persistence.dao.mysql.application.TestRunArtifactMapper">
 
-    <insert id="createTestRunArtifact" useGeneratedKeys="true"
-            keyProperty="id">
+    <insert id="createTestRunArtifacts" useGeneratedKeys="true" keyProperty="id">
 		<![CDATA[
-        INSERT INTO TEST_RUN_ARTIFACTS (NAME, LINK, EXPIRES_AT, TEST_RUN_ID)
-        VALUES (#{name},
-                #{link},
-                #{expiresAt},
-                #{testRunId})
+        INSERT INTO TEST_RUN_ARTIFACTS (NAME, LINK, EXPIRES_AT, TEST_RUN_ID) VALUES
         ]]>
+        <foreach item="testRunArtifact" collection="testRunArtifacts" open="" separator="," close="">
+            <![CDATA[
+                (
+                    #{testRunArtifact.name},
+                    #{testRunArtifact.link},
+                    #{testRunArtifact.expiresAt},
+                    #{testRunArtifact.testRunId}
+                )
+            ]]>
+        </foreach>
 	</insert>
 
     <sql id="getTestRunArtifact">
@@ -26,11 +30,12 @@
         ]]>
 	</sql>
 
-    <select id="getTestRunArtifactByNameAndTestRunId"
-            resultMap="TestRunArtifactResultMap">
-        <include refid="getTestRunArtifact"/>
+    <select id="existsByNameAndTestRunId" resultType="java.lang.Boolean">
         <![CDATA[
-			WHERE TA.NAME = #{name} AND TA.TEST_RUN_ID = #{testRunId};
+        SELECT EXISTS (
+            SELECT ID FROM TEST_RUN_ARTIFACTS TRA
+                WHERE TRA.NAME = #{name} AND TRA.TEST_RUN_ID = #{testRunId}
+            )
 		]]>
     </select>
 

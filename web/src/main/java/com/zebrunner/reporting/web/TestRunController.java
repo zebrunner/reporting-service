@@ -29,6 +29,7 @@ import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +46,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequestMapping(path = "api/tests/runs", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -166,15 +166,16 @@ public class TestRunController extends AbstractController implements TestRunDocu
 
     @PostMapping("{id}/artifacts")
     @Override
-    public Set<TestRunArtifactDTO> attachArtifacts(@PathVariable("id") Long id,
-                                                   @RequestBody @Valid Set<TestRunArtifactDTO> testRunArtifacts) {
-        Set<TestRunArtifact> artifacts = testRunArtifacts.stream()
-                                                                .map(artifact -> mapper.map(artifact, TestRunArtifact.class))
-                                                                .collect(Collectors.toSet());
-        Set<TestRunArtifact> attachedArtifacts = testRunService.attachTestRunArtifacts(artifacts, id);
+    // TODO: 4/25/20 get rid of interface to validate list
+    public List<TestRunArtifactDTO> attachArtifacts(@PathVariable("id") Long id,
+                                                    @RequestBody @Valid List<TestRunArtifactDTO> testRunArtifacts) {
+        List<TestRunArtifact> artifacts = testRunArtifacts.stream()
+                                                          .map(artifact -> mapper.map(artifact, TestRunArtifact.class))
+                                                          .collect(Collectors.toList());
+        List<TestRunArtifact> attachedArtifacts = testRunService.attachTestRunArtifacts(artifacts, id);
         return attachedArtifacts.stream()
                                 .map(artifact -> mapper.map(artifact, TestRunArtifactDTO.class))
-                                .collect(Collectors.toSet());
+                                .collect(Collectors.toList());
     }
 
     @PostMapping("/rerun/jobs")
