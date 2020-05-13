@@ -640,7 +640,7 @@ public class TestRunService implements ProjectReassignable {
         return calculateTestRunResult(testRun, finishTestRun);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public TestRun calculateTestRunResult(TestRun testRun, boolean finishTestRun) {
         List<Test> tests = testService.getTestsByTestRunId(testRun.getId());
 
