@@ -26,7 +26,7 @@ dependencies {
     implementation libraries.commons_io
     implementation libraries.commons_fileupload
     implementation libraries.dozer
-    implementation libraries.jackson_databind
+    //implementation libraries.jackson_databind
     implementation libraries.javax_validation
     implementation libraries.logging
     implementation libraries.jwt

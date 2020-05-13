@@ -19,6 +19,8 @@ public interface TestMapper {
 
     Test getTestById(long id);
 
+    Test getTestByTestRunIdAndUuid(@Param("testRunId") Long testRunId, @Param("uuid") String uuid);
+
     Test getTestByIdAndTestRunId(@Param("id") long id, @Param("testRunId") long testRunId);
 
     boolean existsTestByIdAndTestRunId(@Param("id") long id, @Param("testRunId") long testRunId);
