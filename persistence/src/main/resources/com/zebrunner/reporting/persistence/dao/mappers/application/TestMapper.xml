@@ -2,12 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper
-	namespace="com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper">
+        namespace="com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper">
 
-	<insert id="createTest" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createTest" useGeneratedKeys="true" keyProperty="id">
 		<![CDATA[
-			INSERT INTO TESTS (NAME, STATUS, TEST_ARGS, TEST_RUN_ID, TEST_CASE_ID, TEST_GROUP, MESSAGE, MESSAGE_HASH_CODE, START_TIME, FINISH_TIME, RETRY, TEST_CONFIG_ID, KNOWN_ISSUE, BLOCKER, NEED_RERUN, DEPENDS_ON_METHODS, CI_TEST_ID)
+			INSERT INTO TESTS (UUID, NAME, STATUS, TEST_ARGS, TEST_RUN_ID, TEST_CASE_ID, TEST_GROUP, MESSAGE, MESSAGE_HASH_CODE, START_TIME, FINISH_TIME, RETRY, TEST_CONFIG_ID, KNOWN_ISSUE, BLOCKER, NEED_RERUN, DEPENDS_ON_METHODS, CI_TEST_ID)
 			VALUES (
+			    #{uuid},
 				#{name},
 			    #{status},
 			    #{testArgs},
@@ -29,80 +30,78 @@
 		]]>
 	</insert>
 
-	<insert id="createTestWorkItem" useGeneratedKeys="true">
+    <insert id="createTestWorkItem" useGeneratedKeys="true">
 		<![CDATA[
-			INSERT INTO TEST_WORK_ITEMS (TEST_ID, WORK_ITEM_ID)
-			VALUES (
-				#{test.id},
-			    #{workItem.id}
-			)
-			ON CONFLICT DO NOTHING
-		]]>
+        INSERT INTO TEST_WORK_ITEMS (TEST_ID, WORK_ITEM_ID)
+        VALUES (#{test.id},
+                #{workItem.id})
+        ON CONFLICT DO NOTHING
+        ]]>
 	</insert>
 
-	<insert id="addTags">
-		<![CDATA[
+    <insert id="addTags">
+        <![CDATA[
           INSERT INTO TEST_TAGS (TAG_ID, TEST_ID) VALUES
         ]]>
-		<foreach item="tag" index="index" collection="tags" open=""
-			separator="," close="">
-			<![CDATA[
+        <foreach item="tag" index="index" collection="tags" open=""
+                 separator="," close="">
+            <![CDATA[
  		    (
  		    	#{tag.id},
  		    	#{testId}
  		    )
           ]]>
-		</foreach>
-		<![CDATA[
+        </foreach>
+        <![CDATA[
  		    ON CONFLICT DO NOTHING
           ]]>
-	</insert>
+    </insert>
 
-	<delete id="deleteTestByTestRunIdAndNameAndStatus">
+    <delete id="deleteTestByTestRunIdAndNameAndStatus">
 		<![CDATA[
-		    DELETE FROM TESTS
-			WHERE
-				TEST_RUN_ID = #{testRunId}
-				AND
-				NAME = #{testName}
-				AND
-				STATUS = #{status};
-		]]>
+        DELETE
+        FROM TESTS
+        WHERE TEST_RUN_ID = #{testRunId}
+          AND NAME = #{testName}
+          AND STATUS = #{status};
+        ]]>
 	</delete>
 
-	<delete id="deleteTestWorkItemByWorkItemIdAndTestId">
+    <delete id="deleteTestWorkItemByWorkItemIdAndTestId">
 		<![CDATA[
-			DELETE FROM TEST_WORK_ITEMS
-			WHERE
-			WORK_ITEM_ID = #{workItemId}
-			AND
-			TEST_ID = #{testId}
-		]]>
+        DELETE
+        FROM TEST_WORK_ITEMS
+        WHERE WORK_ITEM_ID = #{workItemId}
+          AND TEST_ID = #{testId}
+        ]]>
 	</delete>
 
-	<delete id="deleteTestWorkItemByTestIdAndWorkItemType">
+    <delete id="deleteTestWorkItemByTestIdAndWorkItemType">
 		<![CDATA[
-			DELETE FROM TEST_WORK_ITEMS
-			WHERE
-			TEST_ID = #{testId}
-			AND
-			WORK_ITEM_ID IN
-			(SELECT WI.ID FROM WORK_ITEMS WI INNER JOIN TEST_WORK_ITEMS TWI ON WI.ID = TWI.WORK_ITEM_ID WHERE WI.TYPE = #{type})
-		]]>
+        DELETE
+        FROM TEST_WORK_ITEMS
+        WHERE TEST_ID = #{testId}
+          AND WORK_ITEM_ID IN
+              (SELECT WI.ID
+               FROM WORK_ITEMS WI
+                        INNER JOIN TEST_WORK_ITEMS TWI ON WI.ID = TWI.WORK_ITEM_ID
+               WHERE WI.TYPE = #{type})
+        ]]>
 	</delete>
 
-	<delete id="deleteTestWorkItemByTestId">
+    <delete id="deleteTestWorkItemByTestId">
 		<![CDATA[
-			DELETE FROM TEST_WORK_ITEMS
-			WHERE
-			TEST_ID = #{testId}
-		]]>
+        DELETE
+        FROM TEST_WORK_ITEMS
+        WHERE TEST_ID = #{testId}
+        ]]>
 	</delete>
 
-	<sql id="getTest">
+    <sql id="getTest">
 		<![CDATA[
 			SELECT
 				T.ID AS TEST_ID,
+			    T.UUID AS TEST_UUID,
 				T.NAME AS TEST_NAME,
 				T.STATUS AS TEST_STATUS,
 				T.TEST_ARGS AS TEST_TEST_ARGS,
@@ -221,136 +220,178 @@
         ]]>
 	</sql>
 
-	<select id="getTestById" resultMap="TestResultMap">
+    <select id="getTestById" resultMap="TestResultMap">
+        <include refid="getTest"/>
+        <![CDATA[
+			WHERE T.ID = #{id};
+		]]>
+    </select>
+
+	<select id="getTestByTestRunIdAndUuid" resultMap="TestResultMap">
 		<include refid="getTest" />
 		<![CDATA[
-			WHERE T.ID = #{id};
+			WHERE T.TEST_RUN_ID = #{testRunId} AND T.UUID = #{uuid} AND T.UUID IS NOT NULL;
 		]]>
 	</select>
 
 	<select id="getTestByIdAndTestRunId" resultMap="TestResultMap">
 		<include refid="getTest" />
 		<![CDATA[
-			WHERE T.ID = #{id} AND T.TEST_RUN_ID = #{testRunId};
+			 WHERE T.ID = #{id} AND T.TEST_RUN_ID = #{testRunId};
+		]]>
+    </select>
+
+    <select id="existsTestByIdAndTestRunId" resultType="java.lang.Boolean">
+		<![CDATA[
+			SELECT EXISTS (
+			   SELECT * FROM TESTS T
+			   WHERE
+				   T.ID = #{id} AND T.TEST_RUN_ID = #{testRunId}
+		   )
 		]]>
 	</select>
 
-	<select id="existsTestByIdAndTestRunId" resultType="java.lang.Boolean">
-		<![CDATA[
-		SELECT EXISTS (
-					   SELECT * FROM TESTS T
-					   WHERE
-						   T.ID = #{id} AND T.TEST_RUN_ID = #{testRunId}
-				   )
-		]]>
-	</select>
-
-	<select id="getTestByName" resultMap="TestResultMap">
-		<include refid="getTest" />
-		<![CDATA[
+    <select id="getTestByName" resultMap="TestResultMap">
+        <include refid="getTest"/>
+        <![CDATA[
 			WHERE T.NAME = #{name};
 		]]>
-	</select>
+    </select>
 
-	<select id="getTestsByTestRunId" resultMap="TestResultMap">
-		<include refid="getTest" />
-		<![CDATA[
+    <select id="getTestsByTestRunId" resultMap="TestResultMap">
+        <include refid="getTest"/>
+        <![CDATA[
 			WHERE T.TEST_RUN_ID = #{testRunId};
 		]]>
-	</select>
+    </select>
 
-	<select id="getTestsByTestRunCiRunId" resultMap="TestResultMap">
-		<include refid="getTest" />
-		<![CDATA[
+    <select id="getTestsByTestRunCiRunId" resultMap="TestResultMap">
+        <include refid="getTest"/>
+        <![CDATA[
 			WHERE TR.CI_RUN_ID = #{testRunCiRunId};
 		]]>
-	</select>
+    </select>
 
-	<select id="getTestsByTestRunIdAndStatus"
-		resultMap="TestResultMap">
-		<include refid="getTest" />
-		<![CDATA[
+    <select id="getTestsByTestRunIdAndStatus"
+            resultMap="TestResultMap">
+        <include refid="getTest"/>
+        <![CDATA[
 			WHERE T.TEST_RUN_ID = #{testRunId} AND T.STATUS =  #{status};
 		]]>
-	</select>
+    </select>
 
-	<select id="getTestsByWorkItemId" resultMap="TestResultMap">
-		<include refid="getTest" />
-		<![CDATA[
+    <select id="getTestsByWorkItemId" resultMap="TestResultMap">
+        <include refid="getTest"/>
+        <![CDATA[
 			WHERE WI.ID = #{workItemId};
 		]]>
-	</select>
+    </select>
 
-	<select id="searchTests" resultMap="TestResultMap">
-		<include refid="getTest" />
-		<trim prefix="WHERE" prefixOverrides="AND |OR ">
-			<if test="null != testRunIds and testRunIds.size > 0">
-	            <![CDATA[
+    <sql id="getTestResults">
+		<![CDATA[
+        SELECT T.ID            AS TEST_ID,
+               T.STATUS        AS TEST_STATUS,
+               T.START_TIME    AS TEST_START_TIME,
+               T.FINISH_TIME   AS TEST_FINISH_TIME,
+
+               WI.ID           AS WORK_ITEM_ID,
+               WI.JIRA_ID      AS WORK_ITEM_JIRA_ID,
+               WI.TYPE         AS WORK_ITEM_TYPE,
+               WI.HASH_CODE    AS WORK_ITEM_HASH_CODE,
+               WI.DESCRIPTION  AS WORK_ITEM_DESCRIPTION,
+               WI.BLOCKER      AS WORK_ITEM_BLOCKER,
+               WI.TEST_CASE_ID AS WORK_ITEM_TEST_CASE_ID
+
+        FROM TESTS T
+                 LEFT JOIN
+             TEST_WORK_ITEMS TWI
+             ON
+                 TWI.TEST_ID = T.ID
+                 LEFT JOIN
+             WORK_ITEMS WI
+             ON
+                 WI.ID = TWI.WORK_ITEM_ID
+        ]]>
+	</sql>
+
+    <select id="getTestResultsByTestCaseId" resultMap="TestResultsResultMap">
+        <include refid="getTestResults"/>
+        <![CDATA[
+			WHERE T.TEST_CASE_ID = #{testCaseId}
+            LIMIT #{limit}
+		]]>
+    </select>
+
+    <select id="searchTests" resultMap="TestResultMap">
+        <include refid="getTest"/>
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="null != testRunIds and testRunIds.size > 0">
+                <![CDATA[
 	               AND T.TEST_RUN_ID IN
 	            ]]>
-				<foreach item="testRunId" index="index"
-					collection="testRunIds" open="(" separator="," close=")">
-					#{testRunId}
-				</foreach>
-			</if>
-			<if test="null != testRunId">
-				<![CDATA[
+                <foreach item="testRunId" index="index"
+                         collection="testRunIds" open="(" separator="," close=")">
+                    #{testRunId}
+                </foreach>
+            </if>
+            <if test="null != testRunId">
+                <![CDATA[
 					AND T.TEST_RUN_ID = #{testRunId}
 				]]>
-			</if>
-			<if test="null != testCaseId">
-				<![CDATA[
+            </if>
+            <if test="null != testCaseId">
+                <![CDATA[
 					AND T.TEST_CASE_ID = #{testCaseId}
 				]]>
-			</if>
-		</trim>
-		<if test="sortOrder.toString() == 'ASC'">
-			<![CDATA[
+            </if>
+        </trim>
+        <if test="sortOrder.toString() == 'ASC'">
+            <![CDATA[
 				ORDER BY T.ID ASC
 			]]>
-		</if>
-		<if test="sortOrder.toString() == 'DESC'">
-			<![CDATA[
+        </if>
+        <if test="sortOrder.toString() == 'DESC'">
+            <![CDATA[
 				ORDER BY T.ID DESC
 			]]>
-		</if>
-		<![CDATA[
+        </if>
+        <![CDATA[
 			LIMIT #{pageSize} OFFSET #{offset}
 		]]>
-	</select>
+    </select>
 
-	<select id="getTestsSearchCount" resultType="java.lang.Integer">
-	    <![CDATA[
+    <select id="getTestsSearchCount" resultType="java.lang.Integer">
+        <![CDATA[
             SELECT
                 COUNT(*)
             FROM
                 TESTS T
         ]]>
-		<trim prefix="WHERE" prefixOverrides="AND |OR ">
-			<if test="null != testRunIds and testRunIds.size > 0">
-	            <![CDATA[
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="null != testRunIds and testRunIds.size > 0">
+                <![CDATA[
 	               AND T.TEST_RUN_ID IN
 	            ]]>
-				<foreach item="testRunId" index="index"
-					collection="testRunIds" open="(" separator="," close=")">
-					#{testRunId}
-				</foreach>
-			</if>
-			<if test="null != testRunId">
-				<![CDATA[
+                <foreach item="testRunId" index="index"
+                         collection="testRunIds" open="(" separator="," close=")">
+                    #{testRunId}
+                </foreach>
+            </if>
+            <if test="null != testRunId">
+                <![CDATA[
 					AND T.TEST_RUN_ID = #{testRunId}
 				]]>
-			</if>
-			<if test="null != testCaseId">
-				<![CDATA[
+            </if>
+            <if test="null != testCaseId">
+                <![CDATA[
 					AND T.TEST_CASE_ID = #{testCaseId}
 				]]>
-			</if>
-		</trim>
-	</select>
+            </if>
+        </trim>
+    </select>
 
-	<update id="updateTest">
-		<![CDATA[
+    <update id="updateTest">
+        <![CDATA[
 			UPDATE
 			    TESTS
 			SET
@@ -365,17 +406,17 @@
 				START_TIME = #{startTime},
 				FINISH_TIME = #{finishTime},
 		]]>
-		<if test="null != testConfig and null != testConfig.id">
+        <if test="null != testConfig and null != testConfig.id">
             <![CDATA[
                TEST_CONFIG_ID = #{testConfig.id},
             ]]>
-		</if>
-		<if test="null != ciTestId">
+        </if>
+        <if test="null != ciTestId">
             <![CDATA[
                CI_TEST_ID = #{ciTestId},
             ]]>
-		</if>
-		<![CDATA[
+        </if>
+        <![CDATA[
 				RETRY = #{retry},
 				KNOWN_ISSUE = #{knownIssue},
 				BLOCKER = #{blocker},
@@ -384,10 +425,10 @@
 			WHERE
 			    ID = #{id}
 		]]>
-	</update>
+    </update>
 
-	<update id="updateStatuses">
-		<![CDATA[
+    <update id="updateStatuses">
+        <![CDATA[
 			UPDATE
 			    TESTS
 			SET
@@ -395,16 +436,16 @@
 			FROM
     			(SELECT UNNEST(ARRAY[
 		]]>
-		<foreach item="id" index="index" collection="ids" open="" separator="," close="">
-			<![CDATA[
+        <foreach item="id" index="index" collection="ids" open="" separator="," close="">
+            <![CDATA[
 			     #{id}
 			]]>
-		</foreach>
-		<![CDATA[
+        </foreach>
+        <![CDATA[
 			]) AS id) AS test_data
 				WHERE TESTS.ID = test_data.id;
 		]]>
-	</update>
+    </update>
 
     <update id="updateTestsNeedRerun">
         <if test="null != ids and ids.size > 0">
@@ -422,40 +463,45 @@
                 #{id}
             </foreach>
         </if>
-	</update>
+    </update>
 
-	<sql id="deleteTest">
+    <sql id="deleteTest">
 		<![CDATA[
-			DELETE FROM TESTS
-			WHERE ID = #{id}
-		]]>
+        DELETE
+        FROM TESTS
+        WHERE ID = #{id}
+        ]]>
 	</sql>
 
-	<delete id="deleteTest">
-		<include refid="deleteTest" />
-	</delete>
+    <delete id="deleteTest">
+        <include refid="deleteTest"/>
+    </delete>
 
-	<delete id="deleteTestById">
-		<include refid="deleteTest" />
-	</delete>
+    <delete id="deleteTestById">
+        <include refid="deleteTest"/>
+    </delete>
 
-	<delete id="deleteTag">
+    <delete id="deleteTag">
 		<![CDATA[
-			DELETE FROM TEST_TAGS
-			WHERE TEST_ID = #{testId} AND TAG_ID = #{tagId}
-		]]>
+        DELETE
+        FROM TEST_TAGS
+        WHERE TEST_ID = #{testId}
+          AND TAG_ID = #{tagId}
+        ]]>
 	</delete>
 
-	<delete id="deleteTags">
+    <delete id="deleteTags">
 		<![CDATA[
-			DELETE FROM TEST_TAGS
-			WHERE TEST_ID = #{testId}
-		]]>
+        DELETE
+        FROM TEST_TAGS
+        WHERE TEST_ID = #{testId}
+        ]]>
 	</delete>
 
 	<resultMap type="com.zebrunner.reporting.domain.db.Test"
 		id="TestResultMap" autoMapping="false">
 		<id column="TEST_ID" property="id" />
+		<result column="TEST_UUID" property="uuid" />
 		<result column="TEST_NAME" property="name" />
 		<result column="TEST_STATUS" property="status" />
 		<result column="TEST_TEST_ARGS" property="testArgs" />
@@ -517,5 +563,17 @@
 			resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.TagMapper.TagResultMap" />
 
 	</resultMap>
+
+    <resultMap type="com.zebrunner.reporting.domain.db.TestResult" id="TestResultsResultMap" autoMapping="false">
+        <id column="TEST_ID" property="testId"/>
+        <result column="TEST_STATUS" property="status"/>
+        <result column="TEST_START_TIME" property="startTime"/>
+        <result column="TEST_FINISH_TIME" property="finishTime"/>
+
+        <collection property="workItems"
+                    ofType="com.zebrunner.reporting.domain.db.workitem.WorkItem"
+                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.WorkItemMapper.WorkItemResultMap"/>
+
+    </resultMap>
 
 </mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://dozer.sourceforge.net http://dozer.sourceforge.net/schema/beanmapping.xsd">
+
+    <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$TestStartGroup" type="bi-directional" wildcard="false">
+        <class-a>com.zebrunner.reporting.web.dto.TestDTO</class-a>
+        <class-b>com.zebrunner.reporting.domain.db.reporting.Test</class-b>
+        <field>
+            <a>id</a>
+            <b>id</b>
+        </field>
+        <field>
+            <a>uuid</a>
+            <b>uuid</b>
+        </field>
+        <field>
+            <a>name</a>
+            <b>name</b>
+        </field>
+        <field>
+            <a>className</a>
+            <b>className</b>
+        </field>
+        <field>
+            <a>methodName</a>
+            <b>methodName</b>
+        </field>
+        <field copy-by-reference="true">
+            <a>startedAt</a>
+            <b>startedAt</b>
+        </field>
+        <field>
+            <a>maintainer</a>
+            <b>maintainer</b>
+        </field>
+        <field>
+            <a>testCase</a>
+            <b>testCase</b>
+        </field>
+        <field>
+            <a>tags</a>
+            <b>tags</b>
+        </field>
+        <field>
+            <a>additionalAttributes</a>
+            <b>additionalAttributes</b>
+        </field>
+    </mapping>
+
+    <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$TestFinishGroup" type="bi-directional" wildcard="false">
+        <class-a>com.zebrunner.reporting.web.dto.TestDTO</class-a>
+        <class-b>com.zebrunner.reporting.domain.db.reporting.Test</class-b>
+        <field>
+            <a>id</a>
+            <b>id</b>
+        </field>
+        <field>
+            <a>result</a>
+            <b>result</b>
+        </field>
+        <field>
+            <a>reason</a>
+            <b>reason</b>
+        </field>
+        <field copy-by-reference="true">
+            <a>endedAt</a>
+            <b>endedAt</b>
+        </field>
+    </mapping>
+</mappings>

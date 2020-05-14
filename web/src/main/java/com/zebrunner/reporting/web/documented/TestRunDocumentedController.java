@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiResponses;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Api("Test runs API")
 public interface TestRunDocumentedController {
@@ -151,23 +150,22 @@ public interface TestRunDocumentedController {
     SearchResult<TestRun> searchTestRuns(TestRunSearchCriteria sc, List<String> projectNames, Long filterId) throws IOException;
 
     @ApiOperation(
-            value = "Attaches artifacts to the testRun",
+            value = "Attaches artifacts to the test run",
             notes = "Returns set of attached artifact",
             nickname = "attachArtifacts",
             httpMethod = "POST",
-            response = Set.class
+            response = List.class
     )
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
             @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test run id"),
-            @ApiImplicitParam(name = "testRunArtifacts", paramType = "body", dataType = "set", required = true, value = "Set of the testRuns artifacts")
+            @ApiImplicitParam(name = "testRunArtifacts", paramType = "body", dataTypeClass = List.class, required = true, value = "List of the test run artifacts")
     })
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns the found test run", response = TestRunType.class),
+            @ApiResponse(code = 200, message = "Returns the found test run", response = List.class),
             @ApiResponse(code = 404, message = "Indicates that the test run does not exist", response = ErrorResponse.class)
     })
-    Set<TestRunArtifactDTO> attachArtifacts(Long id, Set<TestRunArtifactDTO> testRunArtifacts);
-
+    List<TestRunArtifactDTO> attachArtifacts(Long id, List<TestRunArtifactDTO> testRunArtifacts);
 
     @ApiOperation(
             value = "Reruns test run jobs by search criteria",

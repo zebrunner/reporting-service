@@ -283,4 +283,19 @@ public class TestController extends AbstractController implements TestDocumented
         websocketTemplate.convertAndSend(getTestsWebsocketPath(test.getTestRunId()), new TestPush(test));
     }
 
+    @PostMapping("/{id}/artifacts/batch")
+    @Override
+    public void addTestArtifacts(
+            @PathVariable("id") long id,
+            @RequestBody List<TestArtifactDTO> testArtifactDTOs
+    ) {
+        List<TestArtifact> artifacts = testArtifactDTOs.stream()
+                                                       .map(testArtifactDTO -> mapper.map(testArtifactDTO, TestArtifact.class))
+                                                       .collect(Collectors.toList());
+        testArtifactService.attachTestArtifacts(id, artifacts);
+        // Updating web client with latest artifacts
+        Test test = testService.getTestById(id);
+        websocketTemplate.convertAndSend(getTestsWebsocketPath(test.getTestRunId()), new TestPush(test));
+    }
+
 }

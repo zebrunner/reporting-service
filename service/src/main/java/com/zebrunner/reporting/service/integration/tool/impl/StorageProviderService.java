@@ -32,9 +32,9 @@ public class StorageProviderService extends AbstractIntegrationService<StoragePr
         return adapter.saveFile(file);
     }
 
-    public void removeFile(final String linkToFile) {
+    public void removeFile(final String key) {
         StorageProviderAdapter adapter = getDefaultAdapterByType();
-        adapter.removeFile(linkToFile);
+        adapter.removeFile(key);
     }
 
     public Optional<SessionCredentials> getTemporarySessionCredentials() {

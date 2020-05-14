@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @CrossOrigin
-@RequestMapping(path = "api/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 public class AuthController extends AbstractController implements AuthDocumentedController {
 
@@ -80,14 +80,14 @@ public class AuthController extends AbstractController implements AuthDocumented
 
     private final TenancyService tenancyService;
 
-    @GetMapping("/tenant")
+    @GetMapping("api/auth/tenant")
     @Override
     public TenancyInfoDTO getTenancyInfo() {
         return new TenancyInfoDTO(TenancyContext
                 .getTenantName(), urlResolver.getServiceURL(), tenancyService.isUseArtifactsProxy(), tenancyService.getIsMultitenant());
     }
 
-    @PostMapping("/tenant/verification")
+    @PostMapping("api/auth/tenant/verification")
     @Override
     public ResponseEntity<Void> checkPermissions(@Valid @RequestBody TenantAuth tenantAuth) {
         boolean result = jwtService.checkPermissions(tenantAuth.getTenantName(), tenantAuth.getToken(), tenantAuth.getPermissions());
@@ -95,7 +95,7 @@ public class AuthController extends AbstractController implements AuthDocumented
         return new ResponseEntity<>(httpStatus);
     }
 
-    @PostMapping("/login")
+    @PostMapping("api/auth/login")
     @Override
     public AuthTokenDTO login(@Valid @RequestBody CredentialsDTO credentialsDTO, HttpServletResponse response) {
         User user = userService.getUserByUsernameOrEmail(credentialsDTO.getUsername());
@@ -112,7 +112,7 @@ public class AuthController extends AbstractController implements AuthDocumented
                 jwtService.generateRefreshToken(user, tenant), jwtService.getExpiration(), tenant);
     }
 
-    @PostMapping("/signup")
+    @PostMapping("api/auth/signup")
     @Override
     public void signup(@RequestHeader("Access-Token") String token, @Valid @RequestBody UserDTO userDTO) {
         Invitation invitation = invitationService.acceptInvitation(token, userDTO.getUsername());
@@ -120,7 +120,7 @@ public class AuthController extends AbstractController implements AuthDocumented
         userService.create(mapper.map(userDTO, User.class), invitation.getGroupId());
     }
 
-    @PostMapping("/refresh")
+    @PostMapping({"api/auth/refresh", "v1/api/auth/refresh"})
     @Override
     public AuthTokenDTO refresh(@RequestBody @Valid RefreshTokenDTO refreshToken) {
         final String tenant = TenancyContext.getTenantName();
@@ -130,25 +130,25 @@ public class AuthController extends AbstractController implements AuthDocumented
                 jwtService.generateRefreshToken(user, tenant), jwtService.getExpiration(), tenant);
     }
 
-    @PostMapping("/password/forgot")
+    @PostMapping("api/auth/password/forgot")
     @Override
     public void sendResetPasswordEmail(@Valid @RequestBody EmailDTO emailDTO) {
         resetPasswordService.sendResetPasswordEmail(emailDTO.getEmail());
     }
 
-    @GetMapping("/password/forgot")
+    @GetMapping("api/auth/password/forgot")
     @Override
     public void checkIfTokenResetIsPossible(@RequestParam("token") String token) {
         userService.getUserByResetToken(token);
     }
 
-    @PutMapping("/password")
+    @PutMapping("api/auth/password")
     @Override
     public void resetPassword(@RequestHeader("Access-Token") String token, @Valid @RequestBody PasswordDTO passwordDTO) {
         resetPasswordService.resetPassword(token, passwordDTO.getPassword());
     }
 
-    @GetMapping("/access")
+    @GetMapping("api/auth/access")
     @Override
     public AccessTokenDTO accessToken() {
         String token = jwtService.generateAccessToken(userService.getNotNullUserById(getPrincipalId()), TenancyContext.getTenantName());

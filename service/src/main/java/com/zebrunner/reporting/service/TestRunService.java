@@ -8,6 +8,7 @@ import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestConfig;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.db.TestRunArtifact;
+import com.zebrunner.reporting.domain.db.TestRunResult;
 import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import com.zebrunner.reporting.domain.db.filter.Filter;
 import com.zebrunner.reporting.domain.db.filter.FilterAdapter;
@@ -49,6 +50,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -249,6 +251,10 @@ public class TestRunService implements ProjectReassignable {
         return automationServerService.getBuildConsoleOutput(testRun.getJob(), testRun.getBuildNumber(), count, fullCount);
     }
 
+    public List<TestRunResult> getTestRunResultsByTestSuiteId(Long testSuiteId, Long limit) {
+        return testRunMapper.getTestRunResultsByTestSuiteId(testSuiteId, limit);
+    }
+
     @Transactional(readOnly = true)
     public List<TestRun> getTestRunsByUpstreamJobIdAndUpstreamJobBuildNumber(Long jobId, Integer buildNumber) {
         return testRunMapper.getTestRunsByUpstreamJobIdAndUpstreamJobBuildNumber(jobId, buildNumber);
@@ -288,22 +294,17 @@ public class TestRunService implements ProjectReassignable {
     }
 
     @Transactional
-    public Set<TestRunArtifact> attachTestRunArtifacts(Set<TestRunArtifact> testRunArtifacts, Long id) {
-        Set<TestRunArtifact> attachedArtifacts = new HashSet<>();
+    public List<TestRunArtifact> attachTestRunArtifacts(List<TestRunArtifact> testRunArtifacts, Long id) {
+        List<TestRunArtifact> attachedArtifacts = new ArrayList<>();
         if (!CollectionUtils.isEmpty(testRunArtifacts)) {
             TestRun testRun = getNotNullTestRunById(id);
-            attachedArtifacts = createTestArtifacts(testRunArtifacts, testRun.getId());
+            attachedArtifacts = createTestRunArtifacts(testRunArtifacts, testRun.getId());
         }
         return attachedArtifacts;
     }
 
-    private Set<TestRunArtifact> createTestArtifacts(Set<TestRunArtifact> testArtifacts, Long testRunId) {
-        return testArtifacts.stream()
-                .filter(TestRunArtifact::isValid)
-                .map(artifact -> {
-                    artifact.setTestRunId(testRunId);
-                    return testRunArtifactService.createTestRunArtifact(artifact);
-                }).collect(Collectors.toSet());
+    private List<TestRunArtifact> createTestRunArtifacts(List<TestRunArtifact> testRunArtifacts, Long testRunId) {
+        return testRunArtifactService.createTestRunArtifacts(testRunArtifacts);
     }
 
     @CacheEvict(value = "environments", allEntries = true)
@@ -632,7 +633,12 @@ public class TestRunService implements ProjectReassignable {
     @Transactional
     public TestRun calculateTestRunResult(long id, boolean finishTestRun) {
         TestRun testRun = getNotNullTestRunById(id);
-        List<Test> tests = testService.getTestsByTestRunId(id);
+        return calculateTestRunResult(testRun, finishTestRun);
+    }
+
+    @Transactional
+    public TestRun calculateTestRunResult(TestRun testRun, boolean finishTestRun) {
+        List<Test> tests = testService.getTestsByTestRunId(testRun.getId());
 
         // Aborted testruns don't need status recalculation (already recalculated on abort end-point)
         if (!Status.ABORTED.equals(testRun.getStatus())) {

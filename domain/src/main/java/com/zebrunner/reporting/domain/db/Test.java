@@ -18,6 +18,7 @@ import java.util.Set;
 public class Test extends AbstractEntity implements Comparable<Test> {
     private static final long serialVersionUID = -915700504693067056L;
 
+    private String uuid;
     private String name;
     private Status status;
     private String testArgs;

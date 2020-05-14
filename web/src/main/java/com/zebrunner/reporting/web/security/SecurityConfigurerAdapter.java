@@ -27,6 +27,7 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/auth/login",
             "/api/config/**",
             "/api/auth/refresh",
+            "/v1/api/auth/refresh",
             "/api/status/**",
             "/api/dashboards/email",
             "/api/settings/companyLogo",
@@ -62,7 +63,8 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/launchers/**",
             "/api/integrations/**",
             "/api/security/**",
-            "/api/tests/sessions/**"
+            "/api/tests/sessions/**",
+            "/api/v1/reporting/**"
     };
 
     private final UserPassAuthService userPassAuthService;
