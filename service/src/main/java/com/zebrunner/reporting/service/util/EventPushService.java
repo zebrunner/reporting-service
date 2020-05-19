@@ -9,6 +9,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class EventPushService {
 
@@ -26,10 +28,8 @@ public class EventPushService {
     public enum Type {
 
         SETTINGS("settings"),
-        ZFR_CALLBACKS("zfr_callbacks"),
         ZBR_EVENTS("zbr_events"),
-        TENANCIES("tenancies"),
-        INTEGRATION_SAVED("integration_saved");
+        TENANCIES("tenancies");
 
         private final String routingKey;
 
@@ -65,6 +65,18 @@ public class EventPushService {
     public <T extends EventMessage> boolean sendFanout(String exchange, T message) {
         try {
             rabbitTemplate.convertAndSend(exchange, "", message);
+            return true;
+        } catch (AmqpException e) {
+            return false;
+        }
+    }
+
+    public boolean send(String exchange, String routingKey, Object message, Map<String, ?> metadata) {
+        try {
+            rabbitTemplate.convertAndSend(exchange, routingKey, message, rabbitmqMessage -> {
+                metadata.forEach((key, value) -> rabbitmqMessage.getMessageProperties().setHeader(key, value));
+                return rabbitmqMessage;
+            });
             return true;
         } catch (AmqpException e) {
             return false;

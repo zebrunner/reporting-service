@@ -12,8 +12,6 @@ import com.zebrunner.reporting.service.integration.IntegrationSettingService;
 import com.zebrunner.reporting.service.integration.tool.proxy.IntegrationAdapterProxy;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.util.EventPushService;
-import com.zebrunner.reporting.service.util.TenancyDbInitial;
-import com.zebrunner.reporting.service.util.TenancyInitial;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -28,7 +26,7 @@ import java.util.Map;
 
 @Component
 @DependsOn("databaseStateManager")
-public class IntegrationTenancyStorage implements TenancyInitial, TenancyDbInitial {
+public class IntegrationTenancyStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTenancyStorage.class);
 
@@ -59,18 +57,16 @@ public class IntegrationTenancyStorage implements TenancyInitial, TenancyDbIniti
     @PostConstruct
     public void post() {
         tenancyService.iterateItems(() -> {
-            initDb();
-            init();
+            encryptIntegrationSettings();
+            initIntegrationProxies();
         });
     }
 
-    @Override
-    public void init() {
+    public void initIntegrationProxies() {
         integrationProxies.forEach((name, proxy) -> proxy.init());
     }
 
-    @Override
-    public void initDb() {
+    public void encryptIntegrationSettings() {
         try {
             cryptoService.init();
             List<Integration> integrations = integrationService.retrieveAll();
