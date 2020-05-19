@@ -7,6 +7,8 @@ import com.zebrunner.reporting.service.email.IEmailMessage;
 import com.zebrunner.reporting.service.email.ResetPasswordEmail;
 import com.zebrunner.reporting.service.email.ResetPasswordLdapEmail;
 import com.zebrunner.reporting.service.email.SendEmailMessage;
+import com.zebrunner.reporting.service.email.UserInviteEmail;
+import com.zebrunner.reporting.service.email.UserInviteLdapEmail;
 import com.zebrunner.reporting.service.util.URLResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -30,7 +32,9 @@ public class SendEmailListener {
 
     private final Map<EmailType, Function<SendEmailMessage, IEmailMessage>> supportedEmailTypesToConverter = Map.of(
             EmailType.FORGOT_PASSWORD, this::toResetPasswordEmail,
-            EmailType.FORGOT_PASSWORD_LDAP, this::toResetPasswordLdapEmail
+            EmailType.FORGOT_PASSWORD_LDAP, this::toResetPasswordLdapEmail,
+            EmailType.USER_INVITE, this::toUserInviteEmail,
+            EmailType.USER_INVITE_LDAP, this::toUserInviteLdapEmail
     );
 
     @RabbitListener(queues = ExchangeConfig.SEND_EMAIL_QUEUE)
@@ -59,6 +63,24 @@ public class SendEmailListener {
                 slackImageUrl,
                 urlResolver.buildWebURL()
         );
+    }
+
+    private UserInviteEmail toUserInviteEmail(SendEmailMessage sendEmailMessage) {
+        return new UserInviteEmail(
+                generateInvitationUrl(sendEmailMessage.getToken()),
+                slackImageUrl,
+                urlResolver.buildWebURL());
+    }
+
+    private UserInviteLdapEmail toUserInviteLdapEmail(SendEmailMessage sendEmailMessage) {
+        return new UserInviteLdapEmail
+                (generateInvitationUrl(sendEmailMessage.getToken()),
+                slackImageUrl,
+                urlResolver.buildWebURL());
+    }
+
+    private String generateInvitationUrl(String token) {
+        return urlResolver.buildInvitationUrl(token);
     }
 
 }
