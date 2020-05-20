@@ -13,6 +13,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -38,7 +39,7 @@ public class TestSessionDTO {
     @JsonDeserialize(using = ToJsonDeserializer.class)
     @JsonSerialize(using = FromJsonSerializer.class)
     private String capabilities;
-    private Set<Long> testRefs;
+    private Set<Long> testRefs = new HashSet<>();
 
     public static class ValidationGroups {
         public interface onSessionStart {}
