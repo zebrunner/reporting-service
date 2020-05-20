@@ -15,11 +15,12 @@ service:
 ### Embedded Web server configuration
 server:
   port: 8080
-  servlet:
-    context-path: /reporting-service
+  shutdown: graceful
 
 ### Spring Boot managed beans configuration
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
   cache:
     cache-names: projects, users, testCases, environments, testRunStatistics, groups
     redis:
