@@ -390,6 +390,12 @@
         </trim>
     </select>
 
+    <select id="existById" resultType="java.lang.Boolean">
+        <![CDATA[
+            SELECT EXISTS(SELECT 1 FROM TESTS WHERE ID = #{id})
+        ]]>
+    </select>
+
     <update id="updateTest">
         <![CDATA[
 			UPDATE

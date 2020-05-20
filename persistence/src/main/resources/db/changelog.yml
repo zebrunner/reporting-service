@@ -274,3 +274,14 @@ databaseChangeLog:
             path: changeset/025_add_registration_additional_info.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 026_create_test_sessions_table
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/026_create_test_sessions_table.sql
+            relativeToChangelogFile: true
+            splitStatements: false

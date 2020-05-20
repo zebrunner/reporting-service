@@ -61,4 +61,6 @@ public interface TestMapper {
     List<Test> searchTests(TestSearchCriteria sc);
 
     Integer getTestsSearchCount(TestSearchCriteria sc);
+
+    boolean existById(Long id);
 }
