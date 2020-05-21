@@ -341,7 +341,7 @@ public class IntegrationServiceImpl implements IntegrationService {
                 setting.getParam().getName(),
                 setting.getValue(),
                 setting.isEncrypted(),
-                key
+                setting.isEncrypted() ? key : null
         );
     }
 
