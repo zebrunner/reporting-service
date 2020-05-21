@@ -11,6 +11,8 @@ ext {
         boot_starter_freemarker : "org.springframework.boot:spring-boot-starter-freemarker",
         boot_starter_websocket: "org.springframework.boot:spring-boot-starter-websocket",
         boot_starter_reactor_netty: "org.springframework.boot:spring-boot-starter-reactor-netty",
+        boot_starter_validation: "org.springframework.boot:spring-boot-starter-validation",
+        boot_starter_actuator: "org.springframework.boot:spring-boot-starter-actuator",
         spring_security_ldap : "org.springframework.security:spring-security-ldap",
         spring_test : "org.springframework:spring-test",
 
@@ -23,7 +25,7 @@ ext {
 
         javax_persistence: "javax.persistence:javax.persistence-api:2.2",
 
-        liquibase: "org.liquibase:liquibase-core:3.7.0",
+        liquibase: "org.liquibase:liquibase-core:3.9.0",
 
         swagger: [
             "io.springfox:springfox-swagger2:2.9.2",
