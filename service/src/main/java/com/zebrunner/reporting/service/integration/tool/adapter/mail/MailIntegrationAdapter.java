@@ -6,6 +6,7 @@ import com.zebrunner.reporting.service.integration.tool.adapter.AdapterParam;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.util.StringUtils;
 
 import javax.mail.MessagingException;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class MailIntegrationAdapter extends AbstractIntegrationAdapter implement
         this.fromAddress = getAttributeValue(integration, EmailParam.EMAIL_FROM_ADDRESS);
 
         boolean enableTls = this.port != SMTP_NOT_SECURED_PORT;
-        boolean authEnabled = username != null && password != null;
+        boolean authEnabled = !StringUtils.isEmpty(username) && !StringUtils.isEmpty(password);
 
         this.javaMailSender = new JavaMailSenderImpl();
         ((JavaMailSenderImpl) this.javaMailSender).setDefaultEncoding("UTF-8");
