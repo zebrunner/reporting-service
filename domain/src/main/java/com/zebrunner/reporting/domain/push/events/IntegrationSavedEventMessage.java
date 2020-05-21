@@ -34,7 +34,7 @@ public class IntegrationSavedEventMessage extends EventMessage {
         private final String name;
         private final String value;
         private final boolean encrypted;
-        private final String passwordKey;
+        private final String key;
 
     }
 
