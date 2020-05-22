@@ -96,8 +96,12 @@ public class TestService {
 
         test.setStatus(Status.IN_PROGRESS);
 
-        Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
-        testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
+        boolean existingTestIsInProgress = existingTest != null && Status.IN_PROGRESS.equals(existingTest.getStatus();
+        boolean updateStatisticsStatus = rerun || !existingTestIsInProgress;
+        if (updateStatisticsStatus) {
+            Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
+            testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
+        }
 
         if (rerun) {
             unlinkStatisticsFailureItems(existingTest);

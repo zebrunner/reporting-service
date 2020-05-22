@@ -80,7 +80,7 @@ public class TestRunServiceV1 {
 
         if (test.getId() != null) {
             com.zebrunner.reporting.domain.db.Test headlessTest = testMapper.getTestById(test.getId());
-            oldTest.setStatus(Status.QUEUED); // needs to lifehack tests logic
+            oldTest.setStatus(Status.QUEUED); // needs to lifehack tests logic for headless tests
             oldTest.setStartTime(headlessTest.getStartTime());
         }
 
