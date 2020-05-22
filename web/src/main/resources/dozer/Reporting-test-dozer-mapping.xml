@@ -72,6 +72,18 @@
     <mapping map-id="com.zebrunner.reporting.web.dto.TestDTO$ValidationGroups$HeadlessTestStartGroup" type="bi-directional" wildcard="false">
         <class-a>com.zebrunner.reporting.web.dto.TestDTO</class-a>
         <class-b>com.zebrunner.reporting.domain.db.reporting.Test</class-b>
+        <field>
+            <a>name</a>
+            <b>name</b>
+        </field>
+        <field>
+            <a>className</a>
+            <b>className</b>
+        </field>
+        <field>
+            <a>methodName</a>
+            <b>methodName</b>
+        </field>
         <field copy-by-reference="true">
             <a>startedAt</a>
             <b>startedAt</b>
