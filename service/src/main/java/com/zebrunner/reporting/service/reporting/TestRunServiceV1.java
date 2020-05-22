@@ -78,6 +78,12 @@ public class TestRunServiceV1 {
         oldTest.setTestCaseId(testCase.getId());
         oldTest.setStartTime(Timestamp.valueOf(test.getStartedAt().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()));
 
+        if (test.getId() != null) {
+            com.zebrunner.reporting.domain.db.Test headlessTest = testMapper.getTestById(test.getId());
+            oldTest.setStatus(Status.QUEUED); // needs to lifehack tests logic
+            oldTest.setStartTime(headlessTest.getStartTime());
+        }
+
         com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
         if (existingTest != null) {
             oldTest.setId(existingTest.getId());
@@ -86,6 +92,21 @@ public class TestRunServiceV1 {
         oldTest = testService.startTest(oldTest, null, null);
 
         test.setId(oldTest.getId());
+        return test;
+    }
+
+    @Transactional
+    public Test startHeadlessTest(Test test, Long testRunId) {
+        if (test.getName() == null) {
+            test.setName("system");
+        }
+        if (test.getClassName() == null) {
+            test.setClassName("system");
+        }
+        if (test.getMethodName() == null) {
+            test.setMethodName("system");
+        }
+        test = startTest(test, testRunId);
         return test;
     }
 
