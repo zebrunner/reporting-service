@@ -96,7 +96,7 @@ public class TestService {
 
         test.setStatus(Status.IN_PROGRESS);
 
-        boolean existingTestIsInProgress = existingTest != null && Status.IN_PROGRESS.equals(existingTest.getStatus();
+        boolean existingTestIsInProgress = existingTest != null && Status.IN_PROGRESS.equals(existingTest.getStatus());
         boolean updateStatisticsStatus = rerun || !existingTestIsInProgress;
         if (updateStatisticsStatus) {
             Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
