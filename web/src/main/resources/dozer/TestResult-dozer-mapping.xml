@@ -15,7 +15,7 @@
             <a>status</a>
             <b>status</b>
         </field>
-        <field>
+        <field copy-by-reference="true">
             <a>startTime</a>
             <b>startTime</b>
         </field>
