@@ -88,20 +88,26 @@ public class TestService {
     @Autowired
     private TestMetricService testMetricService;
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Test startTest(Test test, List<String> jiraIds, String configXML) {
-
         Test existingTest = getTestById(test.getId());
         boolean rerun = existingTest != null && !Status.QUEUED.equals(test.getStatus());
+        return startTest(test, jiraIds, configXML, false, rerun);
+    }
+
+    @Transactional
+    public Test startTest(Test test, List<String> jiraIds, String configXML, boolean overrideHeadless, boolean rerun) {
+
+        Test existingTest = getTestById(test.getId());
 
         test.setStatus(Status.IN_PROGRESS);
-
-        boolean existingTestIsInProgress = existingTest != null && Status.IN_PROGRESS.equals(existingTest.getStatus());
-        boolean updateStatisticsStatus = rerun || !existingTestIsInProgress;
-        if (updateStatisticsStatus) {
-            Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
-            testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
+        
+        if (overrideHeadless) {
+            testRunStatisticsService.updateStatistics(test.getTestRunId(), Status.IN_PROGRESS, true);
         }
+        
+        Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
+        testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
 
         if (rerun) {
             unlinkStatisticsFailureItems(existingTest);
@@ -115,9 +121,14 @@ public class TestService {
             TestConfig config = testConfigService.createTestConfigForTest(test, configXML);
             test.setTestConfig(config);
 
-            boolean isNew = existingTest == null;
-            if (isNew) {
-                createTest(test);
+            boolean startNewTest = existingTest == null;
+            if (startNewTest || overrideHeadless) {
+                if (startNewTest) {
+                    createTest(test);
+                }
+                if (overrideHeadless) {
+                    updateTest(test);
+                }
                 createWorkItems(test, jiraIds);
             } else {
                 updateTest(test);
@@ -442,14 +453,14 @@ public class TestService {
         return workItems;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Test updateTest(Test test) {
         validateTestFieldsLength(test);
         testMapper.updateTest(test);
         return test;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteTestById(long id) {
         testMapper.deleteTestById(id);
     }

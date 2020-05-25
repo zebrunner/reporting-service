@@ -73,6 +73,10 @@
         <class-a>com.zebrunner.reporting.web.dto.TestDTO</class-a>
         <class-b>com.zebrunner.reporting.domain.db.reporting.Test</class-b>
         <field>
+            <a>uuid</a>
+            <b>uuid</b>
+        </field>
+        <field>
             <a>name</a>
             <b>name</b>
         </field>

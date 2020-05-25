@@ -92,18 +92,16 @@ public class TestRunControllerV1 extends AbstractController {
     public TestDTO startTest(
             @RequestBody TestDTO testDTO,
             @PathVariable("id") @NotNull @Positive Long id,
-            @RequestParam(value = "headless", required = false) boolean headless
+            @RequestParam(value = "headless", required = false) boolean headless,
+            @RequestParam(value = "rerun", required = false) boolean rerun
     ) {
         validateOnTestStart(testDTO, headless);
 
-        Test test;
-        if (!headless) {
-            test = mapper.map(testDTO, Test.class, TestDTO.ValidationGroups.TestStartGroup.class.getName());
-            test = testRunServiceV1.startTest(test, id);
-        } else {
-            test = mapper.map(testDTO, Test.class, TestDTO.ValidationGroups.HeadlessTestStartGroup.class.getName());
-            test = testRunServiceV1.startHeadlessTest(test, id);
-        }
+        String mapperGroup = headless ? TestDTO.ValidationGroups.HeadlessTestStartGroup.class.getName()
+                : TestDTO.ValidationGroups.TestStartGroup.class.getName();
+
+        Test test = mapper.map(testDTO, Test.class, mapperGroup);
+        test = testRunServiceV1.startTest(test, id, headless, rerun);
 
         com.zebrunner.reporting.domain.db.Test oldTest = testRunServiceV1.getTestById(test.getId());
         notifyAboutTestByWebsocket(oldTest);

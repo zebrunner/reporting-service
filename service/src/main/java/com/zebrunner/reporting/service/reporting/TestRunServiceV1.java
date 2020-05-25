@@ -70,7 +70,10 @@ public class TestRunServiceV1 {
     }
 
     @Transactional
-    public Test startTest(Test test, Long testRunId) {
+    public Test startTest(Test test, Long testRunId, boolean headless, boolean rerun) {
+        if (headless) {
+            startHeadlessTest(test);
+        }
         TestCase testCase = convertToTestCase(test, testRunId);
         testCase = testCaseService.createOrUpdateCase(testCase, testCase.getProject().getName());
 
@@ -78,25 +81,29 @@ public class TestRunServiceV1 {
         oldTest.setTestCaseId(testCase.getId());
         oldTest.setStartTime(Timestamp.valueOf(test.getStartedAt().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()));
 
-        if (test.getId() != null) {
-            com.zebrunner.reporting.domain.db.Test headlessTest = testMapper.getTestById(test.getId());
-            oldTest.setStatus(Status.QUEUED); // needs to lifehack tests logic for headless tests
-            oldTest.setStartTime(headlessTest.getStartTime());
+        com.zebrunner.reporting.domain.db.Test headlessTest = null;
+        if (test.getId() != null && !rerun) { // headless test override
+            headlessTest = testService.getTestById(test.getId());
+            if (headlessTest != null) {
+                oldTest.setUuid(test.getUuid());
+                oldTest.setStartTime(headlessTest.getStartTime());
+            }
         }
 
-        com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
-        if (existingTest != null) {
-            oldTest.setId(existingTest.getId());
+        if (rerun) {
+            com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
+            if (existingTest != null) {
+                oldTest.setId(existingTest.getId());
+            }
         }
 
-        oldTest = testService.startTest(oldTest, null, null);
+        oldTest = testService.startTest(oldTest, null, null, headlessTest != null, rerun);
 
         test.setId(oldTest.getId());
         return test;
     }
 
-    @Transactional
-    public Test startHeadlessTest(Test test, Long testRunId) {
+    private Test startHeadlessTest(Test test) {
         if (test.getName() == null) {
             test.setName("system");
         }
@@ -106,7 +113,6 @@ public class TestRunServiceV1 {
         if (test.getMethodName() == null) {
             test.setMethodName("system");
         }
-        test = startTest(test, testRunId);
         return test;
     }
 
