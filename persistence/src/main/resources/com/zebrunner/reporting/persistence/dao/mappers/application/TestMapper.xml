@@ -314,7 +314,7 @@
         ]]>
 	</sql>
 
-    <select id="getTestResultsByTestCaseId" resultMap="TestResultsResultMap">
+    <select id="getTestResultsByStartTimeAndTestCaseId" resultMap="TestResultsResultMap">
         <include refid="getTestResults"/>
         <![CDATA[
 			WHERE T.TEST_CASE_ID = #{testCaseId} AND T.START_TIME < #{startTime}::date
