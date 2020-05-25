@@ -415,7 +415,7 @@ public class TestService {
 
     public List<TestResult> getLatestTestResultsByTestId(Long testId, Long limit) {
         Test test = getNotNullTestById(testId);
-        List<TestResult> testResults = testMapper.getTestResultsByStartTimeAndTestCaseId(test.getId(), test.getStartTime(), limit);
+        List<TestResult> testResults = testMapper.getTestResultsByStartTimeAndTestCaseId(test.getTestCaseId(), test.getStartTime(), limit);
         testResults.forEach(result -> {
             Duration elapsed = Duration.between(result.getStartTime(), result.getFinishTime());
             result.setElapsed(elapsed.toMillis());
