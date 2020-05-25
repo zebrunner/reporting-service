@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -417,11 +418,17 @@ public class TestService {
         Test test = getNotNullTestById(testId);
         List<TestResult> testResults = testMapper.getTestResultsByStartTimeAndTestCaseId(test.getTestCaseId(), test.getStartTime(), limit);
         testResults.forEach(result -> {
+            List<WorkItem> bugs = result.getWorkItems()
+                                 .stream()
+                                 .filter(workItem -> workItem.getType() == WorkItem.Type.BUG)
+                                 .collect(Collectors.toList());
+            result.setWorkItems(bugs);
             if (result.getStartTime() != null && result.getFinishTime() != null) {
                 Duration elapsed = Duration.between(result.getStartTime(), result.getFinishTime());
                 result.setElapsed(elapsed.toMillis());
             }
         });
+        testResults.sort(Comparator.comparing(TestResult::getStartTime).reversed());
         return testResults;
     }
 
