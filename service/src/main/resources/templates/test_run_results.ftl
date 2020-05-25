@@ -91,7 +91,7 @@
                        line-height: 1.63;
                        text-align: left;
                        vertical-align:top;">
-                <#if testRun.config.env??>
+                <#if testRun.config ?? && testRun.config.env ??>
                     <td style="color: #808a93;">Environment:</td>
                     <td style="font-weight: bold;color: #011627;">
                         <#if testRun.config.url ??>
@@ -106,23 +106,25 @@
                        line-height: 1.63;
                        text-align: left;
                        vertical-align:top;">
-                <td style="color: #808a93">Platform:</td>
-                <td style="font-weight: bold;color: #011627;">
-                    <#if testRun.config.platform ??>
-                        ${testRun.config.platform}
-                        <#if testRun.config.platformVersion ??>
-                            - ${testRun.config.platformVersion}
+                <#if testRun.config ??>
+                    <td style="color: #808a93">Platform:</td>
+                    <td style="font-weight: bold;color: #011627;">
+                        <#if testRun.config.platform ??>
+                            ${testRun.config.platform}
+                            <#if testRun.config.platformVersion ??>
+                                - ${testRun.config.platformVersion}
+                            </#if>
                         </#if>
-                    </#if>
-                    <#if testRun.config.browser ??>
-                        ${testRun.config.browser}
-                        <#if (testRun.config.browserVersion)??>
-                            - ${testRun.config.browserVersion}
+                        <#if testRun.config.browser ??>
+                            ${testRun.config.browser}
+                            <#if (testRun.config.browserVersion)??>
+                                - ${testRun.config.browserVersion}
+                            </#if>
                         </#if>
-                    </#if>
-                </td>
+                    </td>
+                </#if>
             </tr>
-            <#if testRun.config.appVersion ?? && testRun.config.appVersion != ''>
+            <#if testRun.config ?? && testRun.config.appVersion ?? && testRun.config.appVersion != ''>
                 <tr style="font-size: 16px;
                        line-height: 1.63;
                        text-align: left;
@@ -138,7 +140,7 @@
                 <td style="color: #808a93">Finished:</td>
                 <td style="font-weight: bold;color: #011627;">${testRun.modifiedAt?string["HH:mm yyyy.MM.dd"]}</td>
             </tr>
-            <#if elapsed??>
+            <#if elapsed ??>
                 <tr style="font-size: 16px;
                        line-height: 1.63;
                        text-align: left;
@@ -147,18 +149,7 @@
                     <td style="font-weight: bold;color: #011627;">${elapsed}</td>
                 </tr>
             </#if>
-            <#if testRun.comments??>
-                <tr style="font-size: 16px;
-                       line-height: 1.63;
-                       text-align: left;
-                       vertical-align:top;">
-                    <td style="color: #808a93">Comments:</td>
-                    <td style="font-weight: bold;color: #011627; ">
-                        <pre style="white-space: pre-line; margin: 0; font-family: Arial, serif;">${testRun.comments?trim[0..*255]}</pre>
-                    </td>
-                </tr>
-            </#if>
-            <#if testRun.config.language ?? && testRun.config.language != 'en_US'>
+            <#if testRun.config ?? && testRun.config.language ?? && testRun.config.language != 'en_US'>
                 <tr style="font-size: 16px;
                        line-height: 1.63;
                        text-align: left;
@@ -169,7 +160,7 @@
                     </td>
                 </tr>
             </#if>
-            <#if testRun.config.locale ?? && testRun.config.locale != 'en_US'>
+            <#if testRun.config ?? && testRun.config.locale ?? && testRun.config.locale != 'en_US'>
                 <tr style="font-size: 16px;
                            line-height: 1.63;
                            text-align: left;
@@ -177,6 +168,17 @@
                     <td style="color: #808a93">Locale:</td>
                     <td style="font-weight: bold;color: #011627;">
                         ${testRun.config.locale}
+                    </td>
+                </tr>
+            </#if>
+            <#if testRun.comments ??>
+                <tr style="font-size: 16px;
+                       line-height: 1.63;
+                       text-align: left;
+                       vertical-align:top;">
+                    <td style="color: #808a93">Comments:</td>
+                    <td style="font-weight: bold;color: #011627; ">
+                        <pre style="white-space: pre-line; margin: 0; font-family: Arial, serif;">${testRun.comments?trim[0..*255]}</pre>
                     </td>
                 </tr>
             </#if>
