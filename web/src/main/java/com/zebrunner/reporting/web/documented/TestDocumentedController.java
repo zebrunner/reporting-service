@@ -1,6 +1,7 @@
 package com.zebrunner.reporting.web.documented;
 
 import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
+import com.zebrunner.reporting.domain.dto.TestResultDTO;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.domain.db.Test;
@@ -19,6 +20,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 @Api("Tests API")
 public interface TestDocumentedController {
@@ -141,6 +143,23 @@ public interface TestDocumentedController {
             @ApiResponse(code = 200, message = "Criteria for test search", response = SearchResult.class)
     })
     SearchResult<Test> searchTests(TestSearchCriteria sc);
+
+    @ApiOperation(
+            value = "Retrieves test results(simplified test objects) by the test id",
+            notes = "Returns found test results",
+            nickname = "getTestResultsById",
+            httpMethod = "GET",
+            response = Map.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test id"),
+            @ApiImplicitParam(name = "limit", paramType = "query", dataTypeClass = Long.class, required = true, value = "Number of test latest results to be returned")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns found test run results", response = Map.class)
+    })
+    List<TestResultDTO> getTestResultsById(Long id, Long limit);
 
     @ApiOperation(
             value = "Retrieves test work items",

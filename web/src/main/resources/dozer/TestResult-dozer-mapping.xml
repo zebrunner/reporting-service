@@ -16,6 +16,10 @@
             <b>status</b>
         </field>
         <field>
+            <a>startTime</a>
+            <b>startTime</b>
+        </field>
+        <field>
             <a>elapsed</a>
             <b>elapsed</b>
         </field>

@@ -317,7 +317,7 @@
     <select id="getTestResultsByTestCaseId" resultMap="TestResultsResultMap">
         <include refid="getTestResults"/>
         <![CDATA[
-			WHERE T.TEST_CASE_ID = #{testCaseId}
+			WHERE T.TEST_CASE_ID = #{testCaseId} AND T.START_TIME < #{startTime}::date
             LIMIT #{limit}
 		]]>
     </select>

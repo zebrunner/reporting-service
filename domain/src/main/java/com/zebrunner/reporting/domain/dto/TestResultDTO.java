@@ -5,6 +5,7 @@ import com.zebrunner.reporting.domain.db.workitem.WorkItem;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -13,6 +14,7 @@ public class TestResultDTO {
 
     private Long testId;
     private Status status;
+    private LocalDateTime startTime;
     private Long elapsed;
     private List<WorkItem> workItems;
 
