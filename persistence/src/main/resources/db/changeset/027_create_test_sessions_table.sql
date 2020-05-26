@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS test_sessions_2 (
     capabilities JSONB NULL,
     PRIMARY KEY (id)
 );
+DROP INDEX IF EXISTS test_sessions_session_id_idx_unique;
 CREATE INDEX test_sessions_session_id_idx_unique ON test_sessions_2 (session_id);
 
 CREATE TABLE IF NOT EXISTS test_test_sessions (
