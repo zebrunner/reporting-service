@@ -418,18 +418,22 @@ public class TestService {
         Test test = getNotNullTestById(testId);
         List<TestResult> testResults = testMapper.getTestResultsByStartTimeAndTestCaseId(test.getTestCaseId(), test.getStartTime(), limit);
         testResults.forEach(result -> {
-            List<WorkItem> bugs = result.getWorkItems()
-                                        .stream()
-                                        .filter(workItem -> workItem.getType() == WorkItem.Type.BUG)
-                                        .collect(Collectors.toList());
-            result.setWorkItems(bugs);
-            if (result.getStartTime() != null && result.getFinishTime() != null) {
+            result.setWorkItems(filterBugs(result));
+            boolean isDurationAvailable = result.getStartTime() != null && result.getFinishTime() != null;
+            if (isDurationAvailable) {
                 Duration elapsed = Duration.between(result.getStartTime(), result.getFinishTime());
                 result.setElapsed(elapsed.toMillis());
             }
         });
         testResults.sort(Comparator.comparing(TestResult::getStartTime).reversed());
         return testResults;
+    }
+
+    private List<WorkItem> filterBugs(TestResult result) {
+        return result.getWorkItems()
+                     .stream()
+                     .filter(workItem -> workItem.getType() == WorkItem.Type.BUG)
+                     .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
