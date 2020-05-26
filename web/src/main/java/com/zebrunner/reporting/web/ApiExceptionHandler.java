@@ -101,6 +101,9 @@ public class ApiExceptionHandler {
         return response;
     }
 
+    /**
+     * Handles javax validation exception
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {

@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.TEST_SESSION_CAN_NOT_BE_UPDATED;
 
@@ -28,7 +27,8 @@ public class TestSessionServiceV1 {
 
     @Transactional
     public TestSession create(TestSession session) {
-        removeNotExistingTestRefs(session.getTestRefs());
+        Set<Long> existingRefs = getExistingRefs(session.getTestRefs());
+        session.setTestRefs(existingRefs);
         testSessionMapper.create(session);
         testSessionMapper.linkToTests(session.getId(), session.getTestRefs());
         return session;
@@ -46,7 +46,8 @@ public class TestSessionServiceV1 {
     @Transactional
     public TestSession updateAndLinkToTests(TestSession session) {
         TestSession existingSession = retrieveById(session.getId());
-        removeNotExistingTestRefs(session.getTestRefs());
+        Set<Long> existingRefs = getExistingRefs(session.getTestRefs());
+        session.setTestRefs(existingRefs);
 
         if (existingSession.getEndedAt() == null) {
             existingSession.setEndedAt(session.getEndedAt());
@@ -60,13 +61,12 @@ public class TestSessionServiceV1 {
         return existingSession;
     }
 
-    private void removeNotExistingTestRefs(Set<Long> testRefs) {
+    private Set<Long> getExistingRefs(Set<Long> testRefs) {
+        Set<Long> existingRefs = null;
         if (testRefs != null) {
-            Set<Long> testRefsToRemove = testRefs.stream()
-                                                 .filter(testRef -> !testService.existById(testRef))
-                                                 .collect(Collectors.toSet());
-            testRefsToRemove.forEach(testRefs::remove);
+            existingRefs = testService.getExistingIds(testRefs);
         }
+        return existingRefs;
     }
 
     private Set<Long> mergeTestIds(Set<Long> oldIds, Set<Long> newIds) {
