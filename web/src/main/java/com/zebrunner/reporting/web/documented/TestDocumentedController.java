@@ -157,7 +157,8 @@ public interface TestDocumentedController {
             @ApiImplicitParam(name = "limit", paramType = "query", dataTypeClass = Long.class, required = true, value = "Number of test latest results to be returned")
     })
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns found test run results", response = Map.class)
+            @ApiResponse(code = 200, message = "Returns found test results", response = Map.class),
+            @ApiResponse(code = 404, message = "Indicates that the test with requested id does not exist", response = ErrorResponse.class)
     })
     List<TestResultDTO> getTestResultsById(Long id, Long limit);
 
