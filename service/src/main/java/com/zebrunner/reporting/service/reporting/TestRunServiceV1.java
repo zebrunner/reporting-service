@@ -82,7 +82,7 @@ public class TestRunServiceV1 {
         oldTest.setStartTime(Timestamp.valueOf(test.getStartedAt().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()));
 
         com.zebrunner.reporting.domain.db.Test headlessTest = null;
-        if (test.getId() != null && !rerun) { // headless test override
+        if (test.getId() != null) { // headless test override (next headless test or test start)
             headlessTest = testService.getTestById(test.getId());
             if (headlessTest != null) {
                 oldTest.setUuid(test.getUuid());
@@ -90,14 +90,21 @@ public class TestRunServiceV1 {
             }
         }
 
-        if (rerun) {
-            com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
-            if (existingTest != null) {
-                oldTest.setId(existingTest.getId());
+        boolean updateHeadlessTest = false;
+        com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
+        if (existingTest != null) {
+            oldTest.setId(existingTest.getId());
+            if (headless && !rerun) { // if there are many headless tests in chain
+                oldTest.setStatus(existingTest.getStatus());
+                updateHeadlessTest = true;
             }
         }
 
-        oldTest = testService.startTest(oldTest, null, null, headlessTest != null, rerun);
+        if (updateHeadlessTest) {
+            oldTest = testService.updateTest(oldTest);
+        } else {
+            oldTest = testService.startTest(oldTest, null, null, headless, headlessTest != null, rerun);
+        }
 
         test.setId(oldTest.getId());
         return test;

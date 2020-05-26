@@ -92,22 +92,16 @@ public class TestService {
     public Test startTest(Test test, List<String> jiraIds, String configXML) {
         Test existingTest = getTestById(test.getId());
         boolean rerun = existingTest != null && !Status.QUEUED.equals(test.getStatus());
-        return startTest(test, jiraIds, configXML, false, rerun);
+        return startTest(test, jiraIds, configXML, false, false, rerun);
     }
 
     @Transactional
-    public Test startTest(Test test, List<String> jiraIds, String configXML, boolean overrideHeadless, boolean rerun) {
+    public Test startTest(Test test, List<String> jiraIds, String configXML, boolean headless, boolean overrideHeadless, boolean rerun) {
+        test.setStatus(Status.IN_PROGRESS);
 
         Test existingTest = getTestById(test.getId());
-
-        test.setStatus(Status.IN_PROGRESS);
-        
-        if (overrideHeadless) {
-            testRunStatisticsService.updateStatistics(test.getTestRunId(), Status.IN_PROGRESS, true);
-        }
-        
-        Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
-        testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
+        rerun = rerun && existingTest != null;
+        updateStatisticsOnTestStart(existingTest, test.getTestRunId(), headless, overrideHeadless, rerun);
 
         if (rerun) {
             unlinkStatisticsFailureItems(existingTest);
@@ -139,6 +133,24 @@ public class TestService {
         test.setTags(tags);
 
         return test;
+    }
+
+    private void updateStatisticsOnTestStart(Test existingTest, Long testRunId, boolean headless, boolean overrideHeadless, boolean rerun) {
+        boolean testWithoutHeadless;
+        boolean firstHeadless;
+        if (!rerun) {
+            testWithoutHeadless = !headless && !overrideHeadless && existingTest == null;
+            firstHeadless = headless && existingTest == null;
+        } else {
+            boolean existingTestIsFinished = !Status.IN_PROGRESS.equals(existingTest.getStatus());
+            testWithoutHeadless = !headless && !overrideHeadless && existingTestIsFinished;
+            firstHeadless = headless && existingTestIsFinished;
+        }
+
+        if (testWithoutHeadless || firstHeadless) {
+            Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
+            testRunStatisticsService.updateStatistics(testRunId, statisticsStatusToUpdate, rerun);
+        }
     }
 
     private void createWorkItems(Test test, List<String> jiraIds) {
