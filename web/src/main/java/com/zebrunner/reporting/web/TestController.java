@@ -178,8 +178,8 @@ public class TestController extends AbstractController implements TestDocumented
                                                   @RequestParam("limit") Long limit) {
         List<TestResult> results = testService.getLatestTestResultsByTestId(id, limit);
         return results.stream()
-                                .map(stability -> mapper.map(stability, TestResultDTO.class))
-                                .collect(Collectors.toList());
+                      .map(stability -> mapper.map(stability, TestResultDTO.class))
+                      .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}/workitem/{type}")

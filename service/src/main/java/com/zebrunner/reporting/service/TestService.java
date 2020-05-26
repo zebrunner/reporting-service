@@ -414,6 +414,7 @@ public class TestService {
         return testMapper.getTestsByTestRunId(testRunId);
     }
 
+    @Transactional(readOnly = true)
     public List<TestResult> getLatestTestResultsByTestId(Long testId, Long limit) {
         Test test = getNotNullTestById(testId);
         List<TestResult> testResults = testMapper.getTestResultsByStartTimeAndTestCaseId(test.getTestCaseId(), test.getStartTime(), limit);
