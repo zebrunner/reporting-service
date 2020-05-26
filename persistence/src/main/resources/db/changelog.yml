@@ -274,3 +274,14 @@ databaseChangeLog:
             path: changeset/025_add_registration_additional_info.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 026_adjust_smtp_integration_parameters
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/026_adjust_smtp_integration_parameters.sql
+            relativeToChangelogFile: true
+            splitStatements: false
