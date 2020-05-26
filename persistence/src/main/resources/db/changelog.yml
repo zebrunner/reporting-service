@@ -275,13 +275,24 @@ databaseChangeLog:
             relativeToChangelogFile: true
             splitStatements: false
   - changeSet:
-      id: 026_create_test_sessions_table
+      id: 026_adjust_smtp_integration_parameters
       validCheckSum: ANY
       labels: stable
       author: brutskov
       changes:
         - sqlFile:
             encoding: utf8
-            path: changeset/026_create_test_sessions_table.sql
+            path: changeset/026_adjust_smtp_integration_parameters.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+  - changeSet:
+      id: 027_create_test_sessions_table
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/027_create_test_sessions_table.sql
             relativeToChangelogFile: true
             splitStatements: false
