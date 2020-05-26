@@ -771,8 +771,8 @@ public class TestService {
     }
 
     @Transactional(readOnly = true)
-    public boolean existById(Long id) {
-        return testMapper.existById(id);
+    public Set<Long> getExistingIds(Set<Long> ids) {
+        return testMapper.findExistingIds(ids);
     }
 
     public int getTestMessageHashCode(String message) {

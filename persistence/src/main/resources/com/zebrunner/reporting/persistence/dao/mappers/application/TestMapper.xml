@@ -390,9 +390,17 @@
         </trim>
     </select>
 
-    <select id="existById" resultType="java.lang.Boolean">
+    <select id="findExistingIds" resultType="java.lang.Long">
         <![CDATA[
-            SELECT EXISTS(SELECT 1 FROM TESTS WHERE ID = #{id})
+            SELECT ID FROM TESTS WHERE ID IN (
+        ]]>
+        <foreach item="id" index="index" collection="ids" open="" separator="," close="">
+            <![CDATA[
+			     #{id}
+			]]>
+        </foreach>
+        <![CDATA[
+            );
         ]]>
     </select>
 
