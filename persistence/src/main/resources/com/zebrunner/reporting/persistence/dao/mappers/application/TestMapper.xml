@@ -293,6 +293,7 @@
                T.STATUS        AS TEST_STATUS,
                T.START_TIME    AS TEST_START_TIME,
                T.FINISH_TIME   AS TEST_FINISH_TIME,
+               T.TEST_RUN_ID   AS TEST_TEST_RUN_ID,
 
                WI.ID           AS WORK_ITEM_ID,
                WI.JIRA_ID      AS WORK_ITEM_JIRA_ID,
@@ -567,6 +568,7 @@
 
     <resultMap type="com.zebrunner.reporting.domain.db.TestResult" id="TestResultsResultMap" autoMapping="false">
         <id column="TEST_ID" property="testId"/>
+        <result column="TEST_TEST_RUN_ID" property="testRunId" />
         <result column="TEST_STATUS" property="status"/>
         <result column="TEST_START_TIME" property="startTime"/>
         <result column="TEST_FINISH_TIME" property="finishTime"/>

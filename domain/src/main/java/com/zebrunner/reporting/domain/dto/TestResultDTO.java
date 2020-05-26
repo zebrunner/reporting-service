@@ -13,6 +13,7 @@ import java.util.List;
 public class TestResultDTO {
 
     private Long testId;
+    private Long testRunId;
     private Status status;
     private LocalDateTime startTime;
     private Long elapsed;
