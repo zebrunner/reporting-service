@@ -1,20 +1,20 @@
 package com.zebrunner.reporting.service;
 
-import com.zebrunner.reporting.domain.db.TestResult;
-import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
-import com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.Tag;
 import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestArtifact;
 import com.zebrunner.reporting.domain.db.TestCase;
 import com.zebrunner.reporting.domain.db.TestConfig;
+import com.zebrunner.reporting.domain.db.TestResult;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.db.workitem.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
 import com.zebrunner.reporting.domain.dto.TestRunStatistics;
+import com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.TestCaseManagementService;
@@ -419,9 +419,9 @@ public class TestService {
         List<TestResult> testResults = testMapper.getTestResultsByStartTimeAndTestCaseId(test.getTestCaseId(), test.getStartTime(), limit);
         testResults.forEach(result -> {
             List<WorkItem> bugs = result.getWorkItems()
-                                 .stream()
-                                 .filter(workItem -> workItem.getType() == WorkItem.Type.BUG)
-                                 .collect(Collectors.toList());
+                                        .stream()
+                                        .filter(workItem -> workItem.getType() == WorkItem.Type.BUG)
+                                        .collect(Collectors.toList());
             result.setWorkItems(bugs);
             if (result.getStartTime() != null && result.getFinishTime() != null) {
                 Duration elapsed = Duration.between(result.getStartTime(), result.getFinishTime());
@@ -556,7 +556,7 @@ public class TestService {
     private void linkWorkItem(Test test, WorkItem workItemToLink) {
         WorkItem.Type workItemType = workItemToLink.getType();
         updateSimilarWorkItems(workItemToLink);
-        WorkItem dbWorkItem =  workItemService.getWorkItemByTestCaseIdAndJiraIdAndTypeAndHashcode(
+        WorkItem dbWorkItem = workItemService.getWorkItemByTestCaseIdAndJiraIdAndTypeAndHashcode(
                 workItemToLink.getTestCaseId(),
                 workItemToLink.getJiraId(),
                 workItemToLink.getType(),
