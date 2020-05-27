@@ -21,6 +21,9 @@ public class ExchangeConfig {
 
     public static final String INTEGRATION_SAVED_EXCHANGE = "integration-saved";
 
+    public static final String USER_SAVED_EXCHANGE = "user-saved";
+    public static final String USER_SAVED_REPORTING_SERVICE_QUEUE = "user-saved-reporting-service-queue";
+
     public static final String SEND_EMAIL_EXCHANGE = "send-email";
     public static final String SEND_EMAIL_QUEUE = "send-email-queue";
     public static final String SEND_EMAIL_ROUTING_KEY = "send-email-routing-key";
@@ -51,6 +54,25 @@ public class ExchangeConfig {
     }
 
     //////////////////////////////////////////////////////////
+    //                      User Saved
+    //////////////////////////////////////////////////////////
+
+    @Bean
+    public FanoutExchange userSavedExchange() {
+        return new FanoutExchange(USER_SAVED_EXCHANGE);
+    }
+
+    @Bean
+    public Queue userSavedQueue() {
+        return new Queue(USER_SAVED_REPORTING_SERVICE_QUEUE);
+    }
+
+    @Bean
+    public Binding userSavedBinding(FanoutExchange userSavedExchange, Queue userSavedQueue) {
+        return BindingBuilder.bind(userSavedQueue).to(userSavedExchange);
+    }
+
+    //////////////////////////////////////////////////////////
     //                    Send Email
     //////////////////////////////////////////////////////////
 
@@ -74,10 +96,14 @@ public class ExchangeConfig {
     //////////////////////////////////////////////////////////
 
     @Bean
-    public DirectExchange createDefaultUserExchange() { return new DirectExchange(CREATE_DEFAULT_USER_EXCHANGE); }
+    public DirectExchange createDefaultUserExchange() {
+        return new DirectExchange(CREATE_DEFAULT_USER_EXCHANGE);
+    }
 
     @Bean
-    public Queue createDefaultUserQueue() { return new Queue(CREATE_DEFAULT_USER_QUEUE, false, false, true); }
+    public Queue createDefaultUserQueue() {
+        return new Queue(CREATE_DEFAULT_USER_QUEUE, false, false, true);
+    }
 
     @Bean
     public Binding createDefaultUserBinding(DirectExchange createDefaultUserExchange, Queue createDefaultUserQueue) {

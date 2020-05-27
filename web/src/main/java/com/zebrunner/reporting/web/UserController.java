@@ -1,13 +1,13 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.db.Permission;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.UserSearchCriteria;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.db.UserPreference;
 import com.zebrunner.reporting.domain.dto.UserPreferenceDTO;
 import com.zebrunner.reporting.domain.dto.user.ChangePasswordDTO;
 import com.zebrunner.reporting.domain.dto.user.UserDTO;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.UserSearchCriteria;
 import com.zebrunner.reporting.service.DashboardService;
 import com.zebrunner.reporting.service.UserPreferenceService;
 import com.zebrunner.reporting.service.UserService;
@@ -54,7 +54,7 @@ public class UserController extends AbstractController implements UserDocumented
     @Override
     public UserDTO getUserProfile(@RequestParam(value = "username", required = false) String username) {
         User user = StringUtils.isEmpty(username) ? userService.getNotNullUserById(getPrincipalId())
-                                                  : userService.getNotNullUserByUsername(username);
+                : userService.getNotNullUserByUsername(username);
         UserDTO userDTO = mapper.map(user, UserDTO.class);
         userDTO.setRoles(user.getRoles());
         userDTO.setPreferences(user.getPreferences());
@@ -117,7 +117,8 @@ public class UserController extends AbstractController implements UserDocumented
     public void updateUserPassword(@Valid @RequestBody ChangePasswordDTO password) {
         checkCurrentUserAccess(password.getUserId());
         boolean forceUpdate = isAdmin() && password.getOldPassword() == null;
-        userService.updateUserPassword(password.getUserId(), password.getOldPassword(), password.getPassword(), forceUpdate);
+        userService.updateUserPassword(password.getUserId(), password.getOldPassword(), password
+                .getPassword(), forceUpdate);
     }
 
     @PreAuthorize("#isPublic or (hasRole('ROLE_ADMIN') and hasAnyPermission('VIEW_USERS', 'MODIFY_USERS'))")
@@ -158,6 +159,26 @@ public class UserController extends AbstractController implements UserDocumented
     public List<UserPreference> getDefaultUserPreferences() {
         User user = userService.getDefaultUser();
         return userPreferenceService.getAllUserPreferences(user.getId());
+    }
+
+    @Override
+    @GetMapping("{userId}/preferences")
+    public List<UserPreference> getUserPreference(@PathVariable("userId") long userId) {
+        return userPreferenceService.getAllUserPreferences(userId);
+    }
+
+    @Override
+    @GetMapping("{userId}/preferences/extended")
+    public Map<String, Object> getUserPreferenceWithDashboards(@PathVariable("userId") long userId) {
+        Map<String, Object> extendedUserPreferences = new HashMap<>(5);
+
+        dashboardService.setDefaultDashboard(extendedUserPreferences, userId, "", "defaultDashboardId");
+        dashboardService.setDefaultDashboard(extendedUserPreferences, userId, "User Performance", "performanceDashboardId");
+        dashboardService.setDefaultDashboard(extendedUserPreferences, userId, "Personal", "personalDashboardId");
+        dashboardService.setDefaultDashboard(extendedUserPreferences, userId, "Stability", "stabilityDashboardId");
+        extendedUserPreferences.put("preferences", userPreferenceService.getAllUserPreferences(userId));
+
+        return extendedUserPreferences;
     }
 
     @PutMapping(value = "{userId}/preferences")
