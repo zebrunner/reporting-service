@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.persistence.dao.mysql.application;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -27,7 +28,9 @@ public interface TestMapper {
 
     List<Test> getTestsByTestRunId(long testRunId);
 
-    List<TestResult> getTestResultsByTestCaseId(@Param("testCaseId") Long testCaseId, @Param("limit") Long limit);
+    List<TestResult> getTestResultsByStartTimeAndTestCaseId(@Param("testCaseId") Long testCaseId,
+                                                            @Param("startTime") Date startTime,
+                                                            @Param("limit") Long limit);
 
     List<Test> getTestsByTestRunCiRunId(String ciRunId);
 
@@ -50,7 +53,7 @@ public interface TestMapper {
     void deleteTestById(long id);
 
     void deleteTestByTestRunIdAndNameAndStatus(@Param("testRunId") long testRunId, @Param("testName") String testName,
-            @Param("status") Status status);
+                                               @Param("status") Status status);
 
     void deleteTest(Test test);
 

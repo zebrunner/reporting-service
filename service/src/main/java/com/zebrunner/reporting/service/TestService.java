@@ -1,20 +1,20 @@
 package com.zebrunner.reporting.service;
 
-import com.zebrunner.reporting.domain.db.TestResult;
-import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
-import com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.Tag;
 import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestArtifact;
 import com.zebrunner.reporting.domain.db.TestCase;
 import com.zebrunner.reporting.domain.db.TestConfig;
+import com.zebrunner.reporting.domain.db.TestResult;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.db.workitem.WorkItem;
+import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
 import com.zebrunner.reporting.domain.dto.TestRunStatistics;
+import com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.TestCaseManagementService;
@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -413,13 +414,27 @@ public class TestService {
         return testMapper.getTestsByTestRunId(testRunId);
     }
 
-    public List<TestResult> getTestResultsByTestCaseId(Long testCaseId, Long limit) {
-        List<TestResult> testResults = testMapper.getTestResultsByTestCaseId(testCaseId, limit);
+    @Transactional(readOnly = true)
+    public List<TestResult> getLatestTestResultsByTestId(Long testId, Long limit) {
+        Test test = getNotNullTestById(testId);
+        List<TestResult> testResults = testMapper.getTestResultsByStartTimeAndTestCaseId(test.getTestCaseId(), test.getStartTime(), limit);
         testResults.forEach(result -> {
-            Duration elapsed = Duration.between(result.getStartTime(), result.getFinishTime());
-            result.setElapsed(elapsed.toMillis());
+            result.setWorkItems(filterBugs(result));
+            boolean isDurationAvailable = result.getStartTime() != null && result.getFinishTime() != null;
+            if (isDurationAvailable) {
+                Duration elapsed = Duration.between(result.getStartTime(), result.getFinishTime());
+                result.setElapsed(elapsed.toMillis());
+            }
         });
+        testResults.sort(Comparator.comparing(TestResult::getStartTime).reversed());
         return testResults;
+    }
+
+    private List<WorkItem> filterBugs(TestResult result) {
+        return result.getWorkItems()
+                     .stream()
+                     .filter(workItem -> workItem.getType() == WorkItem.Type.BUG)
+                     .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -546,7 +561,7 @@ public class TestService {
     private void linkWorkItem(Test test, WorkItem workItemToLink) {
         WorkItem.Type workItemType = workItemToLink.getType();
         updateSimilarWorkItems(workItemToLink);
-        WorkItem dbWorkItem =  workItemService.getWorkItemByTestCaseIdAndJiraIdAndTypeAndHashcode(
+        WorkItem dbWorkItem = workItemService.getWorkItemByTestCaseIdAndJiraIdAndTypeAndHashcode(
                 workItemToLink.getTestCaseId(),
                 workItemToLink.getJiraId(),
                 workItemToLink.getType(),
