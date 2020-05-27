@@ -1,13 +1,13 @@
 package com.zebrunner.reporting.web.documented;
 
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.UserSearchCriteria;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.db.UserPreference;
 import com.zebrunner.reporting.domain.dto.UserPreferenceDTO;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
 import com.zebrunner.reporting.domain.dto.user.ChangePasswordDTO;
 import com.zebrunner.reporting.domain.dto.user.UserDTO;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.UserSearchCriteria;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -185,6 +185,38 @@ public interface UserDocumentedController {
             @ApiResponse(code = 200, message = "Returns found preferences", response = List.class)
     })
     List<UserPreference> getDefaultUserPreferences();
+
+    @ApiOperation(
+            value = "Returns user preferences by id",
+            notes = "Returns user preferences by id",
+            nickname = "getUserPreference",
+            httpMethod = "GET",
+            response = List.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "userId", paramType = "path", dataType = "number", required = true, value = "The user id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns attached preferences", response = UserPreference.class, responseContainer = "List")
+    })
+    List<UserPreference> getUserPreference(long userId);
+
+    @ApiOperation(
+            value = "Returns user preferences by id",
+            notes = "An extended user preferences additionally include user default dashboards ids",
+            nickname = "getUserPreference",
+            httpMethod = "GET",
+            response = List.class
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "userId", paramType = "path", dataType = "number", required = true, value = "The user id")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns attached preferences and user default dashboards ids", response = Map.class)
+    })
+    Map<String, Object> getUserPreferenceWithDashboards(long userId);
 
     @ApiOperation(
             value = "Creates user preferences",

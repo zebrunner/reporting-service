@@ -239,4 +239,19 @@ public class DashboardService {
         }
     }
 
+    @Transactional
+    public void setDefaultDashboard(Map<String, Object> extendedUserProfile, Long userId, String title, String key) {
+        Dashboard dashboard;
+        if ("defaultDashboardId".equals(key)) {
+            dashboard = retrieveDefaultForUser(userId);
+        } else {
+            dashboard = retrieveByTitle(title);
+        }
+        if (dashboard == null) {
+            extendedUserProfile.put(key, null);
+        } else {
+            extendedUserProfile.put(key, dashboard.getId());
+        }
+    }
+
 }

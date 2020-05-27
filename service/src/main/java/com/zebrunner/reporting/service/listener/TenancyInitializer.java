@@ -1,21 +1,20 @@
-package com.zebrunner.reporting.service.util;
+package com.zebrunner.reporting.service.listener;
 
 import com.zebrunner.reporting.domain.push.events.EmailEventMessage;
 import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
-import com.zebrunner.reporting.service.InvitationService;
 import com.zebrunner.reporting.service.email.CreateDefaultUserMessage;
 import com.zebrunner.reporting.service.integration.core.IntegrationTenancyStorage;
-import com.zebrunner.reporting.service.listener.MessageHelper;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
+import com.zebrunner.reporting.service.util.EventPushService;
+import com.zebrunner.reporting.service.util.URLResolver;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -39,7 +38,7 @@ public class TenancyInitializer {
 
     /**
      * RabbitMQ listener
-     * 
+     *
      * @param message - amqp message
      */
     @RabbitListener(queues = "#{tenanciesQueue.name}")
@@ -62,7 +61,8 @@ public class TenancyInitializer {
     public void initTenancyDb(Message message) {
         EmailEventMessage eventMessage = messageHelper.parse(message, EmailEventMessage.class);
         String tenancy = eventMessage.getTenantName();
-        CreateDefaultUserMessage createDefaultUserMessage = new CreateDefaultUserMessage(tenancy, urlResolver.buildWebURL(),
+        CreateDefaultUserMessage createDefaultUserMessage = new CreateDefaultUserMessage(tenancy, urlResolver
+                .buildWebURL(),
                 eventMessage.getEmail(), true, "");
         try {
             LOGGER.info("Tenancy '{}' DB initialization is started.", tenancy);
