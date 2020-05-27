@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk-slim
+FROM adoptopenjdk:11-jre-hotspot
 
 ARG SERVICE_VER=1.0-SNAPSHOT
 
