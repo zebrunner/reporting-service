@@ -135,7 +135,7 @@
 				WI.TEST_CASE_ID AS WORK_ITEM_TEST_CASE_ID,
 				WI.MODIFIED_AT AS WORK_ITEM_MODIFIED_AT,
 				WI.CREATED_AT AS WORK_ITEM_CREATED_AT,
-				
+
 				U.ID AS USER_ID,
 				U.USERNAME AS USER_USERNAME,
 				U.PASSWORD AS USER_PASSWORD,
@@ -144,7 +144,7 @@
 				U.EMAIL AS USER_EMAIL,
 				U.MODIFIED_AT AS USER_MODIFIED_AT,
 				U.CREATED_AT AS USER_CREATED_AT,
-				
+
 				TC.ID AS TEST_TEST_CONFIG_ID,
 				TC.URL AS TEST_TEST_CONFIG_URL,
 				TC.ENV AS TEST_TEST_CONFIG_ENV,
@@ -175,7 +175,7 @@
 				TESTS T
 			LEFT JOIN
 				TEST_WORK_ITEMS TWI
-		        ON 
+		        ON
 		            	TWI.TEST_ID = T.ID
 			LEFT JOIN
 				WORK_ITEMS WI
@@ -185,9 +185,9 @@
 				USERS U
 		    ON
 		        WI.USER_ID = U.ID
-			LEFT JOIN 
+			LEFT JOIN
 				TEST_CONFIGS TC
-			ON 
+			ON
 				T.TEST_CONFIG_ID = TC.ID
 			LEFT JOIN
 				TEST_CASES TCS
@@ -318,9 +318,13 @@
     <select id="getTestResultsByStartTimeAndTestCaseId" resultMap="TestResultsResultMap">
         <include refid="getTestResults"/>
         <![CDATA[
-			WHERE T.TEST_CASE_ID = #{testCaseId} AND T.START_TIME::timestamp <= #{startTime}::timestamp
-			ORDER BY T.START_TIME DESC
-            LIMIT #{limit}
+            WHERE T.ID IN (
+                SELECT T.ID
+                FROM TESTS T
+                WHERE T.TEST_CASE_ID = #{testCaseId} AND T.START_TIME::timestamp <= #{startTime}::timestamp
+            ORDER BY T.START_TIME DESC
+            LIMIT #{limit})
+            ORDER BY T.START_TIME DESC
 		]]>
     </select>
 
