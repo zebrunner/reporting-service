@@ -428,7 +428,6 @@ public class TestService {
                 result.setElapsed(elapsed.toMillis());
             }
         });
-        testResults.sort(Comparator.comparing(TestResult::getStartTime).reversed());
         return testResults;
     }
 
