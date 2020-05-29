@@ -52,23 +52,6 @@ public interface TestCaseDocumentedController {
     Map<String, List<TestMetric>> getTestMetricsByTestCaseId(Long id);
 
     @ApiOperation(
-            value = "Retrieves test results(simplified test objects) by the test case id",
-            notes = "Returns found test results",
-            nickname = "getTestCaseResultsById",
-            httpMethod = "GET",
-            response = Map.class
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
-            @ApiImplicitParam(name = "id", paramType = "path", dataTypeClass = Long.class, required = true, value = "The test case id"),
-            @ApiImplicitParam(name = "limit", paramType = "query", dataTypeClass = Long.class, required = true, value = "Number of testcase latest test results to be returned")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns found test run results", response = Map.class)
-    })
-    List<TestResultDTO> getTestCaseResultsById(Long id, Long limit);
-
-    @ApiOperation(
             value = "Creates or updates test case",
             notes = "Returns the created or updated test case",
             nickname = "createTestCase",

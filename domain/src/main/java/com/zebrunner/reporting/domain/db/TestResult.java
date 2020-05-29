@@ -12,6 +12,7 @@ import java.util.List;
 public class TestResult {
 
     private Long testId;
+    private Long testRunId;
     private Status status;
     private LocalDateTime startTime;
     private LocalDateTime finishTime;

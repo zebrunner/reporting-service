@@ -18,6 +18,8 @@ dependencies {
     implementation libraries.boot_starter_websocket
     implementation libraries.boot_starter_reactor_netty
     implementation libraries.boot_starter_data_redis
+    implementation libraries.boot_starter_validation
+    implementation libraries.boot_starter_actuator
     implementation libraries.spring_security_ldap
 
     implementation libraries.swagger

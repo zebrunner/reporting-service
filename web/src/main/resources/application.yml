@@ -4,7 +4,7 @@ service:
   version: ${version}
   docs-enabled: true
   debug-enabled: ${debug.enabled}
-  web-url: ${web.host}/${web.context.path}
+  web-url: ${web.host}
   api-url: ${api.host}/${api.context.path}
   use-artifact-proxy: ${use.artifact.proxy}
   admin:
@@ -15,11 +15,12 @@ service:
 ### Embedded Web server configuration
 server:
   port: 8080
-  servlet:
-    context-path: /reporting-service
+  shutdown: graceful
 
 ### Spring Boot managed beans configuration
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
   cache:
     cache-names: projects, users, testCases, environments, testRunStatistics, groups
     redis:

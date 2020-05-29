@@ -27,7 +27,7 @@ public class TenancyFilter extends GenericFilterBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TenancyFilter.class);
 
-    private static final String[] EXCLUSIONS = {"api/status"};
+    private static final String[] EXCLUDED_PATH_PREFIXES = {"/api/status", "/actuator"};
 
     @Value("${service.multitenant}")
     private boolean isMultitenant;
@@ -37,7 +37,7 @@ public class TenancyFilter extends GenericFilterBean {
             throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
 
-        if (Arrays.stream(EXCLUSIONS).noneMatch(path -> servletRequest.getRequestURI().contains(path))) {
+        if (Arrays.stream(EXCLUDED_PATH_PREFIXES).noneMatch(path -> servletRequest.getRequestURI().startsWith(path))) {
 
             if (isMultitenant) {
                 String host = servletRequest.getServerName(); // API clients without Origin
