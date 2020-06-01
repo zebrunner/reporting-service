@@ -285,6 +285,8 @@ public class UserService implements TenancyDbInitial {
         List<User> users = userMapper.searchUsers(sc, publicDetails);
         int count = userMapper.getUserSearchCount(sc, publicDetails);
 
+        users.forEach(user -> user.getGroups().removeIf(group -> group.getId() == null));
+
         return SearchResult.<User>builder()
                 .page(sc.getPage())
                 .pageSize(sc.getPageSize())
