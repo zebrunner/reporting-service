@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.CHANGE_PASSWORD_IS_NOT_POSSIBLE;
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.TOKEN_RESET_IS_NOT_POSSIBLE;
@@ -286,7 +285,7 @@ public class UserService implements TenancyDbInitial {
         List<User> users = userMapper.searchUsers(sc, publicDetails);
         int count = userMapper.getUserSearchCount(sc, publicDetails);
 
-        adjustGroups(users);
+        users.forEach(user -> user.getGroups().removeIf(group -> group.getId() == null));
 
         return SearchResult.<User>builder()
                 .page(sc.getPage())
@@ -295,15 +294,6 @@ public class UserService implements TenancyDbInitial {
                 .results(users)
                 .totalResults(count)
                 .build();
-    }
-
-    private void adjustGroups(List<User> users) {
-        users.forEach(user -> {
-            List<Group> groups = user.getGroups().stream()
-                                     .filter(group -> group.getId() != null)
-                                     .collect(Collectors.toList());
-            user.setGroups(groups);
-        });
     }
 
     @Transactional(readOnly = true)
