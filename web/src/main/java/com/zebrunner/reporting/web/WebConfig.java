@@ -18,6 +18,8 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternUtils;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
@@ -60,6 +62,23 @@ public class WebConfig implements WebMvcConfigurer {
         this.multitenant = multitenant;
 
         objectMapper(objectMapper);
+    }
+
+    // hypothetical fix for a peculiar communication scenario of SockJS.
+    // sometimes SockJS is not able to establish a native websocket connection.
+    // in this case, it uses some http-based alternatives.
+    // one of these alternatives expects application/javascript content to be returned.
+    // generally, spring internals handles client's expectations.
+    // but if client disconnects before the connection has been fully established,
+    // Spring throws an error which is handled by the api exception handler.
+    // the result of this handling cannot be converted to application/javascript, which leads to useless exceptions in logs.
+    // hypothetically, this mappingJackson2HttpMessageConverter should help gracefully omit the error.
+    @Bean
+    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+        jsonConverter.getSupportedMediaTypes().add(new MediaType("application/javascript"));
+
+        return jsonConverter;
     }
 
     @Bean
@@ -159,6 +178,7 @@ public class WebConfig implements WebMvcConfigurer {
      * Registers placeholder configurer to resolve properties
      * Order is required, `cause  there is at least one placeholder configurer in servlet context by default.
      * Order is necessary to resolve their conflicts
+     *
      * @return a created placeholder configurer
      */
     @Bean
