@@ -28,4 +28,6 @@ dependencies {
     implementation libraries.integration_clients
     implementation libraries.hibernate_validator
 
+    implementation libraries.aws_s3
+
 }

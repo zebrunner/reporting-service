@@ -1,5 +1,7 @@
 package com.zebrunner.reporting.service;
 
+import com.zebrunner.reporting.domain.properties.MailIntegrationRoutingProps;
+import com.zebrunner.reporting.domain.properties.MailRoutingProps;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
@@ -7,34 +9,39 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import java.util.UUID;
 
 @Configuration
+@EnableConfigurationProperties({MailRoutingProps.class, MailIntegrationRoutingProps.class})
 public class ExchangeConfig {
 
     private final String exchangeName;
-    private final RabbitTemplate rabbitTemplate;
 
     public ExchangeConfig(
             @Value("${spring.rabbitmq.template.exchange}") String exchangeName,
             RabbitTemplate rabbitTemplate
     ) {
         this.exchangeName = exchangeName;
-        this.rabbitTemplate = rabbitTemplate;
-    }
-
-    @PostConstruct
-    public void init() {
-        this.rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
     }
 
     @Bean
-    public DirectExchange eventsTopicExchange() {
+    public DirectExchange exchange() {
         return new DirectExchange(exchangeName, false, true);
+    }
+
+    @Bean
+    public DirectExchange mailExchange(MailRoutingProps props) {
+        return new DirectExchange(props.getExchangeName(), false, false);
+    }
+
+    @Bean
+    public DirectExchange mailIntegrationExchange(MailIntegrationRoutingProps props) {
+        return new DirectExchange(props.getExchangeName(), false, false);
     }
 
     /**
@@ -44,7 +51,17 @@ public class ExchangeConfig {
      */
     @Bean
     public Queue settingsQueue() {
-        return new Queue(generateQueueName("settingsQueue"), false, false, true);
+        return new Queue("settingsQueue", false, false, true);
+    }
+
+    @Bean
+    public Queue mailIntegrationsQueue(MailIntegrationRoutingProps props) {
+        return new Queue(props.getQueueName(), false);
+    }
+
+    @Bean
+    public Queue mailQueue(MailRoutingProps props) {
+        return new Queue(props.getQueueName(), false);
     }
 
     /**
@@ -67,7 +84,6 @@ public class ExchangeConfig {
         return new Queue("zbrEventsQueue", false, false, true);
     }
 
-
     @Bean
     public Queue zfrCallbacksQueue() {
         return new Queue("zfrCallbacksQueue", false, false, true);
@@ -76,6 +92,16 @@ public class ExchangeConfig {
     @Bean
     public Binding settingsBinding(DirectExchange exchange, Queue settingsQueue) {
         return BindingBuilder.bind(settingsQueue).to(exchange).with("settings");
+    }
+
+    @Bean
+    public Binding mailIntegrationsBinding(DirectExchange mailIntegrationExchange, Queue mailIntegrationsQueue, MailIntegrationRoutingProps props) {
+        return BindingBuilder.bind(mailIntegrationsQueue).to(mailIntegrationExchange).with(props.getKey());
+    }
+
+    @Bean
+    public Binding mailBinding(DirectExchange mailExchange, Queue mailQueue, MailRoutingProps props) {
+        return BindingBuilder.bind(mailQueue).to(mailExchange).with(props.getKey());
     }
 
     @Bean

@@ -18,6 +18,7 @@ import com.zebrunner.reporting.domain.dto.QueueTestRunParamsType;
 import com.zebrunner.reporting.domain.dto.TestRunStatistics;
 import com.zebrunner.reporting.domain.dto.filter.Subject;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
+import com.zebrunner.reporting.domain.properties.MailTemplateProps;
 import com.zebrunner.reporting.persistence.dao.mysql.application.TestRunMapper;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.FilterSearchCriteria;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
@@ -125,6 +126,9 @@ public class TestRunService implements ProjectReassignable {
 
     @Autowired
     private ObjectMapper mapper;
+
+    @Autowired
+    private MailTemplateProps props;
 
     public enum FailureCause {
         UNRECOGNIZED_FAILURE("UNRECOGNIZED FAILURE"),
@@ -784,7 +788,8 @@ public class TestRunService implements ProjectReassignable {
             String jiraUrl = getJiraUrl();
             email.setJiraURL(jiraUrl);
             email.setSuccessRate(calculateSuccessRate(testRun));
-            result = freemarkerUtil.getFreeMarkerTemplateContent(email.getType().getTemplateName(), email);
+
+            result = freemarkerUtil.processFreemarkerTemplateFromS3(props.getTestRunResult(), email);
         } else {
             LOGGER.error(String.format(ERR_MSG_TEST_RUN_NOT_FOUND, id));
         }

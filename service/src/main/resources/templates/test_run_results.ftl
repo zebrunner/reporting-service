@@ -138,7 +138,13 @@
                        text-align: left;
                        vertical-align:top;">
                 <td style="color: #808a93">Finished:</td>
-                <td style="font-weight: bold;color: #011627;">${testRun.modifiedAt?string["HH:mm yyyy.MM.dd"]}</td>
+                <td style="font-weight: bold;color: #011627;">
+                    <#if testRun.modifiedAt?is_number>
+                        ${testRun.modifiedAt?number_to_datetime?string["HH:mm yyyy.MM.dd"]}
+                    <#else>
+                        ${testRun.modifiedAt?string["HH:mm yyyy.MM.dd"]}
+                    </#if>
+                </td>
             </tr>
             <#if elapsed ??>
                 <tr style="font-size: 16px;

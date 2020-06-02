@@ -7,6 +7,8 @@ import com.zebrunner.reporting.domain.push.events.EmailEventMessage;
 import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.domain.push.events.TenancyResponseEventMessage;
 import com.zebrunner.reporting.service.InvitationService;
+import com.zebrunner.reporting.service.UserService;
+import com.zebrunner.reporting.service.integration.core.IntegrationTenancyStorage;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
 import org.apache.commons.lang3.StringUtils;
@@ -17,12 +19,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static com.zebrunner.reporting.service.util.EventPushService.Type.TENANCIES;
-import static com.zebrunner.reporting.service.util.EventPushService.Type.ZFR_CALLBACKS;
+import static com.zebrunner.reporting.service.util.EventPushService.Routing.TENANCIES;
+import static com.zebrunner.reporting.service.util.EventPushService.Routing.ZFR_CALLBACKS;
 
 @Component
 public class TenancyInitializer {
@@ -46,13 +44,11 @@ public class TenancyInitializer {
     @Autowired
     private EventPushService<EventMessage> eventPushService;
 
-    private final List<TenancyDbInitial> tenancyDbInitials;
-    private final List<TenancyInitial> tenancyInitials;
+    @Autowired
+    private UserService userService;
 
-    public TenancyInitializer(Map<String, TenancyDbInitial> tenancyDbInitials, Map<String, TenancyInitial> tenancyInitials) {
-        this.tenancyDbInitials = new ArrayList<>(tenancyDbInitials.values());
-        this.tenancyInitials = new ArrayList<>(tenancyInitials.values());
-    }
+    @Autowired
+    private IntegrationTenancyStorage integrationTenancyStorage;
 
     /**
      * RabbitMQ listener
@@ -103,7 +99,7 @@ public class TenancyInitializer {
     private boolean completeTenancyDBInitialization(String tenancy) {
         LOGGER.info("Tenancy '{}' DB initialization is started.", tenancy);
 
-        tenancyDbInitials.forEach(tenancyInitial -> initTenancyDb(tenancy, tenancyInitial));
+        initTenancyDb(tenancy);
         processMessage(tenancy, () -> scmAccountService.reEncryptTokens());
 
         boolean tenancyDBInitialized = eventPushService.convertAndSend(TENANCIES, new EventMessage(tenancy));
@@ -133,22 +129,18 @@ public class TenancyInitializer {
         });
     }
 
-    private void initTenancy(String tenancy) {
-        tenancyInitials.forEach(tenancyInitial -> initTenancy(tenancy, tenancyInitial));
-    }
-
     /**
      * Trigger to execute some task on tenancy creation
      * 
      * @param tenancy - to initialize
-     * @param tenancyInitial - task to execute
      */
-    private void initTenancy(String tenancy, TenancyInitial tenancyInitial) {
-        processMessage(tenancy, tenancyInitial::init);
+    private void initTenancy(String tenancy) {
+        processMessage(tenancy, () -> integrationTenancyStorage.initIntegrations());
     }
 
-    private void initTenancyDb(String tenancy, TenancyDbInitial tenancyInitial) {
-        processMessage(tenancy, tenancyInitial::initDb);
+    private void initTenancyDb(String tenancy) {
+        processMessage(tenancy, () -> userService.initAdmin());
+        processMessage(tenancy, () -> integrationTenancyStorage.onTenancyInitialization());
     }
 
     private void processMessage(String tenancy, Runnable runnable) {

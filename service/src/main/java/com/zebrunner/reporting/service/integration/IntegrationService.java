@@ -44,4 +44,6 @@ public interface IntegrationService {
 
     Integration update(Integration integration);
 
+    void notifyMailIntegrationInit(Long integrationId);
+
 }

@@ -47,6 +47,8 @@ subprojects {
     }
 
     dependencies {
+        implementation platform(libraries.aws_bom)
+
         annotationProcessor libraries.lombok
         compileOnly libraries.lombok
     }
