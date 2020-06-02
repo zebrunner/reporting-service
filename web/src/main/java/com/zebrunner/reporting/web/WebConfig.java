@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -76,7 +77,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
         MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-        jsonConverter.getSupportedMediaTypes().add(new MediaType("application/javascript"));
+
+        List<MediaType> mediaTypes = new ArrayList<>(jsonConverter.getSupportedMediaTypes());
+        mediaTypes.add(new MediaType("application", "javascript"));
+        jsonConverter.setSupportedMediaTypes(mediaTypes);
 
         return jsonConverter;
     }
