@@ -75,8 +75,8 @@ public class WebConfig implements WebMvcConfigurer {
     // the result of this handling cannot be converted to application/javascript, which leads to useless exceptions in logs.
     // hypothetically, this mappingJackson2HttpMessageConverter should help gracefully omit the error.
     @Bean
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter(objectMapper);
 
         List<MediaType> mediaTypes = new ArrayList<>(jsonConverter.getSupportedMediaTypes());
         mediaTypes.add(new MediaType("application", "javascript"));
