@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,15 +15,11 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @ConditionalOnProperty(name = "twitter.enabled", havingValue = "true")
 public class TwitterService {
 
-    private Twitter twitter;
-
-    public TwitterService(@Value("${twitter.consumer-key}") String consumerKey,
-                          @Value("${twitter.consumer-secret}") String consumerSecret) {
-        twitter = new TwitterTemplate(consumerKey, consumerSecret);
-    }
+    private final Twitter twitter;
 
     public List<Tweet> getUserTimeline(String userName, int pageSize) {
         return twitter.timelineOperations().getUserTimeline(userName, pageSize);

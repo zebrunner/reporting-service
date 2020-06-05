@@ -10,6 +10,7 @@ import com.zebrunner.reporting.service.TestService;
 import com.zebrunner.reporting.service.TwitterService;
 import com.zebrunner.reporting.web.documented.InvitationDocumentedController;
 import com.zebrunner.reporting.web.documented.SocialDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,11 +27,11 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/social", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 @ConditionalOnProperty(name = "twitter.enabled", havingValue = "true")
 public class SocialController extends AbstractController implements SocialDocumentedController {
 
-    @Autowired
-    private TwitterService twitterService;
+    private final TwitterService twitterService;
 
     @GetMapping("/twitter/timeline")
     @Override
