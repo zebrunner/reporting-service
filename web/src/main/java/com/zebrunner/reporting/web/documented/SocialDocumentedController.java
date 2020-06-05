@@ -27,7 +27,8 @@ public interface SocialDocumentedController {
     })
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns user tweets", response = List.class),
-            @ApiResponse(code = 400, message = "Indicates that the userName not specified", response = ErrorResponse.class)
+            @ApiResponse(code = 400, message = "Indicates that the userName not specified", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Indicates that twitter user not found", response = ErrorResponse.class)
     })
     List<Tweet> getUserTimeline(String userName, int pageSize);
 }
