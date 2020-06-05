@@ -15,6 +15,7 @@ ext {
         boot_starter_actuator: "org.springframework.boot:spring-boot-starter-actuator",
         spring_security_ldap : "org.springframework.security:spring-security-ldap",
         spring_test : "org.springframework:spring-test",
+        spring_twitter : "org.springframework.social:spring-social-twitter:1.1.2.RELEASE",
 
         persistence_core: [
             "org.postgresql:postgresql:42.2.4",
@@ -68,7 +69,7 @@ ext {
             "javax.xml.bind:jaxb-api:2.3.1",
             "org.glassfish.jaxb:jaxb-runtime:2.3.2"
         ],
-        
+
         lombok: "org.projectlombok:lombok",
 
         integration_clients: [

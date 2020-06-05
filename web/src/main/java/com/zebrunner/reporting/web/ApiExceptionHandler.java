@@ -59,6 +59,14 @@ public class ApiExceptionHandler {
         return response;
     }
 
+    @ExceptionHandler(org.springframework.social.ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleSocialResourceNotFoundException(org.springframework.social.ResourceNotFoundException e) {
+        ErrorResponse response = new ErrorResponse();
+        response.setError(new Error(ErrorCode.RESOURCE_NOT_FOUND, e.getMessage()));
+        return response;
+    }
+
     @ExceptionHandler(IllegalOperationException.class)
     public ResponseEntity<ErrorResponse> handleIllegalOperationException(IllegalOperationException e) {
         ResponseEntity<ErrorResponse> responseEntity;
@@ -226,5 +234,4 @@ public class ApiExceptionHandler {
         }
         return response;
     }
-
 }
