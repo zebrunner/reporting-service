@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.web.security.filter;
 
 import com.zebrunner.reporting.domain.db.User;
-import com.zebrunner.reporting.domain.dto.auth.JwtUserType;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
 import com.zebrunner.reporting.service.JWTService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -67,11 +67,6 @@ public class JwtTokenAuthenticationFilter extends GenericFilterBean {
              */
             User user = extractAndDecodeJwt(request);
 
-            if (user.getStatus().equals(User.Status.INACTIVE)) {
-                chain.doFilter(request, response);
-                return;
-            }
-
             Authentication auth = buildAuthenticationFromJwt(user, request);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -95,8 +90,8 @@ public class JwtTokenAuthenticationFilter extends GenericFilterBean {
     }
 
     private Authentication buildAuthenticationFromJwt(User user, HttpServletRequest request) {
-        JwtUserType userDetails = new JwtUserType(user.getId(), user.getUsername(), user.getGroups());
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(user.getId(), user.getUsername(), user.getPermissions());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         return authentication;
     }

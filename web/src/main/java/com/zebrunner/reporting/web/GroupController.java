@@ -29,14 +29,14 @@ public class GroupController extends AbstractController implements GroupDocument
         this.groupService = groupService;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USER_GROUPS')")
+    @PreAuthorize("hasPermission('MODIFY_USER_GROUPS')")
     @PostMapping()
     @Override
     public Group createGroup(@RequestBody Group group) {
         return groupService.createGroup(group);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USER_GROUPS')")
+    @PreAuthorize("hasPermission('MODIFY_USER_GROUPS')")
     @PostMapping("/permissions")
     @Override
     public Group addPermissionsToGroup(@RequestBody Group group) {
@@ -71,14 +71,14 @@ public class GroupController extends AbstractController implements GroupDocument
         return GroupService.getRoles();
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USER_GROUPS')")
+    @PreAuthorize("hasPermission('MODIFY_USER_GROUPS')")
     @PutMapping()
     @Override
     public Group updateGroup(@RequestBody Group group) {
         return groupService.updateGroup(group);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USER_GROUPS')")
+    @PreAuthorize("hasPermission('MODIFY_USER_GROUPS')")
     @DeleteMapping("/{id}")
     @Override
     public void deleteGroup(@PathVariable("id") long id) {

@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.web.security.expressions;
 
-import com.zebrunner.reporting.domain.dto.auth.JwtUserType;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
 import com.zebrunner.reporting.domain.dto.auth.UserGrantedAuthority;
 import org.springframework.security.core.Authentication;
 
@@ -37,7 +37,7 @@ public class UserPermissionEvaluator implements IUserPermissionEvaluator {
     @Override
     public boolean isOwner(Authentication authentication, Object targetDomainObject) {
         if (authentication != null && targetDomainObject instanceof Long) {
-            return ((JwtUserType) authentication.getPrincipal()).getId() == (Long) targetDomainObject;
+            return ((AuthenticatedUser) authentication.getPrincipal()).getId() == (Long) targetDomainObject;
         }
         return false;
     }

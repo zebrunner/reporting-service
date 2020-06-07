@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.web.security;
 
 import com.zebrunner.reporting.domain.db.User;
-import com.zebrunner.reporting.domain.dto.auth.JwtUserType;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
 import com.zebrunner.reporting.service.UserService;
 import com.zebrunner.reporting.service.exception.ForbiddenOperationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,6 +32,6 @@ public class UserPassAuthService implements UserDetailsService {
         } catch (Exception e) {
             throw new UsernameNotFoundException("User not found", e);
         }
-        return new JwtUserType(user.getId(), username, user.getPassword(), user.getGroups());
+        return new AuthenticatedUser(user.getId(), username, user.getPassword(), user.getPermissions());
     }
 }

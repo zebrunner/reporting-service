@@ -26,6 +26,7 @@ public class User extends AbstractEntity implements Comparable<User> {
     private String lastName;
     private String photoURL;
     private List<Group> groups = new ArrayList<>();
+    private Set<String> permissions = new HashSet<>();
     private List<UserPreference> preferences = new ArrayList<>();
     private Date lastLogin;
     private String tenant;
@@ -66,9 +67,16 @@ public class User extends AbstractEntity implements Comparable<User> {
         return new ArrayList<>(roles);
     }
 
-    public Set<Permission> getPermissions() {
-        return this.groups.stream().flatMap(group -> group.getPermissions().stream())
-                .collect(Collectors.toSet());
+    public Set<String> getPermissions() {
+        if (permissions.isEmpty()) {
+            return permissions;
+        } else {
+            return this.groups.stream()
+                              .flatMap(group -> group.getPermissions()
+                                                     .stream()
+                                                     .map(permission -> permission.getName().name()))
+                              .collect(Collectors.toSet());
+        }
     }
 
     public List<Group> getGrantedGroups() {

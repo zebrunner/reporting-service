@@ -2,7 +2,7 @@ package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.Permission;
-import com.zebrunner.reporting.domain.dto.auth.JwtUserType;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
 import com.zebrunner.reporting.domain.dto.auth.UserGrantedAuthority;
 import com.zebrunner.reporting.domain.push.AbstractPush;
 import com.zebrunner.reporting.service.exception.ForbiddenOperationException;
@@ -35,13 +35,13 @@ public abstract class AbstractController {
         return type.buildWebsocketPath(parameters);
     }
 
-    private JwtUserType getPrincipal() {
+    private AuthenticatedUser getPrincipal() {
         Object user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return user instanceof JwtUserType ? (JwtUserType) user : null;
+        return user instanceof AuthenticatedUser ? (AuthenticatedUser) user : null;
     }
 
     protected Long getPrincipalId() {
-        JwtUserType user = getPrincipal();
+        AuthenticatedUser user = getPrincipal();
         return user != null ? user.getId() : 0;
     }
 
