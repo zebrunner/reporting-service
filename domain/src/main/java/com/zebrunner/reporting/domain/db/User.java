@@ -68,7 +68,7 @@ public class User extends AbstractEntity implements Comparable<User> {
     }
 
     public Set<String> getPermissions() {
-        if (permissions.isEmpty()) {
+        if (!permissions.isEmpty()) {
             return permissions;
         } else {
             return this.groups.stream()
