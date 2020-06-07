@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,14 +62,20 @@ public class JWTService {
      *            - to parse
      * @return retrieved user details
      */
+    @SuppressWarnings("unchecked")
     public User parseAuthToken(String token) {
         Claims jwtBody = getTokenBody(token);
         User user = new User();
         Long userId = Long.valueOf(jwtBody.getSubject());
         user.setId(userId);
         user.setUsername(jwtBody.get("username", String.class));
-        List groupIds = (List) jwtBody.get("groupIds");
-        user.setGroups(retrieveUserGroups(groupIds));
+        List<String> permissions = (List<String>)jwtBody.get("permissions");
+        if (permissions != null) {
+            user.setPermissions(new HashSet<>(permissions));
+        } else {
+            List groupIds = (List) jwtBody.get("groupIds");
+            user.setGroups(retrieveUserGroups(groupIds));
+        }
         user.setStatus(userService.getUserByIdTrusted(userId).getStatus());
         user.setTenant(jwtBody.get("tenant", String.class));
         return user;

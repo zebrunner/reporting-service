@@ -80,7 +80,7 @@ public class UserController extends AbstractController implements UserDocumented
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_WIDGETS')")
+    @PreAuthorize("hasPermission('MODIFY_WIDGETS')")
     @Override
     public UserDTO create(@Valid @RequestBody UserDTO userDTO) {
         User user = mapper.map(userDTO, User.class);
@@ -121,7 +121,7 @@ public class UserController extends AbstractController implements UserDocumented
                 .getPassword(), forceUpdate);
     }
 
-    @PreAuthorize("#isPublic or (hasRole('ROLE_ADMIN') and hasAnyPermission('VIEW_USERS', 'MODIFY_USERS'))")
+    @PreAuthorize("#isPublic or (hasAnyPermission('VIEW_USERS', 'MODIFY_USERS'))")
     @PostMapping("/search")
     @Override
     public SearchResult<User> searchUsers(
@@ -131,7 +131,7 @@ public class UserController extends AbstractController implements UserDocumented
         return userService.searchUsers(searchCriteria, isPublic);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USERS')")
+    @PreAuthorize("hasPermission('MODIFY_USERS')")
     @PutMapping("/status")
     @Override
     public UserDTO updateStatus(@RequestBody @Valid UserDTO userDTO) {
@@ -140,14 +140,14 @@ public class UserController extends AbstractController implements UserDocumented
         return mapper.map(user, UserDTO.class);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USER_GROUPS')")
+    @PreAuthorize("hasPermission('MODIFY_USER_GROUPS')")
     @PutMapping("/group/{id}")
     @Override
     public User addUserToGroup(@RequestBody User user, @PathVariable("id") long id) {
         return userService.addUserToGroup(user, id);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USER_GROUPS')")
+    @PreAuthorize("hasPermission('MODIFY_USER_GROUPS')")
     @DeleteMapping("/{userId}/group/{groupId}")
     @Override
     public void deleteUserFromGroup(@PathVariable("groupId") long groupId, @PathVariable("userId") long userId) {

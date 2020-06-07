@@ -37,7 +37,7 @@ public class InvitationController extends AbstractController implements Invitati
         this.mapper = mapper;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('INVITE_USERS')")
+    @PreAuthorize("hasPermission('INVITE_USERS')")
     @PostMapping()
     @Override
     public List<Invitation> inviteUsers(@Valid @RequestBody InvitationListType invitationList) {
@@ -48,7 +48,7 @@ public class InvitationController extends AbstractController implements Invitati
         return invitationService.createInvitations(getPrincipalId(), invitations);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('INVITE_USERS')")
+    @PreAuthorize("hasPermission('INVITE_USERS')")
     @PostMapping("/retry")
     @Override
     public Invitation retryInviteUser(@Valid @RequestBody InvitationType invitation) {
@@ -62,14 +62,14 @@ public class InvitationController extends AbstractController implements Invitati
         return mapper.map(invitation, InvitationType.class);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAnyPermission('INVITE_USERS', 'MODIFY_INVITATIONS')")
+    @PreAuthorize("hasAnyPermission('INVITE_USERS', 'MODIFY_INVITATIONS')")
     @GetMapping("/all")
     @Override
     public List<Invitation> getAllInvitations() {
         return invitationService.getAllInvitations();
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAnyPermission('INVITE_USERS', 'MODIFY_INVITATIONS')")
+    @PreAuthorize("hasAnyPermission('INVITE_USERS', 'MODIFY_INVITATIONS')")
     @GetMapping(value = "/search")
     @Override
     public SearchResult<Invitation> search(
@@ -83,7 +83,7 @@ public class InvitationController extends AbstractController implements Invitati
         return invitationService.search(sc);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_INVITATIONS')")
+    @PreAuthorize("hasPermission('MODIFY_INVITATIONS')")
     @DeleteMapping("/{idOrEmail}")
     @Override
     public void deleteInvitation(@PathVariable("idOrEmail") String idOrEmail) {

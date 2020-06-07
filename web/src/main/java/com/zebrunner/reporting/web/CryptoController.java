@@ -20,7 +20,7 @@ public class CryptoController extends AbstractController implements CryptoDocume
         this.cryptoService = cryptoService;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_INTEGRATIONS')")
+    @PreAuthorize("hasPermission('MODIFY_INTEGRATIONS')")
     @PutMapping("/cryptokey")
     @Override
     public void regenerateCryptoKey() {

@@ -39,7 +39,7 @@ public class IntegrationController extends AbstractController implements Integra
         this.mapper = mapper;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_INTEGRATIONS')")
+    @PreAuthorize("hasPermission('MODIFY_INTEGRATIONS')")
     @PostMapping()
     @Override
     public IntegrationDTO create(@RequestBody @Valid IntegrationDTO integrationDTO, @RequestParam("integrationTypeId") Long integrationTypeId) {
@@ -91,7 +91,7 @@ public class IntegrationController extends AbstractController implements Integra
                                      .orElse(null);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_INTEGRATIONS')")
+    @PreAuthorize("hasPermission('MODIFY_INTEGRATIONS')")
     @PutMapping("/{id}")
     @Override
     public IntegrationDTO update(@RequestBody IntegrationDTO integrationDTO, @PathVariable("id") Long id) {

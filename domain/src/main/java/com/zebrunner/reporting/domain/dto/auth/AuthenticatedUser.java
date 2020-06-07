@@ -1,19 +1,13 @@
 package com.zebrunner.reporting.domain.dto.auth;
 
-import com.zebrunner.reporting.domain.db.Group;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * All user information handled by the JWT token
- */
-public class JwtUserType implements UserDetails {
-    private static final long serialVersionUID = 2105145272583220476L;
+public class AuthenticatedUser implements UserDetails {
 
     private long id;
 
@@ -21,27 +15,25 @@ public class JwtUserType implements UserDetails {
 
     private String password;
 
-    private List<GrantedAuthority> authorities;
+    private Set<String> permissions;
 
-    public JwtUserType(long id, String username, List<Group> groups) {
+    public AuthenticatedUser(long id, String username, Set<String> permissions) {
         this.id = id;
         this.username = username;
-        this.authorities = groups.stream().map(group -> new UserGrantedAuthority(group.getRole().name(), group.getPermissionNames()))
-                .collect(Collectors.toList());
-        // TODO: removed when default role populated for all
-        if (this.authorities.isEmpty()) {
-            this.authorities.add(new UserGrantedAuthority("ROLE_USER", new HashSet<>()));
-        }
+        this.permissions = permissions;
+
     }
 
-    public JwtUserType(long id, String username, String password, List<Group> groups) {
-        this(id, username, groups);
+    public AuthenticatedUser(long id, String username, String password, Set<String> permissions) {
+        this(id, username, permissions);
         this.password = password;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return permissions.stream()
+                          .map(permission -> (GrantedAuthority) () -> permission)
+                          .collect(Collectors.toSet());
     }
 
     @Override

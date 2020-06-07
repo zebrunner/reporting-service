@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.web.security.ldap;
 
 import com.zebrunner.reporting.domain.db.User;
-import com.zebrunner.reporting.domain.dto.auth.JwtUserType;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
 import com.zebrunner.reporting.service.UserService;
 import com.zebrunner.reporting.service.exception.ForbiddenOperationException;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
             LOGGER.warn(String.format(WRN_MSG_NON_EXISTING_USER, username));
             throw new ForbiddenOperationException(String.format(MSG_ILLEGAL_USER_LOGIN, username));
         } else {
-            return new JwtUserType(user.getId(), username, user.getPassword(), user.getGroups());
+            return new AuthenticatedUser(user.getId(), username, user.getPassword(), user.getPermissions());
         }
     }
 

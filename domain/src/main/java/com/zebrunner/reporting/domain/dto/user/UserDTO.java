@@ -47,7 +47,7 @@ public class UserDTO extends AbstractType {
     private String password;
     private String photoURL;
     private List<Group.Role> roles = new ArrayList<>();
-    private Set<Permission> permissions = new HashSet<>();
+    private Set<String> permissions = new HashSet<>();
     private List<UserPreference> preferences = new ArrayList<>();
     private Date lastLogin;
     private User.Source source;
