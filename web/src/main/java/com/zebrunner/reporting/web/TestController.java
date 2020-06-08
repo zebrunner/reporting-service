@@ -1,7 +1,9 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.db.Status;
+import com.zebrunner.reporting.domain.db.TestResult;
 import com.zebrunner.reporting.domain.db.workitem.WorkItemBatch;
+import com.zebrunner.reporting.domain.dto.TestResultDTO;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSearchCriteria;
 import com.zebrunner.reporting.domain.db.Test;
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -168,6 +171,16 @@ public class TestController extends AbstractController implements TestDocumented
     @Override
     public SearchResult<Test> searchTests(@RequestBody TestSearchCriteria sc) {
         return testService.searchTests(sc);
+    }
+
+    @GetMapping("/{id}/history")
+    @Override
+    public List<TestResultDTO> getTestResultsById(@PathVariable("id") Long id,
+                                                  @RequestParam("limit") Long limit) {
+        List<TestResult> results = testService.getLatestTestResultsByTestId(id, limit);
+        return results.stream()
+                      .map(stability -> mapper.map(stability, TestResultDTO.class))
+                      .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}/workitem/{type}")

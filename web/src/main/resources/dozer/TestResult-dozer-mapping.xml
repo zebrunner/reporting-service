@@ -12,8 +12,16 @@
             <b>testId</b>
         </field>
         <field>
+            <a>testRunId</a>
+            <b>testRunId</b>
+        </field>
+        <field>
             <a>status</a>
             <b>status</b>
+        </field>
+        <field copy-by-reference="true">
+            <a>startTime</a>
+            <b>startTime</b>
         </field>
         <field>
             <a>elapsed</a>

@@ -37,7 +37,8 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/auth/signup",
             "/api/auth/password/**",
             "/api/launchers/hooks/*",
-            "/api/integrations-info/public"
+            "/api/integrations-info/public",
+            "/api/social/**"
     };
 
     private static final String[] AUTHENTICATED_API_PATTERNS = new String[] {
