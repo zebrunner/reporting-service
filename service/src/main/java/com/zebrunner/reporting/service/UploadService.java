@@ -2,8 +2,8 @@ package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.domain.dto.aws.FileUploadType;
 import com.zebrunner.reporting.service.exception.ProcessingException;
-import com.zebrunner.reporting.service.integration.tool.impl.StorageProviderService;
 import com.zebrunner.reporting.service.util.URLResolver;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,23 +16,18 @@ import java.nio.file.Paths;
 import static com.zebrunner.reporting.service.exception.ProcessingException.ProcessingErrorDetail.UNPROCESSABLE_DOCUMENT;
 
 @Service
+@RequiredArgsConstructor
 public class UploadService {
 
     private final static String ASSETS_ROOT = "/opt";
     private final static String ASSETS_DIRECTORY = "/assets/";
     private final static String ASSETS_LOCATION = ASSETS_ROOT + ASSETS_DIRECTORY;
 
-    private final StorageProviderService storageProviderService;
+    private final StorageService storageService;
     private final URLResolver urlResolver;
 
     @Value("${service.multitenant}")
     private boolean multitenant;
-
-
-    public UploadService(StorageProviderService storageProviderService, URLResolver urlResolver) {
-        this.storageProviderService = storageProviderService;
-        this.urlResolver = urlResolver;
-    }
 
     /**
      * Uploads artifacts like screenshots or video to to S3 bucket.
@@ -40,12 +35,12 @@ public class UploadService {
      * @return url single-attribute JSON containing document url to be returned to REST API client invoking this API
      */
     public String uploadArtifact(FileUploadType.Type type, InputStream inputStream, String filename, long fileSize) {
-        String resourceUrl = storageProviderService.saveFile(new FileUploadType(inputStream, type, filename, fileSize));
+        String resourceUrl = storageService.saveObject(new FileUploadType(inputStream, type, filename, fileSize));
         return String.format("{\"url\": \"%s\"}", resourceUrl);
     }
 
     public void removeArtifact(String key) {
-        storageProviderService.removeFile(key);
+        storageService.removeObject(key);
     }
 
     /**
