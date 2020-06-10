@@ -8,12 +8,16 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.StsClientBuilder;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
@@ -43,15 +47,29 @@ public class ServiceConfig {
 
     @Bean
     public S3Client s3Client(S3Properties props, AwsCredentialsProvider credentialsProvider) {
-        return S3Client.builder()
-                       .credentialsProvider(credentialsProvider)
-                       .region(Region.of(props.getRegion()))
-                       .build();
+        S3ClientBuilder clientBuilder = S3Client.builder()
+                                                .credentialsProvider(credentialsProvider)
+                                                .region(Region.of(props.getRegion()));
+
+        String endpoint = props.getEndpoint();
+        if (!StringUtils.isEmpty(endpoint)) {
+            clientBuilder.endpointOverride(URI.create(endpoint));
+        }
+
+        return clientBuilder.build();
     }
 
     @Bean
-    public StsClient stsClient(AwsCredentialsProvider credentialsProvider) {
-        return StsClient.builder().credentialsProvider(credentialsProvider).build();
+    public StsClient stsClient(S3Properties props, AwsCredentialsProvider credentialsProvider) {
+        StsClientBuilder clientBuilder = StsClient.builder()
+                                            .credentialsProvider(credentialsProvider)
+                                            .region(Region.of(props.getRegion()));
+
+        String endpoint = props.getEndpoint();
+        if (!StringUtils.isEmpty(endpoint)) {
+            clientBuilder.endpointOverride(URI.create(endpoint));
+        }
+        return clientBuilder.build();
     }
 
 }
