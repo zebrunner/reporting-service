@@ -732,13 +732,13 @@ public class TestRunService implements ProjectReassignable {
     @Transactional(readOnly = true)
     public String sendTestRunResultsEmailFailure(String id, boolean toSuiteOwner, boolean toSuiteRunner, String[] recipients) {
         if (toSuiteOwner) {
-            Long testSuiteId = getTestRunByCiRunIdFull(id).getTestSuite().getId();
-            String suiteOwnerEmail = testSuiteService.getTestSuiteByIdFull(testSuiteId).getUser().getEmail();
-            ArrayUtils.add(recipients, suiteOwnerEmail);
+//            Long testSuiteId = getTestRunByCiRunIdFull(id).getTestSuite().getId();
+//            String suiteOwnerEmail = testSuiteService.getTestSuiteByIdFull(testSuiteId).getUser().getEmail();
+//            ArrayUtils.add(recipients, suiteOwnerEmail);
         }
         if (toSuiteRunner) {
-            String suiteRunnerEmail = getTestRunByCiRunIdFull(id).getUser().getEmail();
-            ArrayUtils.add(recipients, suiteRunnerEmail);
+//            String suiteRunnerEmail = getTestRunByCiRunIdFull(id).getUser().getEmail();
+//            ArrayUtils.add(recipients, suiteRunnerEmail);
         }
 
         return sendTestRunResultsEmail(id, false, true, recipients);

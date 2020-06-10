@@ -248,7 +248,7 @@ public class LauncherService {
 
     @Transactional(readOnly = true)
     public String buildLauncherJob(Launcher launcher, Long userId, Long providerId) throws IOException {
-        User user = userService.getNotNullUserById(userId);
+        User user = userService.getNotNullById(userId);
         Long scmAccountId = launcher.getScmAccount().getId();
         ScmAccount scmAccount = scmAccountService.getScmAccountById(scmAccountId);
         Job job = launcher.getJob();
@@ -306,7 +306,7 @@ public class LauncherService {
     @Transactional
     public String buildLauncherJobByPresetRef(String ref, String callbackUrl, Long userId) throws IOException {
         if (userId == 0) {
-            User anonymous = userService.getDefaultUser();
+            User anonymous = userService.getDefault();
             userId = anonymous.getId();
         }
         Launcher launcher = retrieveByPresetReference(ref);
@@ -327,7 +327,7 @@ public class LauncherService {
     @Transactional(readOnly = true)
     public JobResult buildScannerJob(Long userId, String branch, long scmAccountId, boolean rescan, Long automationServerId) {
         ScmAccount scmAccount = scmAccountService.getScmAccountById(scmAccountId);
-        User user = userService.getNotNullUserById(userId);
+        User user = userService.getNotNullById(userId);
         Map<String, String> jobParameters = buildScannerJobParametersMap(automationServerId, user, branch, scmAccount);
         return automationServerService.buildScannerJob(scmAccount.getRepositoryName(), jobParameters, rescan, automationServerId);
     }
@@ -394,7 +394,7 @@ public class LauncherService {
             throw new ResourceNotFoundException(LAUNCHER_NOT_FOUND, String.format("Unable to locate launcher with id '%d'", id));
         }
 
-        boolean userExists = userService.isExistById(userId);
+        boolean userExists = userService.existById(userId);
         if (!userExists) {
             throw new ResourceNotFoundException(USER_NOT_FOUND, ERR_MSG_USER_WITH_THIS_ID_DOES_NOT_EXIST, id);
         }

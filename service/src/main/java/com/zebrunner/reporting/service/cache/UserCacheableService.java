@@ -8,10 +8,4 @@ public interface UserCacheableService {
 
     User updateUser(User user);
 
-    User updateStatus(User user);
-
-    User addUserToGroup(User user, long groupId);
-
-    User deleteUserFromGroup(long groupId, long userId);
-
 }

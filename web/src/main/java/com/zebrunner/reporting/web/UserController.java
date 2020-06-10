@@ -1,6 +1,5 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.domain.db.Permission;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.db.UserPreference;
 import com.zebrunner.reporting.domain.dto.UserPreferenceDTO;
@@ -50,114 +49,10 @@ public class UserController extends AbstractController implements UserDocumented
         this.mapper = mapper;
     }
 
-    @GetMapping("/profile")
-    @Override
-    public UserDTO getUserProfile(@RequestParam(value = "username", required = false) String username) {
-        User user = StringUtils.isEmpty(username) ? userService.getNotNullUserById(getPrincipalId())
-                : userService.getNotNullUserByUsername(username);
-        UserDTO userDTO = mapper.map(user, UserDTO.class);
-        userDTO.setRoles(user.getRoles());
-        userDTO.setPreferences(user.getPreferences());
-        userDTO.setPermissions(user.getPermissions());
-        return userDTO;
-    }
-
-    @GetMapping("/profile/extended")
-    @Override
-    public Map<String, Object> getExtendedUserProfile() {
-        Map<String, Object> extendedUserProfile = new HashMap<>();
-        User user = userService.getUserById(getPrincipalId());
-        UserDTO userDTO = mapper.map(user, UserDTO.class);
-        userDTO.setRoles(user.getRoles());
-        userDTO.setPreferences(user.getPreferences());
-        userDTO.setPermissions(user.getPermissions());
-        extendedUserProfile.put("user", userDTO);
-        dashboardService.setDefaultDashboard(extendedUserProfile, "", "defaultDashboardId");
-        dashboardService.setDefaultDashboard(extendedUserProfile, "User Performance", "performanceDashboardId");
-        dashboardService.setDefaultDashboard(extendedUserProfile, "Personal", "personalDashboardId");
-        dashboardService.setDefaultDashboard(extendedUserProfile, "Stability", "stabilityDashboardId");
-        return extendedUserProfile;
-    }
-
-    @PostMapping
-    @PreAuthorize("hasPermission('MODIFY_WIDGETS')")
-    @Override
-    public UserDTO create(@Valid @RequestBody UserDTO userDTO) {
-        User user = mapper.map(userDTO, User.class);
-
-        user = userService.create(user, null);
-
-        userDTO = mapper.map(user, UserDTO.class);
-        return userDTO;
-    }
-
-    @PutMapping("/{id}")
-    @Override
-    public UserDTO update(@Valid @RequestBody UserDTO userDTO, @PathVariable("id") Long id) {
-        checkCurrentUserAccess(id);
-
-        User user = mapper.map(userDTO, User.class);
-        user.setId(id);
-
-        boolean fullUpdate = isAdmin() && hasPermission(Permission.Name.MODIFY_USERS);
-        if (fullUpdate) {
-            user = userService.update(user);
-        } else {
-            user = userService.updateUserProfile(user);
-        }
-
-        userDTO = mapper.map(user, UserDTO.class);
-        userDTO.setRoles(userDTO.getRoles());
-        userDTO.setPreferences(userDTO.getPreferences());
-        return userDTO;
-    }
-
-    @PutMapping("/password")
-    @Override
-    public void updateUserPassword(@Valid @RequestBody ChangePasswordDTO password) {
-        checkCurrentUserAccess(password.getUserId());
-        boolean forceUpdate = isAdmin() && password.getOldPassword() == null;
-        userService.updateUserPassword(password.getUserId(), password.getOldPassword(), password
-                .getPassword(), forceUpdate);
-    }
-
-    @PreAuthorize("#isPublic or (hasAnyPermission('VIEW_USERS', 'MODIFY_USERS'))")
-    @PostMapping("/search")
-    @Override
-    public SearchResult<User> searchUsers(
-            @Valid @RequestBody UserSearchCriteria searchCriteria,
-            @RequestParam(value = "public", required = false) boolean isPublic
-    ) {
-        return userService.searchUsers(searchCriteria, isPublic);
-    }
-
-    @PreAuthorize("hasPermission('MODIFY_USERS')")
-    @PutMapping("/status")
-    @Override
-    public UserDTO updateStatus(@RequestBody @Valid UserDTO userDTO) {
-        User user = mapper.map(userDTO, User.class);
-        user = userService.updateStatus(user);
-        return mapper.map(user, UserDTO.class);
-    }
-
-    @PreAuthorize("hasPermission('MODIFY_USER_GROUPS')")
-    @PutMapping("/group/{id}")
-    @Override
-    public User addUserToGroup(@RequestBody User user, @PathVariable("id") long id) {
-        return userService.addUserToGroup(user, id);
-    }
-
-    @PreAuthorize("hasPermission('MODIFY_USER_GROUPS')")
-    @DeleteMapping("/{userId}/group/{groupId}")
-    @Override
-    public void deleteUserFromGroup(@PathVariable("groupId") long groupId, @PathVariable("userId") long userId) {
-        userService.deleteUserFromGroup(groupId, userId);
-    }
-
     @GetMapping("/preferences")
     @Override
     public List<UserPreference> getDefaultUserPreferences() {
-        User user = userService.getDefaultUser();
+        User user = userService.getDefault();
         return userPreferenceService.getAllUserPreferences(user.getId());
     }
 

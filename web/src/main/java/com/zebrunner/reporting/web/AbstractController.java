@@ -1,11 +1,9 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
-import com.zebrunner.reporting.domain.db.Permission;
 import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
-import com.zebrunner.reporting.domain.dto.auth.UserGrantedAuthority;
 import com.zebrunner.reporting.domain.push.AbstractPush;
-import com.zebrunner.reporting.service.exception.ForbiddenOperationException;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -55,16 +53,13 @@ public abstract class AbstractController {
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    protected boolean hasPermission(Permission.Name name) {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .flatMap(grantedAuthority -> ((UserGrantedAuthority) grantedAuthority).getPermissions().stream())
-                .anyMatch(permission -> permission.equalsIgnoreCase(name.name()));
-    }
-
-    protected void checkCurrentUserAccess(long userId) throws ForbiddenOperationException {
-        if (!isAdmin() && userId != getPrincipalId()) {
-            throw new ForbiddenOperationException();
+    protected boolean hasPermission(String permission) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof AuthenticatedUser) {
+            return authentication.getAuthorities().stream()
+                                 .flatMap(grantedAuthority -> ((AuthenticatedUser) authentication.getPrincipal()).getPermissions().stream())
+                                 .anyMatch(p -> p.equalsIgnoreCase(permission));
         }
+        return false;
     }
-
 }
