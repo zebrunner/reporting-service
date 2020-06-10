@@ -758,11 +758,6 @@ public class TestService {
         deleteTestWorkItemByWorkItemIdAndTest(workItemId, test);
     }
 
-    @Transactional(readOnly = true)
-    public Set<Long> getExistingIds(Set<Long> ids) {
-        return testMapper.findExistingIds(ids);
-    }
-
     public int getTestMessageHashCode(String message) {
         int hashCode = 0;
         if (message != null) {

@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -102,42 +101,22 @@ public class ApiExceptionHandler {
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 
             for (FieldError fieldError : fieldErrors) {
-                Error error = buildError(fieldError.getField(), fieldError.getDefaultMessage(), fieldError.getRejectedValue());
+                Error error = new Error(ErrorCode.INVALID_VALUE, fieldError.getField(), fieldError.getDefaultMessage());
+
+                Object rejectedValue = fieldError.getRejectedValue();
+
+                if ((rejectedValue instanceof String) || (rejectedValue instanceof Number)) {
+                    AdditionalErrorData additionalErrorData = new AdditionalErrorData();
+
+                    additionalErrorData.setValue(rejectedValue);
+                    error.setAdditional(additionalErrorData);
+                }
+
                 response.getValidationErrors().add(error);
             }
         }
 
         return response;
-    }
-
-    /**
-     * Handles javax validation exception
-     */
-    @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
-        ErrorResponse response = new ErrorResponse();
-        response.setError(new Error(ErrorCode.VALIDATION_ERROR));
-
-        e.getConstraintViolations().forEach(violation -> {
-            Error error = buildError(violation.getPropertyPath().toString(), violation.getMessage(), violation.getInvalidValue());
-            response.getValidationErrors().add(error);
-        });
-
-        return response;
-    }
-
-    private Error buildError(String fieldName, String message, Object rejectedValue) {
-        Error error = new Error(ErrorCode.INVALID_VALUE, fieldName, message);
-
-        if ((rejectedValue instanceof String) || (rejectedValue instanceof Number)) {
-            AdditionalErrorData additionalErrorData = new AdditionalErrorData();
-
-            additionalErrorData.setValue(rejectedValue);
-            error.setAdditional(additionalErrorData);
-        }
-
-        return error;
     }
 
     @ExceptionHandler(AuthException.class)
