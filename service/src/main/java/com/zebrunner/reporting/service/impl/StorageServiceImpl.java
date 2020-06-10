@@ -1,14 +1,12 @@
 package com.zebrunner.reporting.service.impl;
 
-import com.zebrunner.reporting.domain.dto.aws.FileUploadType;
+import com.zebrunner.reporting.domain.dto.BinaryObject;
 import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.S3Properties;
 import com.zebrunner.reporting.service.StorageService;
-import com.zebrunner.reporting.service.util.URLResolver;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -18,6 +16,8 @@ import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.Credentials;
 import software.amazon.awssdk.services.sts.model.GetSessionTokenResponse;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class StorageServiceImpl implements StorageService {
@@ -25,32 +25,18 @@ public class StorageServiceImpl implements StorageService {
     private final S3Client s3Client;
     private final StsClient stsClient;
     private final S3Properties s3Properties;
-    private final URLResolver urlResolver;
-
-    @Value("${service.multitenant}")
-    private boolean multitenant;
 
     @Value("${amazon-token-expiration}")
     private Integer expiresInSec;
 
     @Override
-    public String saveObject(FileUploadType file) {
-        String relativePath = getFileKey(file);
-        String key = TenancyContext.getTenantName() + relativePath;
-
-        ObjectCannedACL acl = multitenant ? ObjectCannedACL.PRIVATE : ObjectCannedACL.PUBLIC_READ;
-
+    public String save(BinaryObject binaryObject) {
+        String key = buildObjectKey(binaryObject);
         s3Client.putObject(
-                rb -> rb.bucket(s3Properties.getBucket()).key(key).acl(acl).build(),
-                RequestBody.fromInputStream(file.getInputStream(), file.getFileSize())
+                rb -> rb.bucket(s3Properties.getBucket()).key(key).acl(ObjectCannedACL.PRIVATE).build(),
+                RequestBody.fromInputStream(binaryObject.getData(), binaryObject.getSize())
         );
-
-        return urlResolver.getServiceURL();
-    }
-
-    private String getFileKey(FileUploadType file) {
-        return file.getType().getPath() + "/" + RandomStringUtils.randomAlphanumeric(20) + "." +
-                FilenameUtils.getExtension(file.getFileName());
+        return key;
     }
 
     @Override
@@ -68,6 +54,36 @@ public class StorageServiceImpl implements StorageService {
                                  .region(s3Properties.getRegion())
                                  .sessionToken(credentials.sessionToken())
                                  .build();
+    }
+
+    private String buildObjectKey(BinaryObject binaryObject) {
+        String name = UUID.randomUUID().toString();
+        return TenancyContext.getTenantName() + "/"
+                + getKeyPrefix(binaryObject.getType()) + "/"
+                + name + "."
+                + FilenameUtils.getExtension(binaryObject.getName());
+    }
+
+    private String getKeyPrefix(BinaryObject.Type type) {
+        String prefix = "";
+        switch (type) {
+            case ORG_ASSET:
+                prefix = "org-assets";
+                break;
+            case USER_ASSET:
+                prefix = "user-assets";
+                break;
+            case VIDEO:
+                prefix = "artifacts/videos";
+                break;
+            case SCREENSHOT:
+                prefix = "artifacts/screenshots";
+                break;
+            case APP_PACKAGE:
+                prefix = "artifacts/applications";
+                break;
+        }
+        return prefix;
     }
 
 }

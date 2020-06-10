@@ -1,11 +1,13 @@
 package com.zebrunner.reporting.web;
 
+import com.zebrunner.reporting.domain.dto.BinaryObject;
 import com.zebrunner.reporting.domain.dto.EmailType;
+import com.zebrunner.reporting.domain.dto.aws.FileUploadType;
 import com.zebrunner.reporting.service.EmailService;
-import com.zebrunner.reporting.service.UploadService;
+import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.web.documented.FileUtilDocumentedController;
-import com.zebrunner.reporting.domain.dto.aws.FileUploadType;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +34,7 @@ import java.util.UUID;
 @CrossOrigin
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class FileUtilController extends AbstractController implements FileUtilDocumentedController {
 
     private static final String DATA_FOLDER = "/opt/apk/%s";
@@ -42,18 +45,8 @@ public class FileUtilController extends AbstractController implements FileUtilDo
     private static final long MAX_APP_PACKAGE_SIZE = 100 * 1024 * 1024;
 
     private final EmailService emailService;
-    private final UploadService uploadService;
+    private final StorageService storageService;
     private final ServletContext context;
-
-    public FileUtilController(
-            EmailService emailService,
-            UploadService uploadService,
-            ServletContext context
-    ) {
-        this.emailService = emailService;
-        this.uploadService = uploadService;
-        this.context = context;
-    }
 
     @PostMapping("api/upload")
     @Override
@@ -64,13 +57,29 @@ public class FileUtilController extends AbstractController implements FileUtilDo
             if (file.getSize() > MAX_IMAGE_SIZE || !ArrayUtils.contains(ALLOWED_IMAGE_CONTENT_TYPES, file.getContentType())) {
                 throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File size should be less than 2MB and have format JPEG or PNG");
             }
-            resourceURL = uploadService.uploadImage(type, file.getInputStream(), file.getOriginalFilename(), file.getSize());
+
+            // TODO by nsidorevich on 6/10/20: types should be remapped
+            BinaryObject.Type objectType = FileUploadType.Type.COMMON.equals(type) ? BinaryObject.Type.ORG_ASSET : BinaryObject.Type.USER_ASSET;
+            BinaryObject binaryObject = BinaryObject.builder()
+                                                    .type(objectType)
+                                                    .data(file.getInputStream())
+                                                    .name(file.getOriginalFilename())
+                                                    .size(file.getSize())
+                                                    .build();
+            // TODO by nsidorevich on 6/10/20: this is only a key, not a full url
+            resourceURL = storageService.save(binaryObject);
         } else {
             String extension = FilenameUtils.getExtension(file.getOriginalFilename());
             if (ArrayUtils.contains(APP_EXTENSIONS, extension) && file.getSize() > MAX_APP_PACKAGE_SIZE) {
                 throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File size should be less than 100MB and have format APP, IPA or APK");
             }
-            resourceURL = uploadService.uploadArtifact(type, file.getInputStream(), file.getOriginalFilename(), file.getSize());
+            BinaryObject binaryObject = BinaryObject.builder()
+                                                    .type(BinaryObject.Type.APP_PACKAGE)
+                                                    .data(file.getInputStream())
+                                                    .name(file.getOriginalFilename())
+                                                    .size(file.getSize())
+                                                    .build();
+            resourceURL = storageService.save(binaryObject);
         }
         return resourceURL;
     }
@@ -78,11 +87,7 @@ public class FileUtilController extends AbstractController implements FileUtilDo
     @DeleteMapping("api/file")
     @Override
     public void deleteFile(@RequestHeader("FileType") FileUploadType.Type type, @RequestParam("key") String key) {
-        if (FileUploadType.Type.COMMON.equals(type) || FileUploadType.Type.USERS.equals(type)) {
-            uploadService.removeImage(key);
-        } else {
-            uploadService.removeArtifact(key);
-        }
+        storageService.removeObject(key);
     }
 
 

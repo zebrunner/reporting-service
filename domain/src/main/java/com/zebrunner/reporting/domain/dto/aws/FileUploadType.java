@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.io.InputStream;
 
+// TODO by nsidorevich on 6/10/20: this needs to be gone
 @Getter
 @Setter
 @AllArgsConstructor
