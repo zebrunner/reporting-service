@@ -2,7 +2,6 @@ package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.db.Attribute;
 import com.zebrunner.reporting.domain.db.Dashboard;
-import com.zebrunner.reporting.domain.db.Permission;
 import com.zebrunner.reporting.domain.db.Widget;
 import com.zebrunner.reporting.domain.dto.DashboardType;
 import com.zebrunner.reporting.service.DashboardService;
@@ -59,7 +58,7 @@ public class DashboardController extends AbstractController implements Dashboard
     @Override
     public List<DashboardType> getAllDashboards(@RequestParam(value = "hidden", required = false) boolean hidden) {
         List<Dashboard> dashboards;
-        if (!hidden && hasPermission(Permission.Name.VIEW_HIDDEN_DASHBOARDS)) {
+        if (!hidden && hasPermission("VIEW_HIDDEN_DASHBOARDS")) {
             dashboards = dashboardService.retrieveAll();
         } else {
             dashboards = dashboardService.retrieveByVisibility(false);
@@ -74,7 +73,7 @@ public class DashboardController extends AbstractController implements Dashboard
     @Override
     public DashboardType getDashboardById(@PathVariable("id") long id) {
         Dashboard dashboard = dashboardService.getDashboardById(id);
-        boolean rejectResource = !dashboard.isSystem() && dashboard.isHidden() && !hasPermission(Permission.Name.VIEW_HIDDEN_DASHBOARDS);
+        boolean rejectResource = !dashboard.isSystem() && dashboard.isHidden() && !hasPermission("VIEW_HIDDEN_DASHBOARDS");
         if (rejectResource) {
             throw new ResourceNotFoundException(ResourceNotFoundException.ResourceNotFoundErrorDetail.DASHBOARD_NOT_FOUND, String.format(ERR_MSG_ILLEGAL_DASHBOARD_ACCESS_BY_ID, id));
         }
@@ -86,7 +85,7 @@ public class DashboardController extends AbstractController implements Dashboard
     @Override
     public DashboardType getDashboardByTitle(@RequestParam(name = "title", required = false) String title) {
         Dashboard dashboard = dashboardService.retrieveByTitle(title);
-        boolean rejectResource = !dashboard.isSystem() && dashboard.isHidden() && !hasPermission(Permission.Name.VIEW_HIDDEN_DASHBOARDS);
+        boolean rejectResource = !dashboard.isSystem() && dashboard.isHidden() && !hasPermission("VIEW_HIDDEN_DASHBOARDS");
         if (rejectResource) {
             throw new ResourceNotFoundException(ResourceNotFoundException.ResourceNotFoundErrorDetail.DASHBOARD_NOT_FOUND, String.format(ERR_MSG_ILLEGAL_DASHBOARD_ACCESS_BY_TITLE, title));
         }

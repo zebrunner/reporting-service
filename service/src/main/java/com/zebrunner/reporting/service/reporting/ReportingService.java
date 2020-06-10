@@ -165,9 +165,9 @@ public class ReportingService {
     }
 
     private TestCase convertToTestCase(Test test, Long testRunId) {
-        User caseOwner = userService.getUserByUsername(test.getMaintainer());
+        User caseOwner = userService.getByUsername(test.getMaintainer());
         if (caseOwner == null) {
-            caseOwner = userService.getUserByUsername("anonymous");
+            caseOwner = userService.getByUsername("anonymous");
         }
 
         com.zebrunner.reporting.domain.db.TestRun testRun = testRunService.getNotNullTestRunById(testRunId);

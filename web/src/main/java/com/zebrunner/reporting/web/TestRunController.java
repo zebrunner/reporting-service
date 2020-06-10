@@ -238,12 +238,10 @@ public class TestRunController extends AbstractController implements TestRunDocu
 
     @PostMapping(path = "/{id}/emailFailure", produces = MediaType.TEXT_HTML_VALUE)
     @Override
-    public String sendTestRunFailureEmail(
-            @PathVariable("id") String id,
-            @RequestBody @Valid EmailType email,
-            @RequestParam(name = "suiteOwner", defaultValue = "false", required = false) boolean suiteOwner,
-            @RequestParam(name = "suiteRunner", defaultValue = "false", required = false) boolean suiteRunner
-    ) {
+    public String sendTestRunFailureEmail(@PathVariable("id") String id,
+                                          @RequestBody @Valid EmailType email,
+                                          @RequestParam(name = "suiteOwner", defaultValue = "false", required = false) boolean suiteOwner,
+                                          @RequestParam(name = "suiteRunner", defaultValue = "false", required = false) boolean suiteRunner) {
         String[] recipients = EmailUtils.obtainRecipients(email.getRecipients());
         return testRunService.sendTestRunResultsEmailFailure(id, suiteOwner, suiteRunner, recipients);
     }

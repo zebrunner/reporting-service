@@ -1,5 +1,7 @@
 package com.zebrunner.reporting.domain.dto.auth;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -7,6 +9,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Data
+@AllArgsConstructor
 public class AuthenticatedUser implements UserDetails {
 
     private long id;
@@ -24,30 +28,11 @@ public class AuthenticatedUser implements UserDetails {
 
     }
 
-    public AuthenticatedUser(long id, String username, String password, Set<String> permissions) {
-        this(id, username, permissions);
-        this.password = password;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return permissions.stream()
                           .map(permission -> (GrantedAuthority) () -> permission)
                           .collect(Collectors.toSet());
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
     }
 
     @Override

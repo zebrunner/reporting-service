@@ -1,11 +1,11 @@
 package com.zebrunner.reporting.web.security.expressions;
 
 import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
-import com.zebrunner.reporting.domain.dto.auth.UserGrantedAuthority;
 import org.springframework.security.core.Authentication;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -49,8 +49,13 @@ public class UserPermissionEvaluator implements IUserPermissionEvaluator {
     }
 
     private boolean checkAuthority(Authentication authentication, Predicate<String> permissionsPredicate) {
-        return authentication.getAuthorities().stream()
-                .flatMap(grantedAuthority -> ((UserGrantedAuthority) grantedAuthority).getPermissions().stream())
-                .anyMatch(permissionsPredicate);
+        if (authentication.getPrincipal() instanceof AuthenticatedUser) {
+            AuthenticatedUser authenticatedUser = (AuthenticatedUser) authentication.getPrincipal();
+            Set<String> permissions = authenticatedUser.getPermissions();
+            return authentication.getAuthorities().stream()
+                                 .flatMap(grantedAuthority -> permissions.stream())
+                                 .anyMatch(permissionsPredicate);
+        }
+        return false;
     }
 }
