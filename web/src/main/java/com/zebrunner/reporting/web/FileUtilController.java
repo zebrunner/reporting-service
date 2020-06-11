@@ -21,6 +21,7 @@ import java.util.UUID;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
+@Deprecated
 public class FileUtilController implements FileUtilDocumentedController {
 
     private final EmailService emailService;

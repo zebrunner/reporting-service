@@ -77,9 +77,6 @@ public class StorageServiceImpl implements StorageService {
                     throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File should be either JPEG or PNG image");
                 }
                 break;
-            case VIDEO:
-            case SCREENSHOT:
-                break;
             case APP_PACKAGE:
                 String extension = FilenameUtils.getExtension(binaryObject.getName());
                 if (binaryObject.getSize() > MAX_APP_PACKAGE_SIZE) {
@@ -108,12 +105,6 @@ public class StorageServiceImpl implements StorageService {
                 break;
             case USER_ASSET:
                 prefix = "user-assets";
-                break;
-            case VIDEO:
-                prefix = "artifacts/videos";
-                break;
-            case SCREENSHOT:
-                prefix = "artifacts/screenshots";
                 break;
             case APP_PACKAGE:
                 prefix = "artifacts/applications";

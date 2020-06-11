@@ -21,8 +21,7 @@ public class BinaryObject {
     public enum Type {
         ORG_ASSET,
         USER_ASSET,
-        SCREENSHOT,
-        VIDEO,
         APP_PACKAGE
     }
+
 }
