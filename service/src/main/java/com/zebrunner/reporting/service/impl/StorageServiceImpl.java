@@ -91,8 +91,7 @@ public class StorageServiceImpl implements StorageService {
 
     private String buildObjectKey(BinaryObject binaryObject) {
         String name = UUID.randomUUID().toString();
-        return TenancyContext.getTenantName() + "/"
-                + getKeyPrefix(binaryObject.getType()) + "/"
+        return getKeyPrefix(binaryObject.getType()) + "/"
                 + name + "."
                 + FilenameUtils.getExtension(binaryObject.getName());
     }
@@ -101,10 +100,10 @@ public class StorageServiceImpl implements StorageService {
         String prefix = "";
         switch (type) {
             case ORG_ASSET:
-                prefix = "org-assets";
+                prefix = "assets/org";
                 break;
             case USER_ASSET:
-                prefix = "user-assets";
+                prefix = "assets/user";
                 break;
             case APP_PACKAGE:
                 prefix = "artifacts/applications";
