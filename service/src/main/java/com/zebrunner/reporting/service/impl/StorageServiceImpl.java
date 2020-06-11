@@ -5,8 +5,10 @@ import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.S3Properties;
 import com.zebrunner.reporting.service.StorageService;
+import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -22,6 +24,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StorageServiceImpl implements StorageService {
 
+    private static final String[] ALLOWED_IMAGE_CONTENT_TYPES = {"image/png", "image/jpeg"};
+    private static final String[] APP_EXTENSIONS = {"app", "ipa", "apk", "apks"};
+
+    private static final long MAX_IMAGE_SIZE = 2 * 1024 * 1024;         // 2 MB
+    private static final long MAX_APP_PACKAGE_SIZE = 100 * 1024 * 1024; // 100 MB
+
     private final S3Client s3Client;
     private final StsClient stsClient;
     private final S3Properties s3Properties;
@@ -31,6 +39,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public String save(BinaryObject binaryObject) {
+        validateObject(binaryObject);
         String key = buildObjectKey(binaryObject);
         s3Client.putObject(
                 rb -> rb.bucket(s3Properties.getBucket()).key(key).acl(ObjectCannedACL.PRIVATE).build(),
@@ -54,6 +63,33 @@ public class StorageServiceImpl implements StorageService {
                                  .region(s3Properties.getRegion())
                                  .sessionToken(credentials.sessionToken())
                                  .build();
+    }
+
+    private void validateObject(BinaryObject binaryObject) {
+        BinaryObject.Type type = binaryObject.getType();
+        switch (type) {
+            case ORG_ASSET:
+            case USER_ASSET:
+                if (binaryObject.getSize() > MAX_IMAGE_SIZE) {
+                    throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File size should be less than 2MB");
+                }
+                if (!ArrayUtils.contains(ALLOWED_IMAGE_CONTENT_TYPES, binaryObject.getContentType())) {
+                    throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File should be either JPEG or PNG image");
+                }
+                break;
+            case VIDEO:
+            case SCREENSHOT:
+                break;
+            case APP_PACKAGE:
+                String extension = FilenameUtils.getExtension(binaryObject.getName());
+                if (binaryObject.getSize() > MAX_APP_PACKAGE_SIZE) {
+                    throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File size should be less than 100MB");
+                }
+                if (!ArrayUtils.contains(APP_EXTENSIONS, extension)) {
+                    throw new IllegalOperationException(IllegalOperationException.IllegalOperationErrorDetail.INVALID_FILE, "File should have format APP, IPA or APK");
+                }
+                break;
+        }
     }
 
     private String buildObjectKey(BinaryObject binaryObject) {

@@ -14,8 +14,9 @@ public class BinaryObject {
     private final InputStream data;
     private final Type type;
     private final String name;
-    private String key;
-    private Long size;
+    private final String contentType;
+    private final String key;
+    private final Long size;
 
     public enum Type {
         ORG_ASSET,

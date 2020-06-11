@@ -121,7 +121,6 @@ twitter:
   consumer-secret: ${twitter.consumer.secret}
 
 s3:
-  endpoint: ${S3_ENDPOINT}
   access-key-id: ${S3_ACCESS_KEY_ID}
   secret: ${S3_SECRET}
   region: ${S3_REGION}
