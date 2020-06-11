@@ -13,20 +13,31 @@ import org.springframework.stereotype.Component;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class JWTService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JWTService.class);
-
     public static final String AUTHENTICATION_TOKEN_CLAIM_USERNAME = "username";
-    public static final String REFRESH_TOKEN_CLAIM_PASSWORD = "password";
+    public static final String AUTHENTICATION_TOKEN_CLAIM_PERMISSIONS = "permissions";
     public static final String CLAIM_TENANT = "tenant";
 
     private final String secret;
+    private final Integer authTokenExp;
 
-    public JWTService(@Value("${auth.token.secret}") String secret) {
+    public JWTService(@Value("${auth.token.secret}") String secret,
+                      @Value("${auth.token.expiration}") Integer authTokenExp) {
+        this.authTokenExp = authTokenExp;
         this.secret = secret;
+    }
+
+    public String generateAuthenticationToken(Integer userId, String username, String tenantName, Set<String> permissions) {
+        Claims claims = Jwts.claims().setSubject(userId.toString());
+        claims.put(AUTHENTICATION_TOKEN_CLAIM_USERNAME, username);
+        claims.put(AUTHENTICATION_TOKEN_CLAIM_PERMISSIONS, permissions);
+        claims.put(CLAIM_TENANT, tenantName);
+        return buildToken(claims, authTokenExp);
     }
 
     /**
@@ -44,20 +55,6 @@ public class JWTService {
         String tenant = jwtBody.get(CLAIM_TENANT, String.class);
         List<String> permissions = (List<String>)jwtBody.get("permissions");
         return new AuthenticationTokenContent(userId, username, tenant, new HashSet<>(permissions));
-    }
-
-    /**
-     * Generates JWT access token storing id, password of the user and specifies expiration (that never expires).
-     * 
-     * @param user
-     *            - for token generation
-     * @return generated JWT token
-     */
-    public String generateAccessToken(User user, String tenant) {
-        Claims claims = Jwts.claims().setSubject(user.getId().toString());
-//        claims.put(REFRESH_TOKEN_CLAIM_PASSWORD, user.getPassword());
-        claims.put("tenant", tenant);
-        return buildToken(claims, Integer.MAX_VALUE);
     }
 
     private String buildToken(Claims claims, Integer exp) {

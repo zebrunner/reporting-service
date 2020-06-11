@@ -20,6 +20,7 @@ dependencies {
     implementation libraries.boot_starter_data_redis
     implementation libraries.boot_starter_validation
     implementation libraries.boot_starter_actuator
+    implementation libraries.cloud_starter_feign
     implementation libraries.spring_security_ldap
     implementation libraries.spring_twitter
 

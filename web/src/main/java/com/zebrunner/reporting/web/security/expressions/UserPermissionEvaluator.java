@@ -37,7 +37,7 @@ public class UserPermissionEvaluator implements IUserPermissionEvaluator {
     @Override
     public boolean isOwner(Authentication authentication, Object targetDomainObject) {
         if (authentication != null && targetDomainObject instanceof Long) {
-            return ((AuthenticatedUser) authentication.getPrincipal()).getId() == (Long) targetDomainObject;
+            return ((AuthenticatedUser) authentication.getPrincipal()).getId() == (Integer) targetDomainObject;
         }
         return false;
     }

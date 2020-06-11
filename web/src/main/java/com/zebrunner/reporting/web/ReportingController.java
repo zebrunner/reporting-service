@@ -57,7 +57,7 @@ public class ReportingController extends AbstractController {
             @RequestParam(name = "projectKey", required = false) String projectKey
     ) {
         TestRun testRun = mapper.map(testRunDTO, TestRun.class, TestRunDTO.ValidationGroups.TestRunStartGroup.class.getName());
-        testRun = reportingService.startRun(testRun, projectKey, getPrincipalId());
+        testRun = reportingService.startRun(testRun, projectKey, Long.valueOf(getPrincipalId()));
 
         com.zebrunner.reporting.domain.db.TestRun fullTestRun = reportingService.getTestRunFullById(testRun.getId());
         notifyAboutRunByWebsocket(fullTestRun);

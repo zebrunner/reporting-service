@@ -55,7 +55,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     public LauncherDTO createLauncher(@RequestBody @Valid LauncherDTO launcherDTO,
                                       @RequestParam(name = "automationServerId") Long automationServerId) {
         Launcher launcher = mapper.map(launcherDTO, Launcher.class);
-        Long principalId = getPrincipalId();
+        Long principalId = Long.valueOf(getPrincipalId());
         launcher = launcherService.createLauncher(launcher, principalId, automationServerId);
         return mapper.map(launcher, LauncherDTO.class);
     }
@@ -72,7 +72,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     @GetMapping()
     @Override
     public List<LauncherDTO> getAllLaunchers() {
-        List<Launcher> launchers = launcherService.getAllLaunchers(getPrincipalId());
+        List<Launcher> launchers = launcherService.getAllLaunchers(Long.valueOf(getPrincipalId()));
         return launchers.stream()
                         .map(launcher -> mapper.map(launcher, LauncherDTO.class))
                         .collect(Collectors.toList());
@@ -100,7 +100,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     public void build(@RequestBody @Valid LauncherDTO launcherDTO,
                       @RequestParam(name = "providerId", required = false) Long providerId) throws IOException {
         Launcher launcher = mapper.map(launcherDTO, Launcher.class);
-        String ciRunId = launcherService.buildLauncherJob(launcher, getPrincipalId(), providerId);
+        String ciRunId = launcherService.buildLauncherJob(launcher, Long.valueOf(getPrincipalId()), providerId);
         websocketTemplate.convertAndSend(getLauncherRunsWebsocketPath(), new LauncherRunPush(launcher, ciRunId));
     }
 
@@ -108,9 +108,8 @@ public class LauncherController extends AbstractController implements LauncherDo
     @Override
     public String buildByWebHook(
         @PathVariable("ref") String ref,
-        @RequestParam(value = "callbackUrl", required = false) String callbackUrl
-    ) throws IOException {
-        return launcherService.buildLauncherJobByPresetRef(ref, callbackUrl, getPrincipalId());
+        @RequestParam(value = "callbackUrl", required = false) String callbackUrl) throws IOException {
+        return launcherService.buildLauncherJobByPresetRef(ref, callbackUrl, Long.valueOf(getPrincipalId()));
     }
 
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")
@@ -127,7 +126,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     public JobResult runScanner(@RequestBody @Valid LauncherScannerType launcherScannerType,
                                 @RequestParam(name = "automationServerId") Long automationServerId) {
         return launcherService.buildScannerJob(
-                getPrincipalId(),
+                Long.valueOf(getPrincipalId()),
                 launcherScannerType.getBranch(),
                 launcherScannerType.getScmAccountId(),
                 launcherScannerType.isRescan(),
@@ -158,7 +157,7 @@ public class LauncherController extends AbstractController implements LauncherDo
     @PostMapping("/create")
     @Override
     public List<LauncherDTO> scanLaunchersFromJenkins(@RequestBody @Valid JenkinsJobsScanResultDTO jenkinsJobsScanResultDTO) {
-        Long principalId = getPrincipalId();
+        Long principalId = Long.valueOf(getPrincipalId());
         List<JenkinsJob> jenkinsJobs = jenkinsJobsScanResultDTO.getJenkinsJobs()
                                                                .stream()
                                                                .map(jenkinsLauncher -> mapper.map(jenkinsLauncher, JenkinsJob.class))
@@ -180,7 +179,7 @@ public class LauncherController extends AbstractController implements LauncherDo
 
                 .when(PatchOperation.SAVE_FAVORITE)
                 .withParameter(Boolean::valueOf)
-                .then(favorite -> launcherService.markLauncherAsFavorite(id, getPrincipalId(), favorite))
+                .then(favorite -> launcherService.markLauncherAsFavorite(id, Long.valueOf(getPrincipalId()), favorite))
 
                 .after()
                 .decorate();

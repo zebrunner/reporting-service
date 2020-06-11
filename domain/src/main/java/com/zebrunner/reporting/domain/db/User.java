@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -18,6 +16,7 @@ public class User extends AbstractEntity implements Comparable<User> {
     private static final long serialVersionUID = 2720141152633805371L;
 
     private String username;
+    private String email;
     private List<UserPreference> preferences = new ArrayList<>();
 
     public User() {

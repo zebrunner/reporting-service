@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class AuthenticatedUser implements UserDetails {
 
-    private long id;
+    private Integer id;
 
     private String username;
 
@@ -21,7 +21,7 @@ public class AuthenticatedUser implements UserDetails {
 
     private Set<String> permissions;
 
-    public AuthenticatedUser(long id, String username, Set<String> permissions) {
+    public AuthenticatedUser(Integer id, String username, Set<String> permissions) {
         this.id = id;
         this.username = username;
         this.permissions = permissions;

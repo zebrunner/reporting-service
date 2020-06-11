@@ -6,9 +6,10 @@
 
     <insert id="createUser" useGeneratedKeys="true" keyProperty="id">
 		<![CDATA[
-        INSERT INTO USERS (USERNAME)
+        INSERT INTO USERS (USERNAME, EMAIL)
         VALUES (
-                   #{username}
+                   #{username},
+                   #{email}
                )
         ]]>
 	</insert>
@@ -17,6 +18,7 @@
 		<![CDATA[
         SELECT U.ID           AS USER_ID,
                U.USERNAME     AS USER_USERNAME,
+               U.EMAIL        AS USER_EMAIL,
                UP.ID          AS USER_PREFERENCE_ID,
                UP.NAME        AS USER_PREFERENCE_NAME,
                UP.VALUE       AS USER_PREFERENCE_VALUE,
@@ -44,6 +46,13 @@
 		]]>
     </select>
 
+    <select id="getUserByEmail" resultMap="UserResultMap">
+        <include refid="getUser" />
+        <![CDATA[
+			WHERE U.EMAIL = #{email};
+		]]>
+    </select>
+
     <select id="existsById" resultType="java.lang.Boolean">
         <![CDATA[
         SELECT EXISTS(SELECT 1 FROM USERS WHERE ID = #{id})
@@ -65,6 +74,11 @@
             <if test="null != username">
                 <![CDATA[
 		               USERNAME = #{username},	
+		            ]]>
+            </if>
+            <if test="null != email">
+                <![CDATA[
+		               EMAIL = #{email},
 		            ]]>
             </if>
         </set>
@@ -90,6 +104,7 @@
                id="UserResultMap" autoMapping="false">
         <id column="USER_ID" property="id"/>
         <result column="USER_USERNAME" property="username"/>
+        <result column="USER_EMAIL" property="email" />
         <collection property="preferences"
                     ofType="com.zebrunner.reporting.domain.db.UserPreference"
                     resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.UserPreferenceMapper.UserPreferenceResultMap"/>

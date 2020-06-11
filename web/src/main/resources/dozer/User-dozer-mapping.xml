@@ -15,5 +15,9 @@
 			<a>username</a>
 			<b>username</b>
 		</field>
+		<field>
+			<a>email</a>
+			<b>email</b>
+		</field>
 	</mapping>
 </mappings>

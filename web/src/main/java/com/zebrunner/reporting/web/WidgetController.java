@@ -126,7 +126,7 @@ public class WidgetController extends AbstractController {
     public List<Map<String, Object>> executeSQL(@RequestBody @Valid QueryParametersDTO queryParametersDTO) {
         Long templateId = queryParametersDTO.getTemplateId();
         Map<String, Object> queryParams = queryParametersDTO.getParamsConfig();
-        return widgetService.getQueryResults(queryParams, templateId, getPrincipalId(), getPrincipalName());
+        return widgetService.getQueryResults(queryParams, templateId, Long.valueOf(getPrincipalId()), getPrincipalName());
     }
 
 }
