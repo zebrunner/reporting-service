@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.MimeType;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -55,6 +56,14 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleResourceNotFoundException(ResourceNotFoundException e) {
+        ErrorResponse response = new ErrorResponse();
+        response.setError(new Error(ErrorCode.RESOURCE_NOT_FOUND, e.getMessage()));
+        return response;
+    }
+
+    @ExceptionHandler(org.springframework.social.ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleSocialResourceNotFoundException(org.springframework.social.ResourceNotFoundException e) {
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.RESOURCE_NOT_FOUND, e.getMessage()));
         return response;
@@ -117,6 +126,14 @@ public class ApiExceptionHandler {
     public ErrorResponse handleAuthException(AuthException e) {
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.UNAUTHORIZED));
+        return response;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(AccessDeniedException e) {
+        ErrorResponse response = new ErrorResponse();
+        response.setError(new Error(ErrorCode.FORBIDDEN));
         return response;
     }
 
@@ -230,5 +247,4 @@ public class ApiExceptionHandler {
         }
         return response;
     }
-
 }

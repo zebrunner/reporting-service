@@ -21,6 +21,7 @@ dependencies {
     implementation libraries.boot_starter_validation
     implementation libraries.boot_starter_actuator
     implementation libraries.spring_security_ldap
+    implementation libraries.spring_twitter
 
     implementation libraries.swagger
     implementation libraries.jasypt

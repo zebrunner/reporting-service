@@ -113,3 +113,9 @@ db-state-management:
 crypto-salt: ${crypto.salt}
 amazon-token-expiration: 43200
 google-token-expiration: 43200
+
+### Twitter settings
+twitter:
+  enabled: ${twitter.enabled:false}
+  consumer-key: ${twitter.consumer.key}
+  consumer-secret: ${twitter.consumer.secret}

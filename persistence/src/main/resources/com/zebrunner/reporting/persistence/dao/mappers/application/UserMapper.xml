@@ -114,9 +114,24 @@
 				U.COVER_PHOTO_URL AS USER_COVER_PHOTO_URL,
 				U.LAST_LOGIN AS USER_LAST_LOGIN,
 				U.MODIFIED_AT AS USER_MODIFIED_AT,
-				U.CREATED_AT AS USER_CREATED_AT
+				U.CREATED_AT AS USER_CREATED_AT,
+
+				G.ID AS GROUP_ID,
+				G.NAME AS GROUP_NAME,
+				G.ROLE AS GROUP_ROLE,
+			   	G.INVITABLE AS GROUP_INVITABLE,
+			   	G.MODIFIED_AT AS GROUP_MODIFIED_AT,
+				G.CREATED_AT AS GROUP_CREATED_AT
 			FROM
 				USERS U
+			LEFT JOIN
+				USER_GROUPS UG
+			ON
+				U.ID = UG.USER_ID
+			LEFT JOIN
+				GROUPS G
+			ON
+				G.ID = UG.GROUP_ID
 		]]>
 		<include refid="searchDetailsWhereClause" />
 	</sql>
@@ -134,6 +149,11 @@
 					   OR LOWER(U.STATUS) LIKE LOWER(CONCAT('%', #{sc.query}, '%'))
 					   OR LOWER(U.SOURCE) LIKE LOWER(CONCAT('%', #{sc.query}, '%'))
 	                 )
+	            ]]>
+			</if>
+			<if test="null != sc.status">
+				<![CDATA[
+	               AND U.STATUS = #{sc.status}
 	            ]]>
 			</if>
 			<if test="null != sc.date">

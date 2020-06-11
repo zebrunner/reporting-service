@@ -4,9 +4,6 @@ import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Component
 public class URLResolver {
 
