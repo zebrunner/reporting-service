@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.zebrunner.reporting.web.util.dozer.NullSafeDozerBeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -74,15 +75,12 @@ public class WebConfig implements WebMvcConfigurer {
     // Spring throws an error which is handled by the api exception handler.
     // the result of this handling cannot be converted to application/javascript, which leads to useless exceptions in logs.
     // hypothetically, this mappingJackson2HttpMessageConverter should help gracefully omit the error.
-    @Bean
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
-        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter(objectMapper);
-
+    @Autowired
+    public void mappingJackson2HttpMessageConverter(MappingJackson2HttpMessageConverter jsonConverter) {
         List<MediaType> mediaTypes = new ArrayList<>(jsonConverter.getSupportedMediaTypes());
         mediaTypes.add(new MediaType("application", "javascript"));
+        mediaTypes.add(new MediaType("text", "event-stream"));
         jsonConverter.setSupportedMediaTypes(mediaTypes);
-
-        return jsonConverter;
     }
 
     @Bean
