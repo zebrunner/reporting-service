@@ -38,7 +38,7 @@ public abstract class AbstractController {
         return user instanceof AuthenticatedUser ? (AuthenticatedUser) user : null;
     }
 
-    protected Long getPrincipalId() {
+    protected Integer getPrincipalId() {
         AuthenticatedUser user = getPrincipal();
         return user != null ? user.getId() : 0;
     }

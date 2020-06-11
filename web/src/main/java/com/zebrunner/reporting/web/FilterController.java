@@ -45,7 +45,7 @@ public class FilterController extends AbstractController {
     @PostMapping()
     public FilterDTO createFilter(@RequestBody @Valid FilterDTO filterDTO) {
         filterDTO.getSubject().sortCriterias();
-        Long principalId = getPrincipalId();
+        Long principalId = Long.valueOf(getPrincipalId());
         boolean isAdmin = isAdmin();
         Filter filter = mapper.map(filterDTO, Filter.class);
         Filter createdFilter = filterService.createFilter(filter, principalId, isAdmin);
@@ -57,7 +57,7 @@ public class FilterController extends AbstractController {
     @ApiImplicitParams({@ApiImplicitParam(name = "Authorization", paramType = "header")})
     @GetMapping("/all/public")
     public List<FilterDTO> getAllPublicFilters() {
-        Long principalId = getPrincipalId();
+        Long principalId = Long.valueOf(getPrincipalId());
         List<Filter> publicFilters = filterService.getAllPublicFilters(principalId);
         return publicFilters.stream()
                             .map(filter -> mapper.map(filter, FilterDTO.class))
@@ -70,7 +70,7 @@ public class FilterController extends AbstractController {
     @PutMapping()
     public FilterDTO updateFilter(@RequestBody @Valid FilterDTO filterDTO) {
         filterDTO.getSubject().sortCriterias();
-        Long principalId = getPrincipalId();
+        Long principalId = Long.valueOf(getPrincipalId());
         boolean isAdmin = isAdmin();
         Filter filter = mapper.map(filterDTO, Filter.class);
         Filter updatedFilter = filterService.updateFilter(filter, principalId, isAdmin);
@@ -82,7 +82,7 @@ public class FilterController extends AbstractController {
     @ApiImplicitParams({@ApiImplicitParam(name = "Authorization", paramType = "header")})
     @DeleteMapping("/{id}")
     public void deleteFilter(@PathVariable("id") Long id) {
-        Long principalId = getPrincipalId();
+        Long principalId = Long.valueOf(getPrincipalId());
         filterService.deleteFilterById(id, principalId);
     }
 

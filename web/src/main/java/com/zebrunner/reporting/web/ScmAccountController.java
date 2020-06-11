@@ -96,7 +96,7 @@ public class ScmAccountController extends AbstractController {
         ScmAccount account = scmAccountService.getScmAccountById(scmAccountId);
         ScmAccount currentAccount = mapper.map(scmAccountType, ScmAccount.class);
         if (account.getUserId() == null || account.getUserId() <= 0) {
-            currentAccount.setUserId(getPrincipalId());
+            currentAccount.setUserId(Long.valueOf(getPrincipalId()));
         }
         currentAccount = scmAccountService.updateScmAccount(currentAccount);
         return mapper.map(currentAccount, ScmAccountType.class);

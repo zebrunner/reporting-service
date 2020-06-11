@@ -143,7 +143,7 @@ public class TestRunController extends AbstractController implements TestRunDocu
     @PostMapping("/queue")
     @Override
     public TestRunType createQueuedTestRun(@RequestBody QueueTestRunParamsType queuedTestRunParams) {
-        TestRun testRun = testRunService.queueTestRun(queuedTestRunParams, getPrincipalId());
+        TestRun testRun = testRunService.queueTestRun(queuedTestRunParams, Long.valueOf(getPrincipalId()));
         return mapper.map(testRun, TestRunType.class);
     }
 

@@ -13,6 +13,7 @@ import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.dto.JobResult;
+import com.zebrunner.reporting.service.client.IamServiceClient;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
@@ -20,7 +21,10 @@ import com.zebrunner.reporting.service.integration.tool.impl.TestAutomationToolS
 import com.zebrunner.reporting.service.scm.GitHubService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
 import com.zebrunner.reporting.service.util.URLResolver;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +44,7 @@ import static com.zebrunner.reporting.service.exception.ResourceNotFoundExceptio
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.USER_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class LauncherService {
 
     private static final String ERR_MSG_NO_BUILD_LAUNCHER_JOB_SPECIFIED = "No launcher job specified";
@@ -48,6 +53,7 @@ public class LauncherService {
 
     private static final Set<String> MANDATORY_ARGUMENTS = Set.of("scmURL", "branch", "zafiraFields");
 
+    private final IamServiceClient iamServiceClient;
     private final LauncherMapper launcherMapper;
     private final LauncherPresetService launcherPresetService;
     private final LauncherCallbackService launcherCallbackService;
@@ -61,36 +67,6 @@ public class LauncherService {
     private final CryptoService cryptoService;
     private final URLResolver urlResolver;
     private final UserService userService;
-
-    public LauncherService(
-            LauncherMapper launcherMapper,
-            LauncherPresetService launcherPresetService,
-            LauncherCallbackService launcherCallbackService,
-            UserLauncherPreferenceService preferenceService,
-            AutomationServerService automationServerService,
-            ScmAccountService scmAccountService,
-            JobsService jobsService,
-            JWTService jwtService,
-            GitHubService gitHubService,
-            TestAutomationToolService testAutomationToolService,
-            CryptoService cryptoService,
-            URLResolver urlResolver,
-            UserService userService
-    ) {
-        this.launcherMapper = launcherMapper;
-        this.launcherPresetService = launcherPresetService;
-        this.launcherCallbackService = launcherCallbackService;
-        this.preferenceService = preferenceService;
-        this.automationServerService = automationServerService;
-        this.scmAccountService = scmAccountService;
-        this.jobsService = jobsService;
-        this.jwtService = jwtService;
-        this.gitHubService = gitHubService;
-        this.testAutomationToolService = testAutomationToolService;
-        this.cryptoService = cryptoService;
-        this.urlResolver = urlResolver;
-        this.userService = userService;
-    }
 
     @Transactional
     public Launcher createLauncher(Launcher launcher, Long userId, Long automationServerId) {
@@ -286,7 +262,7 @@ public class LauncherService {
 
         jobParameters.put("zafira_enabled", "true");
         jobParameters.put("zafira_service_url", urlResolver.buildWebserviceUrl());
-        jobParameters.put("zafira_access_token", jwtService.generateAccessToken(user, TenancyContext.getTenantName()));
+        jobParameters.put("zafira_access_token", iamServiceClient.getServiceRefreshToken().getToken());
 
         String args = jobParameters.entrySet().stream()
                                    .filter(param -> !MANDATORY_ARGUMENTS.contains(param.getKey()))
@@ -340,7 +316,8 @@ public class LauncherService {
         String scmUser = gitHubService.getLoginName(scmAccount);
         String scmToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String serviceUrl = urlResolver.buildWebserviceUrl();
-        String accessToken = jwtService.generateAccessToken(user, TenancyContext.getTenantName());
+
+        jobParameters.put("zafira_access_token", iamServiceClient.getServiceRefreshToken().getToken());
 
         jobParameters.put("userId", String.valueOf(user.getId()));
         if (StringUtils.isNotEmpty(automationServerService.getFolder(automationServerId))) {
@@ -351,7 +328,7 @@ public class LauncherService {
         jobParameters.put("scmUser", scmUser);
         jobParameters.put("scmToken", scmToken);
         jobParameters.put("zafira_service_url", serviceUrl);
-        jobParameters.put("zafira_access_token", accessToken);
+        jobParameters.put("zafira_access_token", iamServiceClient.getServiceRefreshToken().getToken());
         jobParameters.put("onlyUpdated", String.valueOf(false));
 
         String args = jobParameters.entrySet().stream()
