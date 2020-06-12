@@ -151,6 +151,11 @@
 	                 )
 	            ]]>
 			</if>
+			<if test="null != sc.status">
+				<![CDATA[
+	               AND U.STATUS = #{sc.status}
+	            ]]>
+			</if>
 			<if test="null != sc.date">
 				<![CDATA[
 	               AND U.CREATED_AT::date = #{sc.date}::date

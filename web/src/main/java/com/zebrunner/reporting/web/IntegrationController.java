@@ -4,9 +4,10 @@ import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
 import com.zebrunner.reporting.domain.dto.integration.IntegrationDTO;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;
+import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
-import com.zebrunner.reporting.service.integration.tool.impl.StorageProviderService;
 import com.zebrunner.reporting.web.documented.IntegrationDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,17 +28,12 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/integrations", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class IntegrationController extends AbstractController implements IntegrationDocumentedController {
 
     private final IntegrationService integrationService;
-    private final StorageProviderService storageProviderService;
+    private final StorageService storageService;
     private final Mapper mapper;
-
-    public IntegrationController(IntegrationService integrationService, StorageProviderService storageProviderService, Mapper mapper) {
-        this.integrationService = integrationService;
-        this.storageProviderService = storageProviderService;
-        this.mapper = mapper;
-    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_INTEGRATIONS')")
     @PostMapping()
@@ -81,14 +77,6 @@ public class IntegrationController extends AbstractController implements Integra
             integrationDTO.setConnected(integrationService.isConnected(integration.getId(), gn));
         }
         return integrationDTO;
-    }
-
-    @PreAuthorize("hasPermission('VIEW_INTEGRATIONS')")
-    @GetMapping("/creds/amazon")
-    @Override
-    public SessionCredentials getAmazonTemporaryCredentials() {
-        return storageProviderService.getTemporarySessionCredentials()
-                                     .orElse(null);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_INTEGRATIONS')")

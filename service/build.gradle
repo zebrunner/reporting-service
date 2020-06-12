@@ -15,6 +15,7 @@ dependencies {
     implementation libraries.boot_starter_security  // got rid of this
 
     implementation libraries.spring_security_ldap
+    implementation libraries.spring_twitter
     implementation libraries.javax_mail
     implementation libraries.jaxb
     implementation libraries.commons_lang
@@ -27,7 +28,5 @@ dependencies {
     implementation libraries.jwt
     implementation libraries.integration_clients
     implementation libraries.hibernate_validator
-
-    implementation libraries.aws_s3
 
 }

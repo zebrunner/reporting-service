@@ -15,9 +15,7 @@ ext {
         boot_starter_actuator: "org.springframework.boot:spring-boot-starter-actuator",
         spring_security_ldap : "org.springframework.security:spring-security-ldap",
         spring_test : "org.springframework:spring-test",
-
-        aws_bom : "software.amazon.awssdk:bom:2.11.11",
-        aws_s3 : "software.amazon.awssdk:s3",
+        spring_twitter : "org.springframework.social:spring-social-twitter:1.1.2.RELEASE",
 
         persistence_core: [
             "org.postgresql:postgresql:42.2.4",
@@ -71,11 +69,12 @@ ext {
             "javax.xml.bind:jaxb-api:2.3.1",
             "org.glassfish.jaxb:jaxb-runtime:2.3.2"
         ],
-        
+
         lombok: "org.projectlombok:lombok",
 
         integration_clients: [
-            "com.amazonaws:aws-java-sdk:1.11.792",
+            "software.amazon.awssdk:s3:2.13.32",
+            "software.amazon.awssdk:sts:2.13.32",
             "com.offbytwo.jenkins:jenkins-client:0.3.7",
             "org.kohsuke:github-api:1.95",
             "in.ashwanthkumar:slack-java-webhook:0.0.7",
