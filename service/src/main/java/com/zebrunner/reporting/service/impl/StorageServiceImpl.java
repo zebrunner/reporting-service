@@ -11,6 +11,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
@@ -20,9 +21,13 @@ import software.amazon.awssdk.services.sts.model.GetSessionTokenResponse;
 
 import java.util.UUID;
 
+import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.S3_TEMPORARY_CREDENTIALS_USAGE_NOT_POSSIBLE;
+
 @Service
 @RequiredArgsConstructor
 public class StorageServiceImpl implements StorageService {
+
+    private static final String ERR_MSG_ILLEGAL_TEMPORARY_CREDENTIALS_USAGE = "Cannot provide S3 temporary credentials. Amazon S3 supported only";
 
     private static final String[] ALLOWED_IMAGE_CONTENT_TYPES = {"image/png", "image/jpeg"};
     private static final String[] APP_EXTENSIONS = {"app", "ipa", "apk", "apks"};
@@ -54,15 +59,19 @@ public class StorageServiceImpl implements StorageService {
     }
 
     public SessionCredentials getTemporarySessionCredentials() {
-        GetSessionTokenResponse response = stsClient.getSessionToken(rb -> rb.durationSeconds(expiresInSec).build());
-        Credentials credentials = response.credentials();
-        return SessionCredentials.builder()
-                                 .accessKeyId(credentials.accessKeyId())
-                                 .secretAccessKey(credentials.secretAccessKey())
-                                 .bucket(s3Properties.getBucket())
-                                 .region(s3Properties.getRegion())
-                                 .sessionToken(credentials.sessionToken())
-                                 .build();
+        if (StringUtils.isEmpty(s3Properties.getEndpoint())) {
+            GetSessionTokenResponse response = stsClient.getSessionToken(rb -> rb.durationSeconds(expiresInSec).build());
+            Credentials credentials = response.credentials();
+            return SessionCredentials.builder()
+                                     .accessKeyId(credentials.accessKeyId())
+                                     .secretAccessKey(credentials.secretAccessKey())
+                                     .bucket(s3Properties.getBucket())
+                                     .region(s3Properties.getRegion())
+                                     .sessionToken(credentials.sessionToken())
+                                     .build();
+        } else {
+            throw new IllegalOperationException(S3_TEMPORARY_CREDENTIALS_USAGE_NOT_POSSIBLE, ERR_MSG_ILLEGAL_TEMPORARY_CREDENTIALS_USAGE);
+        }
     }
 
     private void validateObject(BinaryObject binaryObject) {
