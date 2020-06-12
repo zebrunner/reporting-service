@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.JenkinsJob;
 import com.zebrunner.reporting.domain.db.Job;
 import com.zebrunner.reporting.domain.db.launcher.Launcher;
@@ -13,7 +12,7 @@ import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.dto.JobResult;
-import com.zebrunner.reporting.service.client.IamServiceClient;
+import com.zebrunner.reporting.service.feign.IamAuthClient;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
@@ -22,9 +21,7 @@ import com.zebrunner.reporting.service.scm.GitHubService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +50,7 @@ public class LauncherService {
 
     private static final Set<String> MANDATORY_ARGUMENTS = Set.of("scmURL", "branch", "zafiraFields");
 
-    private final IamServiceClient iamServiceClient;
+    private final IamAuthClient iamAuthClient;
     private final LauncherMapper launcherMapper;
     private final LauncherPresetService launcherPresetService;
     private final LauncherCallbackService launcherCallbackService;
@@ -61,7 +58,6 @@ public class LauncherService {
     private final AutomationServerService automationServerService;
     private final ScmAccountService scmAccountService;
     private final JobsService jobsService;
-    private final JWTService jwtService;
     private final GitHubService gitHubService;
     private final TestAutomationToolService testAutomationToolService;
     private final CryptoService cryptoService;
@@ -73,7 +69,7 @@ public class LauncherService {
         launcher.setAutoScan(false);
         if (automationServerService.isEnabledAndConnected(automationServerId)) {
             String launcherJobUrl = automationServerService.buildLauncherJobUrl(automationServerId);
-            // Checks whether job is present om Jenkins. If it is not, exception will be thrown.
+            // Checks whether job is present on Jenkins. If it is not, exception will be thrown.
             automationServerService.getJobByUrl(launcherJobUrl, automationServerId);
             Job job = jobsService.createOrUpdateJobByURL(launcherJobUrl, userId);
             launcher.setJob(job);
@@ -262,7 +258,7 @@ public class LauncherService {
 
         jobParameters.put("zafira_enabled", "true");
         jobParameters.put("zafira_service_url", urlResolver.buildWebserviceUrl());
-        jobParameters.put("zafira_access_token", iamServiceClient.getServiceRefreshToken().getToken());
+        jobParameters.put("zafira_access_token", iamAuthClient.getServiceRefreshToken().getToken());
 
         String args = jobParameters.entrySet().stream()
                                    .filter(param -> !MANDATORY_ARGUMENTS.contains(param.getKey()))
@@ -317,7 +313,7 @@ public class LauncherService {
         String scmToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String serviceUrl = urlResolver.buildWebserviceUrl();
 
-        jobParameters.put("zafira_access_token", iamServiceClient.getServiceRefreshToken().getToken());
+        jobParameters.put("zafira_access_token", iamAuthClient.getServiceRefreshToken().getToken());
 
         jobParameters.put("userId", String.valueOf(user.getId()));
         if (StringUtils.isNotEmpty(automationServerService.getFolder(automationServerId))) {
@@ -328,7 +324,7 @@ public class LauncherService {
         jobParameters.put("scmUser", scmUser);
         jobParameters.put("scmToken", scmToken);
         jobParameters.put("zafira_service_url", serviceUrl);
-        jobParameters.put("zafira_access_token", iamServiceClient.getServiceRefreshToken().getToken());
+        jobParameters.put("zafira_access_token", iamAuthClient.getServiceRefreshToken().getToken());
         jobParameters.put("onlyUpdated", String.valueOf(false));
 
         String args = jobParameters.entrySet().stream()
