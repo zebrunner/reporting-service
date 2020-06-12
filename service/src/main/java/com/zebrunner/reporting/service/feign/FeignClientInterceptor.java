@@ -1,4 +1,4 @@
-package com.zebrunner.reporting.service.client;
+package com.zebrunner.reporting.service.feign;
 
 import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;

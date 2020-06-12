@@ -115,4 +115,5 @@ amazon-token-expiration: 43200
 google-token-expiration: 43200
 
 iam:
-  service-url: ${service-url}
+  host: ${iam.host}
+  port: ${iam.port}
