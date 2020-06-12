@@ -2,6 +2,7 @@ package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.dto.BinaryObject;
 import com.zebrunner.reporting.service.StorageService;
+import com.zebrunner.reporting.web.documented.AssetsDocumentedController;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("v1/assets")
 @RequiredArgsConstructor
-public class AssetsController {
+public class AssetsController implements AssetsDocumentedController {
 
     private final StorageService storageService;
 
+    @Override
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @SneakyThrows(IOException.class)
@@ -41,6 +43,7 @@ public class AssetsController {
         return Collections.singletonMap("key", key);
     }
 
+    @Override
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAsset(@RequestParam("key") String key) {
