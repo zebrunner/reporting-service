@@ -51,21 +51,6 @@ public interface IntegrationDocumentedController {
     List<IntegrationDTO> getAll(Long groupId, String groupName);
 
     @ApiOperation(
-            value = "Creates Amazon temporary credentials",
-            notes = "Returns created temporary credentials from Amazon integration",
-            nickname = "getAmazonTemporaryCredentials",
-            httpMethod = "GET",
-            response = SessionCredentials.class
-    )
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)")
-    })
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns Amazon session credentials, or null if the operation is not possible", response = SessionCredentials.class)
-    })
-    SessionCredentials getAmazonTemporaryCredentials();
-
-    @ApiOperation(
             value = "Updates an integration by its id",
             notes = "Returns the updated integration",
             nickname = "update",

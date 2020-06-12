@@ -8,7 +8,6 @@ import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.service.cache.UserCacheableService;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
-import com.zebrunner.reporting.service.integration.tool.impl.StorageProviderService;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.util.DateTimeUtil;
 import com.zebrunner.reporting.service.util.TenancyDbInitial;
@@ -69,9 +68,6 @@ public class UserService implements TenancyDbInitial {
     private TenancyService tenancyService;
 
     @Autowired
-    private StorageProviderService storageProviderService;
-
-    @Autowired
     private UserCacheableService userCacheableService;
 
     @PostConstruct
@@ -106,14 +102,6 @@ public class UserService implements TenancyDbInitial {
     @Transactional(readOnly = true)
     public User getUserById(long id) {
         return userMapper.getUserById(id);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteProfilePhoto(Long userId) {
-        User user = getNotNullUserById(userId);
-        storageProviderService.removeFile(user.getPhotoURL());
-        user.setPhotoURL(StringUtils.EMPTY);
-        updateUser(user);
     }
 
     @Transactional(readOnly = true)
