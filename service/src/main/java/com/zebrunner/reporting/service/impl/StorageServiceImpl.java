@@ -100,8 +100,7 @@ public class StorageServiceImpl implements StorageService {
 
     private String buildObjectKey(BinaryObject binaryObject) {
         String name = UUID.randomUUID().toString();
-        return TenancyContext.getTenantName() + "/"
-                + getKeyPrefix(binaryObject.getType()) + "/"
+        return getKeyPrefix(binaryObject.getType()) + "/"
                 + name + "."
                 + FilenameUtils.getExtension(binaryObject.getName());
     }
