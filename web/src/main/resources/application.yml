@@ -125,3 +125,21 @@ s3:
   secret: ${S3_SECRET}
   region: ${S3_REGION}
   bucket: ${S3_BUCKET}
+
+routing:
+  mail:
+    exchange-name: ${MAIL_EXCHANGE_NAME}
+    queue-name: ${MAIL_QUEUE_NAME}
+    key: ${MAIL_KEY}
+  mail-integration:
+    exchange-name: ${MAIL_INTEGRATION_EXCHANGE_NAME}
+    queue-name: ${MAIL_INTEGRATION_QUEUE_NAME}
+    key: ${MAIL_INTEGRATION_KEY}
+
+mail-template:
+    dashboard: ${mail.template.dashboard}
+    forgot-password: ${mail.template.forgot-password}
+    forgot-password-ldap: ${mail.template.forgot-password-ldap}
+    invitation: ${mail.template.invitation}
+    invitation-ldap: ${mail.template.invitation-ldap}
+    test-run-result: ${mail.template.test-run-result}

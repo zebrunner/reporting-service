@@ -2,7 +2,6 @@ package com.zebrunner.reporting.service.impl;
 
 import com.zebrunner.reporting.domain.dto.BinaryObject;
 import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.S3Properties;
 import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
@@ -19,6 +18,7 @@ import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.Credentials;
 import software.amazon.awssdk.services.sts.model.GetSessionTokenResponse;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.S3_TEMPORARY_CREDENTIALS_USAGE_NOT_POSSIBLE;
@@ -54,7 +54,12 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void removeObject(String key) {
+    public InputStream get(String key) {
+        return s3Client.getObject(rb -> rb.bucket(s3Properties.getBucket()).key(key).build());
+    }
+
+    @Override
+    public void remove(String key) {
         s3Client.deleteObject(rb -> rb.bucket(s3Properties.getBucket()).key(key).build());
     }
 

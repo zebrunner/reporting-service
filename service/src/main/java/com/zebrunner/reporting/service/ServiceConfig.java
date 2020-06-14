@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service;
 
+import com.zebrunner.reporting.domain.properties.MailTemplateProps;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -22,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 @EnableCaching(proxyTargetClass = true)
-@EnableConfigurationProperties(S3Properties.class)
+@EnableConfigurationProperties({S3Properties.class, MailTemplateProps.class})
 public class ServiceConfig {
 
     private static final String BASENAME_LOCATION = "classpath:i18n/services/messages";

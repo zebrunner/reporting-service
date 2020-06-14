@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service.util;
 
+import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.exception.ProcessingException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -23,12 +24,12 @@ public class FreemarkerUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FreemarkerUtil.class);
 
     private final Configuration freemarkerConfiguration;
-    private final S3Service s3Service;
+    private final StorageService storageService;
 
     public String processFreemarkerTemplateFromS3(String key, Object obj) {
         String result;
         try {
-            InputStream resource = s3Service.getObject(key);
+            InputStream resource = storageService.get(key);
             Template fTemplate = new Template(UUID.randomUUID().toString(),
                     new InputStreamReader(resource), new Configuration(Configuration.VERSION_2_3_30));
             result = FreeMarkerTemplateUtils.processTemplateIntoString(fTemplate, obj);
