@@ -11,5 +11,6 @@ public class AuthenticationTokenContent {
     String username;
     String tenantName;
     Set<String> permissions;
+    String token;
 
 }

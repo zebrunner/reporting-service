@@ -21,10 +21,13 @@ public class AuthenticatedUser implements UserDetails {
 
     private Set<String> permissions;
 
-    public AuthenticatedUser(Integer id, String username, Set<String> permissions) {
+    private String token;
+
+    public AuthenticatedUser(Integer id, String username, Set<String> permissions, String token) {
         this.id = id;
         this.username = username;
         this.permissions = permissions;
+        this.token = token;
 
     }
 

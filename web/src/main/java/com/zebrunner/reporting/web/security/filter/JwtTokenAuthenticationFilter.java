@@ -94,7 +94,7 @@ public class JwtTokenAuthenticationFilter extends GenericFilterBean {
     }
 
     private Authentication buildAuthenticationFromJwt(AuthenticationTokenContent content, HttpServletRequest request) {
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(content.getUserId(), content.getUsername(), content.getPermissions());
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(content.getUserId(), content.getUsername(), content.getPermissions(), content.getToken());
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         return authentication;
