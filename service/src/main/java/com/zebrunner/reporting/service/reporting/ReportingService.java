@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class TestRunServiceV1 {
+public class ReportingService {
 
     private final TestRunService testRunService;
     private final TestSuiteService testSuiteService;
@@ -36,7 +36,7 @@ public class TestRunServiceV1 {
     private final UserService userService;
     private final ProjectService projectService;
 
-    public TestRunServiceV1(TestRunService testRunService, TestSuiteService testSuiteService, TestService testService, TestMapper testMapper, TestCaseService testCaseService, UserService userService, ProjectService projectService) {
+    public ReportingService(TestRunService testRunService, TestSuiteService testSuiteService, TestService testService, TestMapper testMapper, TestCaseService testCaseService, UserService userService, ProjectService projectService) {
         this.testRunService = testRunService;
         this.testSuiteService = testSuiteService;
         this.testService = testService;

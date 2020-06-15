@@ -121,16 +121,15 @@ public class TestController extends AbstractController implements TestDocumented
     @PatchMapping("/runs/{testRunId}")
     @Override
     public List<Test> batchPatch(
-            @RequestBody @Valid BatchPatchDescriptor descriptor,
+            @RequestBody @Valid BatchPatchDescriptor batchPatchDescriptor,
             @PathVariable("testRunId") Long testRunId
     ) {
-        List<Test> tests = PatchDecorator.<List<Test>, PatchOperation>instance()
-                .descriptor(descriptor)
+        List<Test> tests = PatchDecorator.<List<Test>, Status>descriptor(batchPatchDescriptor)
                 .operation(PatchOperation.class)
 
-                .<Status>when(PatchOperation.STATUS_UPDATE)
+                .when(PatchOperation.STATUS_UPDATE)
                 .withParameter(Status::valueOf)
-                .then(status -> testService.batchStatusUpdate(testRunId, descriptor.getIds(), status))
+                .then(status -> testService.batchStatusUpdate(testRunId, batchPatchDescriptor.getIds(), status))
 
                 .after()
                 .decorate();

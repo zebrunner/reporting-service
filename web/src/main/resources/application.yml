@@ -119,3 +119,9 @@ twitter:
   enabled: ${twitter.enabled:false}
   consumer-key: ${twitter.consumer.key}
   consumer-secret: ${twitter.consumer.secret}
+
+s3:
+  access-key-id: ${S3_ACCESS_KEY_ID}
+  secret: ${S3_SECRET}
+  region: ${S3_REGION}
+  bucket: ${S3_BUCKET}

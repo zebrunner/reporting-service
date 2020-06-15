@@ -396,20 +396,6 @@
         </trim>
     </select>
 
-    <select id="findExistingIds" resultType="java.lang.Long">
-        <![CDATA[
-            SELECT ID FROM TESTS WHERE ID IN (
-        ]]>
-        <foreach item="id" index="index" collection="ids" open="" separator="," close="">
-            <![CDATA[
-			     #{id}
-			]]>
-        </foreach>
-        <![CDATA[
-            );
-        ]]>
-    </select>
-
     <update id="updateTest">
         <![CDATA[
 			UPDATE

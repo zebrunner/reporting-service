@@ -1,27 +1,23 @@
 package com.zebrunner.reporting.domain.dto.aws;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
-import java.io.Serializable;
 
 /**
  * An entity of minimal requirements for Amazon S3 integration
  */
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class SessionCredentials implements Serializable {
+@Builder
+@RequiredArgsConstructor
+public class SessionCredentials {
 
-    private static final long serialVersionUID = -2399949213318100097L;
-
-    private String accessKeyId;
-    private String secretAccessKey;
-    private String sessionToken;
-    private String region;
-    private String bucket;
+    private final String accessKeyId;
+    private final String secretAccessKey;
+    private final String sessionToken;
+    private final String region;
+    private final String bucket;
 
 }

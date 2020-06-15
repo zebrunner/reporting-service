@@ -1,4 +1,4 @@
-package com.zebrunner.reporting.web.v1;
+package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.reporting.Test;
@@ -9,8 +9,7 @@ import com.zebrunner.reporting.domain.push.TestRunPush;
 import com.zebrunner.reporting.domain.push.TestRunStatisticPush;
 import com.zebrunner.reporting.service.LauncherCallbackService;
 import com.zebrunner.reporting.service.cache.TestRunStatisticsCacheableService;
-import com.zebrunner.reporting.service.reporting.TestRunServiceV1;
-import com.zebrunner.reporting.web.AbstractController;
+import com.zebrunner.reporting.service.reporting.ReportingService;
 import com.zebrunner.reporting.web.dto.TestDTO;
 import com.zebrunner.reporting.web.dto.TestRunDTO;
 import org.dozer.Mapper;
@@ -40,17 +39,17 @@ import java.util.stream.Collectors;
 @RequestMapping(path = "v1/test-runs", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
 @RestController
-public class TestRunControllerV1 extends AbstractController {
+public class ReportingController extends AbstractController {
 
-    private final TestRunServiceV1 testRunServiceV1;
+    private final ReportingService reportingService;
     private final TestRunStatisticsCacheableService statisticsCacheableService;
     private final LauncherCallbackService launcherCallbackService;
     private final Validator validator;
     private final SimpMessagingTemplate messagingTemplate;
     private final Mapper mapper;
 
-    public TestRunControllerV1(TestRunServiceV1 testRunServiceV1, TestRunStatisticsCacheableService statisticsCacheableService, LauncherCallbackService launcherCallbackService, Validator validator, SimpMessagingTemplate messagingTemplate, Mapper mapper) {
-        this.testRunServiceV1 = testRunServiceV1;
+    public ReportingController(ReportingService reportingService, TestRunStatisticsCacheableService statisticsCacheableService, LauncherCallbackService launcherCallbackService, Validator validator, SimpMessagingTemplate messagingTemplate, Mapper mapper) {
+        this.reportingService = reportingService;
         this.statisticsCacheableService = statisticsCacheableService;
         this.launcherCallbackService = launcherCallbackService;
         this.validator = validator;
@@ -64,9 +63,9 @@ public class TestRunControllerV1 extends AbstractController {
             @RequestParam(name = "projectKey", required = false) String projectKey
     ) {
         TestRun testRun = mapper.map(testRunDTO, TestRun.class, TestRunDTO.ValidationGroups.TestRunStartGroup.class.getName());
-        testRun = testRunServiceV1.startRun(testRun, projectKey, getPrincipalId());
+        testRun = reportingService.startRun(testRun, projectKey, getPrincipalId());
 
-        com.zebrunner.reporting.domain.db.TestRun fullTestRun = testRunServiceV1.getTestRunFullById(testRun.getId());
+        com.zebrunner.reporting.domain.db.TestRun fullTestRun = reportingService.getTestRunFullById(testRun.getId());
         notifyAboutRunByWebsocket(fullTestRun);
 
         testRunDTO = mapper.map(testRun, TestRunDTO.class, TestRunDTO.ValidationGroups.TestRunStartGroup.class.getName());
@@ -80,9 +79,9 @@ public class TestRunControllerV1 extends AbstractController {
     ) {
         TestRun testRun = mapper.map(testRunDTO, TestRun.class, TestRunDTO.ValidationGroups.TestRunFinishGroup.class.getName());
         testRun.setId(id);
-        testRun = testRunServiceV1.finishRun(testRun);
+        testRun = reportingService.finishRun(testRun);
 
-        com.zebrunner.reporting.domain.db.TestRun testRunFull = testRunServiceV1.getTestRunFullById(id);
+        com.zebrunner.reporting.domain.db.TestRun testRunFull = reportingService.getTestRunFullById(id);
         launcherCallbackService.notifyOnTestRunFinish(testRunFull.getCiRunId());
 
         notifyAboutRunByWebsocket(testRunFull);
@@ -101,9 +100,9 @@ public class TestRunControllerV1 extends AbstractController {
                 : TestDTO.ValidationGroups.TestStartGroup.class.getName();
 
         Test test = mapper.map(testDTO, Test.class, mapperGroup);
-        test = testRunServiceV1.startTest(test, id, headless, rerun);
+        test = reportingService.startTest(test, id, headless, rerun);
 
-        com.zebrunner.reporting.domain.db.Test oldTest = testRunServiceV1.getTestById(test.getId());
+        com.zebrunner.reporting.domain.db.Test oldTest = reportingService.getTestById(test.getId());
         notifyAboutTestByWebsocket(oldTest);
 
         testDTO = mapper.map(test, TestDTO.class, TestDTO.class.getName());
@@ -130,9 +129,9 @@ public class TestRunControllerV1 extends AbstractController {
         Test test = mapper.map(testDTO, Test.class, TestDTO.ValidationGroups.TestFinishGroup.class.getName());
         test.setId(testId);
 
-        test = testRunServiceV1.finishTest(test, id);
+        test = reportingService.finishTest(test, id);
 
-        com.zebrunner.reporting.domain.db.Test oldTest = testRunServiceV1.getTestById(testId);
+        com.zebrunner.reporting.domain.db.Test oldTest = reportingService.getTestById(testId);
         notifyAboutTestByWebsocket(oldTest);
     }
 
@@ -142,7 +141,7 @@ public class TestRunControllerV1 extends AbstractController {
             @RequestParam(name = "statuses", required = false) List<Status> statuses,
             @RequestParam(name = "tests", required = false) List<Long> testIds
     ) {
-        return testRunServiceV1.getTestsByCiRunId(ciRunId, statuses, testIds).stream()
+        return reportingService.getTestsByCiRunId(ciRunId, statuses, testIds).stream()
                                .map(test -> mapper.map(test, TestDTO.class, TestDTO.ValidationGroups.TestStartGroup.class.getName()))
                                .collect(Collectors.toList());
     }
