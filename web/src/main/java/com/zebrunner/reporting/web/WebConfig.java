@@ -1,10 +1,5 @@
 package com.zebrunner.reporting.web;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.zebrunner.reporting.web.util.dozer.NullSafeDozerBeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
