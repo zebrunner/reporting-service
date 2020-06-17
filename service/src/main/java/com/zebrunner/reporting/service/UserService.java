@@ -77,7 +77,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public boolean existById(Long id) {
+    public boolean existsById(Long id) {
         return userMapper.existsById(id);
     }
 

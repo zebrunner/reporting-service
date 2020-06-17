@@ -12,12 +12,13 @@ public class FeignConfiguration {
 
   @Bean
   public Request.Options timeoutConfiguration(){
-    return new Request.Options(5000, TimeUnit.MILLISECONDS,
-            30000, TimeUnit.MILLISECONDS, false);
+    // Set connectTimeout, readTimeout ant followRedirects flag
+    return new Request.Options(5000, TimeUnit.MILLISECONDS, 30000, TimeUnit.MILLISECONDS, false);
   }
 
   @Bean
   public Retryer retryer() {
+    // Set period between attempts, maxPeriod allowed for an attempt and the number of attempts
     return new Retryer.Default(1000, 5000, 3);
   }
 

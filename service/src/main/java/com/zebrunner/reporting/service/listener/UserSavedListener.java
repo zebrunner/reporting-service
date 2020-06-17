@@ -25,7 +25,7 @@ public class UserSavedListener {
         user.setUsername(message.getUsername());
 
         TenancyContext.setTenantName(message.getTenantName());
-        if (!userService.existById(user.getId())) {
+        if (!userService.existsById(user.getId())) {
             userService.create(user);
         }
     }

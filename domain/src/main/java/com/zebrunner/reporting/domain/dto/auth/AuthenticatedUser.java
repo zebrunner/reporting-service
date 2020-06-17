@@ -14,13 +14,9 @@ import java.util.stream.Collectors;
 public class AuthenticatedUser implements UserDetails {
 
     private Integer id;
-
     private String username;
-
     private String password;
-
     private Set<String> permissions;
-
     private String token;
 
     public AuthenticatedUser(Integer id, String username, Set<String> permissions, String token) {
@@ -57,4 +53,5 @@ public class AuthenticatedUser implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

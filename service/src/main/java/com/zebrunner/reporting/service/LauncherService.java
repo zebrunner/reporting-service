@@ -367,7 +367,7 @@ public class LauncherService {
             throw new ResourceNotFoundException(LAUNCHER_NOT_FOUND, String.format("Unable to locate launcher with id '%d'", id));
         }
 
-        boolean userExists = userService.existById(userId);
+        boolean userExists = userService.existsById(userId);
         if (!userExists) {
             throw new ResourceNotFoundException(USER_NOT_FOUND, ERR_MSG_USER_WITH_THIS_ID_DOES_NOT_EXIST, id);
         }
