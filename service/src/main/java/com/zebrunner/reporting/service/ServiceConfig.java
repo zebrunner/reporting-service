@@ -1,6 +1,5 @@
 package com.zebrunner.reporting.service;
 
-import feign.RequestInterceptor;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

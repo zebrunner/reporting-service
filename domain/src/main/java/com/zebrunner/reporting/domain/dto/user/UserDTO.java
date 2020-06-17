@@ -26,7 +26,6 @@ public class UserDTO extends AbstractType {
     @Pattern(regexp = "[\\w-]+", message = "Invalid format")
     private String username;
     private String email;
-    private Set<String> permissions = new HashSet<>();
     private List<UserPreference> preferences = new ArrayList<>();
 
 }

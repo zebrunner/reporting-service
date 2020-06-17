@@ -16,24 +16,17 @@ import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
     private static final String[] PUBLIC_API_PATTERNS = new String[] {
-            "/api/auth/login",
             "/api/config/**",
-            "/api/auth/refresh",
-            "/v1/api/auth/refresh",
             "/api/status/**",
             "/api/dashboards/email",
             "/api/settings/companyLogo",
             "/api/websockets/**",
-            "/api/auth/tenant/**",
-            "/api/auth/signup",
-            "/api/auth/password/**",
             "/api/launchers/hooks/*",
             "/api/integrations-info/public",
             "/api/social/**"
     };
 
     private static final String[] AUTHENTICATED_API_PATTERNS = new String[] {
-            "/api/auth/access",
             "/api/users/**",
             "/api/filters/**",
             "/api/profiles/**",
@@ -41,8 +34,6 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/dashboards/**",
             "/api/widgets/**",
             "/api/projects/**",
-            "/api/groups/**",
-            "/api/permissions/**",
             "/api/devices/**",
             "/api/settings/**",
             "/api/jobs/**",
