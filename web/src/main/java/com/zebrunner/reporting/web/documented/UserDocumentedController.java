@@ -1,13 +1,7 @@
 package com.zebrunner.reporting.web.documented;
 
-import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.db.UserPreference;
 import com.zebrunner.reporting.domain.dto.UserPreferenceDTO;
-import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
-import com.zebrunner.reporting.domain.dto.user.ChangePasswordDTO;
-import com.zebrunner.reporting.domain.dto.user.UserDTO;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.UserSearchCriteria;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
