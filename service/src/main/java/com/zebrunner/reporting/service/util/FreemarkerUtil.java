@@ -4,9 +4,10 @@ import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.exception.ProcessingException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
@@ -17,7 +18,7 @@ import java.util.UUID;
 
 import static com.zebrunner.reporting.service.exception.ProcessingException.ProcessingErrorDetail.MALFORMED_FREEMARKER_TEMPLATE;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class FreemarkerUtil {
 
@@ -25,6 +26,9 @@ public class FreemarkerUtil {
 
     private final Configuration freemarkerConfiguration;
     private final StorageService storageService;
+
+    @Value("${mail.template-reference-prefix}")
+    private String emailTemplateKeyPrefix;
 
     public String processFreemarkerTemplateFromS3(String key, Object obj) {
         String result;
@@ -38,6 +42,11 @@ public class FreemarkerUtil {
             throw new ProcessingException(MALFORMED_FREEMARKER_TEMPLATE, e.getMessage());
         }
         return result;
+    }
+
+    public String processEmailFreemarkerTemplateFromS3(String name, Object obj) {
+        String key = buildEmailTemplateReference(name);
+        return processFreemarkerTemplateFromS3(key, obj);
     }
 
     public String getFreeMarkerTemplateContent(String template, Object obj) {
@@ -66,5 +75,12 @@ public class FreemarkerUtil {
             throw new ProcessingException(MALFORMED_FREEMARKER_TEMPLATE, e.getMessage());
         }
         return content.toString();
+    }
+
+    private String buildEmailTemplateReference(String templateName) {
+        if (!emailTemplateKeyPrefix.endsWith("/")) {
+            emailTemplateKeyPrefix = emailTemplateKeyPrefix + "/";
+        }
+        return emailTemplateKeyPrefix + templateName;
     }
 }

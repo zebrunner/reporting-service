@@ -121,6 +121,7 @@ twitter:
   consumer-secret: ${twitter.consumer.secret}
 
 s3:
+  endpoint: ${S3_ENDPOINT}
   access-key-id: ${S3_ACCESS_KEY_ID}
   secret: ${S3_SECRET}
   region: ${S3_REGION}
@@ -132,10 +133,5 @@ routing:
     queue-name: mail-queue
     key: mail
 
-mail-template:
-    dashboard: ${mail.template.dashboard}
-    forgot-password: ${mail.template.forgot-password}
-    forgot-password-ldap: ${mail.template.forgot-password-ldap}
-    invitation: ${mail.template.invitation}
-    invitation-ldap: ${mail.template.invitation-ldap}
-    test-run-result: ${mail.template.test-run-result}
+mail:
+  template-reference-prefix: /templates/

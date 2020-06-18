@@ -2,9 +2,7 @@ package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.domain.db.Attachment;
 import com.zebrunner.reporting.domain.dto.EmailType;
-import com.zebrunner.reporting.domain.properties.MailTemplateProps;
 import com.zebrunner.reporting.domain.push.events.MailNotification;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.email.CommonEmail;
 import com.zebrunner.reporting.service.email.IEmailMessage;
 import com.zebrunner.reporting.service.util.EmailUtils;
@@ -34,11 +32,10 @@ public class EmailService {
 
     private final EventPushService<MailNotification> eventPushService;
     private final FreemarkerUtil freemarkerUtil;
-    private final MailTemplateProps props;
 
     public String sendEmail(final IEmailMessage message, final String... emails) {
         final String[] recipients = processRecipients(emails);
-        String resourceKey = null;
+        String templateName = null;
         if (!ArrayUtils.isEmpty(recipients)) {
             MailNotification notification = new MailNotification();
             notification.setSubject(message.getSubject());
@@ -54,38 +51,11 @@ public class EmailService {
             }
             notification.setRecipients(Set.of(recipients));
 
-            resourceKey = getTemplateKey(message);
-            notification.setTemplateReference(resourceKey);
+            templateName = message.getType().getTemplateName();
+            notification.setTemplateName(templateName);
             eventPushService.convertAndSend(EventPushService.Exchange.MAIL, EventPushService.Routing.MAIL, notification);
         }
-        return freemarkerUtil.processFreemarkerTemplateFromS3(resourceKey, message);
-    }
-
-    private String getTemplateKey(IEmailMessage message) {
-        String result = null;
-        switch (message.getType()) {
-            case DASHBOARD:
-                result = props.getDashboard();
-                break;
-            case TEST_RUN:
-                result = props.getTestRunResult();
-                break;
-            case USER_INVITE:
-                result = props.getInvitation();
-                break;
-            case USER_INVITE_LDAP:
-                result = props.getInvitationLdap();
-                break;
-            case FORGOT_PASSWORD:
-                result = props.getForgotPassword();
-                break;
-            case FORGOT_PASSWORD_LDAP:
-                result = props.getForgotPasswordLdap();
-                break;
-            default:
-                break;
-        }
-        return result;
+        return freemarkerUtil.processEmailFreemarkerTemplateFromS3(templateName, message);
     }
 
     public String sendEmail(EmailType email, File file, String filename) {

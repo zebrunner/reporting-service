@@ -1,4 +1,4 @@
-package com.zebrunner.reporting.domain.properties;
+package com.zebrunner.reporting.service;
 
 import lombok.Getter;
 import lombok.Setter;

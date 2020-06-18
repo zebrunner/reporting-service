@@ -18,12 +18,12 @@ import com.zebrunner.reporting.domain.dto.QueueTestRunParamsType;
 import com.zebrunner.reporting.domain.dto.TestRunStatistics;
 import com.zebrunner.reporting.domain.dto.filter.Subject;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
-import com.zebrunner.reporting.domain.properties.MailTemplateProps;
 import com.zebrunner.reporting.persistence.dao.mysql.application.TestRunMapper;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.FilterSearchCriteria;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
+import com.zebrunner.reporting.service.email.EmailType;
 import com.zebrunner.reporting.service.email.TestRunResultsEmail;
 import com.zebrunner.reporting.service.exception.ExternalSystemException;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
@@ -126,9 +126,6 @@ public class TestRunService implements ProjectReassignable {
 
     @Autowired
     private ObjectMapper mapper;
-
-    @Autowired
-    private MailTemplateProps props;
 
     public enum FailureCause {
         UNRECOGNIZED_FAILURE("UNRECOGNIZED FAILURE"),
@@ -788,8 +785,7 @@ public class TestRunService implements ProjectReassignable {
             String jiraUrl = getJiraUrl();
             email.setJiraURL(jiraUrl);
             email.setSuccessRate(calculateSuccessRate(testRun));
-
-            result = freemarkerUtil.processFreemarkerTemplateFromS3(props.getTestRunResult(), email);
+            result = freemarkerUtil.processEmailFreemarkerTemplateFromS3(EmailType.TEST_RUN.getTemplateName(), email);
         } else {
             LOGGER.error(String.format(ERR_MSG_TEST_RUN_NOT_FOUND, id));
         }

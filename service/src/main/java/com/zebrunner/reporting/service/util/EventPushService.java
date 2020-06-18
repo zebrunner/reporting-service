@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.service.util;
 
-import com.zebrunner.reporting.domain.properties.MailRoutingProps;
+import com.zebrunner.reporting.service.MailRoutingProps;
 import com.zebrunner.reporting.service.integration.tool.impl.MessageBrokerService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -14,7 +14,7 @@ public final class MailNotification {
     private Set<String> recipients;
     private String subject;
     private String message;
-    private String templateReference;
+    private String templateName;
     private Object content;
     private List<File> attachments;
 
