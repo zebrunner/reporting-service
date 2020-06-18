@@ -296,3 +296,14 @@ databaseChangeLog:
             path: changeset/027_remove_amazon_integration.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 028_remove_event_work_item
+      validCheckSum: ANY
+      labels: stable
+      author: itsvirko
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/028_remove_event_work_item.sql
+            relativeToChangelogFile: true
+            splitStatements: false
