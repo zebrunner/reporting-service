@@ -36,8 +36,7 @@ public class WorkItem extends AbstractEntity {
 
     public enum Type {
         TASK,
-        BUG,
-        COMMENT
+        BUG
     }
 
 }
