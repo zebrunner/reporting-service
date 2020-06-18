@@ -46,8 +46,9 @@ public class StorageServiceImpl implements StorageService {
     public String save(BinaryObject binaryObject) {
         validateObject(binaryObject);
         String key = buildObjectKey(binaryObject);
+        String storageKey = TenancyContext.getTenantName() + "/" + key;
         s3Client.putObject(
-                rb -> rb.bucket(s3Properties.getBucket()).key(key).acl(ObjectCannedACL.PRIVATE).build(),
+                rb -> rb.bucket(s3Properties.getBucket()).key(storageKey).acl(ObjectCannedACL.PRIVATE).build(),
                 RequestBody.fromInputStream(binaryObject.getData(), binaryObject.getSize())
         );
         return key;
