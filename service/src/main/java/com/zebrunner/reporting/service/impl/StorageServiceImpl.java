@@ -2,6 +2,7 @@ package com.zebrunner.reporting.service.impl;
 
 import com.zebrunner.reporting.domain.dto.BinaryObject;
 import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.S3Properties;
 import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
