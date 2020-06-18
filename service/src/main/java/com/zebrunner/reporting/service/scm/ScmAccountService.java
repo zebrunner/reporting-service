@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service.scm;
 
+import com.zebrunner.reporting.domain.dto.scm.ScmAuthData;
 import com.zebrunner.reporting.persistence.dao.mysql.application.ScmAccountMapper;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,12 +49,14 @@ public class ScmAccountService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ScmAccount createScmAccount(String code, ScmAccount.Name name) throws IOException, URISyntaxException {
+    public ScmAccount createScmAccount(String code) {
         String token = gitHubService.getAccessToken(code);
         if (StringUtils.isEmpty(token)) {
             throw new ExternalSystemException(GITHUB_AUTHENTICATION_FAILED, ERR_MSG_CANNOT_RECOGNIZE_YOUR_AUTHORITY);
         }
-        ScmAccount scmAccount = new ScmAccount(token, name);
+        String username = gitHubService.getUsername(token);
+        ScmAccount.Name scmAccountName = gitHubService.getScmAccountName();
+        ScmAccount scmAccount = new ScmAccount(username, token, scmAccountName);
         return createScmAccount(scmAccount);
     }
 
@@ -97,8 +99,8 @@ public class ScmAccountService {
         return gitHubService.getRepositories(scmAccount, organizationName, existingRepos);
     }
 
-    public String getScmClientId() {
-        return gitHubService.getClientId();
+    public ScmAuthData getScmAuthData() {
+        return gitHubService.getGitHubAuthData();
     }
 
     @Transactional(rollbackFor = Exception.class)

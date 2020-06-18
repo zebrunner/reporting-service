@@ -1,21 +1,20 @@
 package com.zebrunner.reporting.service.scm;
 
 import com.zebrunner.reporting.domain.db.ScmAccount;
+import com.zebrunner.reporting.domain.dto.scm.ScmAuthData;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
 import com.zebrunner.reporting.service.CryptoService;
-import com.zebrunner.reporting.service.util.GitHubHttpUtils;
+import com.zebrunner.reporting.service.util.GitHubClient;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.github.GHPerson;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,25 +23,20 @@ public class GitHubService implements IScmService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHubService.class);
 
-    private final GitHubHttpUtils gitHubHttpUtils;
+    private final GitHubClient gitHubClient;
     private final CryptoService cryptoService;
-    private final String gitHubClientId;
-    private final String gitHubSecret;
 
-    public GitHubService(
-            GitHubHttpUtils gitHubHttpUtils,
-            CryptoService cryptoService,
-            @Value("${github.client-id}") String gitHubClientId,
-            @Value("${github.client-secret}") String gitHubSecret
-    ) {
-        this.gitHubHttpUtils = gitHubHttpUtils;
+    public GitHubService(GitHubClient gitHubClient, CryptoService cryptoService) {
+        this.gitHubClient = gitHubClient;
         this.cryptoService = cryptoService;
-        this.gitHubClientId = gitHubClientId;
-        this.gitHubSecret = gitHubSecret;
     }
 
-    public String getAccessToken(String code) throws IOException, URISyntaxException {
-        return this.gitHubHttpUtils.getAccessToken(code, this.gitHubClientId, this.gitHubSecret);
+    public String getAccessToken(String code) {
+        return gitHubClient.getAccessToken(code);
+    }
+
+    public String getUsername(String token) {
+        return gitHubClient.getUsername(token);
     }
 
     @Override
@@ -91,21 +85,13 @@ public class GitHubService implements IScmService {
     }
 
     @Override
-    public String getClientId() {
-        return this.gitHubClientId;
+    public ScmAuthData getGitHubAuthData() {
+        return gitHubClient.getGitHubAuthData();
     }
 
     @Override
-    public String getLoginName(ScmAccount scmAccount) {
-        String result = null;
-        GitHub gitHub;
-        try {
-            gitHub = connectToGitHub(scmAccount);
-            result = gitHub.getMyself().getLogin();
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return result;
+    public ScmAccount.Name getScmAccountName() {
+        return gitHubClient.getAccountName();
     }
 
     private static boolean isRepositoryOwner(String loginName, GHRepository repository) {
@@ -134,12 +120,13 @@ public class GitHubService implements IScmService {
                 gitHub = GitHub.connectUsingOAuth(decryptedAccessToken);
                 break;
             case GITHUB_ENTERPRISE:
-                String apiUrl = scmAccount.getApiVersion();
-                gitHub = GitHub.connectToEnterpriseWithOAuth(apiUrl, scmAccount.getLogin(), decryptedAccessToken);
+                String apiVersion = gitHubClient.getApiVersion();
+                gitHub = GitHub.connectToEnterpriseWithOAuth(apiVersion, scmAccount.getLogin(), decryptedAccessToken);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + scmAccount.getName());
         }
         return gitHub;
     }
+
 }

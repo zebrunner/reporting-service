@@ -1,7 +1,8 @@
 package com.zebrunner.reporting.web;
 
+import com.zebrunner.reporting.domain.dto.ScmAccountDTO;
+import com.zebrunner.reporting.domain.dto.scm.ScmAuthData;
 import com.zebrunner.reporting.domain.db.ScmAccount;
-import com.zebrunner.reporting.domain.dto.ScmAccountType;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,24 +45,24 @@ public class ScmAccountController extends AbstractController {
     }
 
     @ApiResponseStatuses
-    @ApiOperation(value = "Creates an SCM account", nickname = "createScmAccount", httpMethod = "POST", response = ScmAccountType.class)
+    @ApiOperation(value = "Creates an SCM account", nickname = "createScmAccount", httpMethod = "POST", response = ScmAccountDTO.class)
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS')")
     @PostMapping("/accounts")
-    public ScmAccountType createScmAccount(@Valid @RequestBody ScmAccountType scmAccountType) {
-        ScmAccount scmAccount = mapper.map(scmAccountType, ScmAccount.class);
+    public ScmAccountDTO createScmAccount(@Valid @RequestBody ScmAccountDTO scmAccountDTO) {
+        ScmAccount scmAccount = mapper.map(scmAccountDTO, ScmAccount.class);
         scmAccount = scmAccountService.createScmAccount(scmAccount);
-        return mapper.map(scmAccount, ScmAccountType.class);
+        return mapper.map(scmAccount, ScmAccountDTO.class);
     }
 
     @ApiResponseStatuses
-    @ApiOperation(value = "Retrieves an SCM account by its id", nickname = "getScmAccountById", httpMethod = "GET", response = ScmAccountType.class)
+    @ApiOperation(value = "Retrieves an SCM account by its id", nickname = "getScmAccountById", httpMethod = "GET", response = ScmAccountDTO.class)
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")
     @GetMapping("/accounts/{id}")
-    public ScmAccountType getScmAccountById(@PathVariable("id") Long id) {
+    public ScmAccountDTO getScmAccountById(@PathVariable("id") Long id) {
         ScmAccount scmAccount = scmAccountService.getScmAccountById(id);
-        return mapper.map(scmAccount, ScmAccountType.class);
+        return mapper.map(scmAccount, ScmAccountDTO.class);
     }
 
     @ApiResponseStatuses
@@ -70,10 +70,10 @@ public class ScmAccountController extends AbstractController {
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS', 'VIEW_LAUNCHERS')")
     @GetMapping("/accounts")
-    public List<ScmAccountType> getAllScmAccounts() {
+    public List<ScmAccountDTO> getAllScmAccounts() {
         List<ScmAccount> scmAccounts = scmAccountService.getAllScmAccounts();
         return scmAccounts.stream()
-                          .map(scmAccount -> mapper.map(scmAccount, ScmAccountType.class))
+                          .map(scmAccount -> mapper.map(scmAccount, ScmAccountDTO.class))
                           .collect(Collectors.toList());
     }
 
@@ -87,19 +87,19 @@ public class ScmAccountController extends AbstractController {
     }
 
     @ApiResponseStatuses
-    @ApiOperation(value = "Updates an SCM account", nickname = "updateScmAccount", httpMethod = "PUT", response = ScmAccountType.class)
+    @ApiOperation(value = "Updates an SCM account", nickname = "updateScmAccount", httpMethod = "PUT", response = ScmAccountDTO.class)
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS')")
     @PutMapping("/accounts")
-    public ScmAccountType updateScmAccount(@RequestBody @Valid ScmAccountType scmAccountType) {
-        long scmAccountId = scmAccountType.getId();
+    public ScmAccountDTO updateScmAccount(@RequestBody @Valid ScmAccountDTO scmAccountDTO) {
+        long scmAccountId = scmAccountDTO.getId();
         ScmAccount account = scmAccountService.getScmAccountById(scmAccountId);
-        ScmAccount currentAccount = mapper.map(scmAccountType, ScmAccount.class);
+        ScmAccount currentAccount = mapper.map(scmAccountDTO, ScmAccount.class);
         if (account.getUserId() == null || account.getUserId() <= 0) {
             currentAccount.setUserId(getPrincipalId());
         }
         currentAccount = scmAccountService.updateScmAccount(currentAccount);
-        return mapper.map(currentAccount, ScmAccountType.class);
+        return mapper.map(currentAccount, ScmAccountDTO.class);
     }
 
     @ApiResponseStatuses
@@ -112,22 +112,22 @@ public class ScmAccountController extends AbstractController {
     }
 
     @ApiResponseStatuses
-    @ApiOperation(value = "Retrieves the Github client id", nickname = "getScmClientId", httpMethod = "GET", response = String.class)
+    @ApiOperation(value = "Retrieves the Github client id", nickname = "getScmClientId", httpMethod = "GET", response = ScmAuthData.class)
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS')")
-    @GetMapping(path = "github/client", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String getScmClientId() {
-        return scmAccountService.getScmClientId();
+    @GetMapping(path = "github/client")
+    public ScmAuthData getScmClientId() {
+        return scmAccountService.getScmAuthData();
     }
 
     @ApiResponseStatuses
-    @ApiOperation(value = "Github callback", nickname = "callback", httpMethod = "GET", response = ScmAccountType.class)
+    @ApiOperation(value = "Github callback", nickname = "callback", httpMethod = "GET", response = ScmAccountDTO.class)
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS')")
     @GetMapping("/github/exchange")
-    public ScmAccountType authorizeCallback(@RequestParam("code") String code) throws IOException, URISyntaxException {
-        ScmAccount scmAccount = scmAccountService.createScmAccount(code, ScmAccount.Name.GITHUB);
-        return mapper.map(scmAccount, ScmAccountType.class);
+    public ScmAccountDTO authorizeCallback(@RequestParam("code") String code) {
+        ScmAccount scmAccount = scmAccountService.createScmAccount(code);
+        return mapper.map(scmAccount, ScmAccountDTO.class);
     }
 
     @ApiResponseStatuses

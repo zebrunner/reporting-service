@@ -27,7 +27,7 @@ public class LauncherDTO extends AbstractType {
 
     @NotNull
     @Valid
-    private ScmAccountType scmAccountType;
+    private ScmAccountDTO scmAccountDTO;
 
     @Valid
     private List<LauncherPresetDTO> presets;

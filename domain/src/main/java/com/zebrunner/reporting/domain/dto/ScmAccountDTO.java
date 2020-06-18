@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ScmAccountType extends AbstractType {
+public class ScmAccountDTO extends AbstractType {
 
     private static final long serialVersionUID = 9120645976990419377L;
 

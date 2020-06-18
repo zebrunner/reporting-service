@@ -337,7 +337,7 @@ public class LauncherService {
 
         String organizationName = scmAccount.getOrganizationName();
         String repositoryName = scmAccount.getRepositoryName();
-        String scmUser = gitHubService.getLoginName(scmAccount);
+        String scmUser = scmAccount.getLogin();
         String scmToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String serviceUrl = urlResolver.buildWebserviceUrl();
         String accessToken = jwtService.generateAccessToken(user, TenancyContext.getTenantName());
@@ -346,6 +346,7 @@ public class LauncherService {
         if (StringUtils.isNotEmpty(automationServerService.getFolder(automationServerId))) {
             jobParameters.put("scmOrg", organizationName);
         }
+        jobParameters.put("scmHost", scmAccountService.getScmAuthData().getHost());
         jobParameters.put("repo", repositoryName);
         jobParameters.put("branch", branch);
         jobParameters.put("scmUser", scmUser);
