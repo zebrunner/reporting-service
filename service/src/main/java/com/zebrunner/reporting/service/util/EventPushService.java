@@ -1,8 +1,6 @@
 package com.zebrunner.reporting.service.util;
 
-import com.zebrunner.reporting.domain.properties.MailIntegrationRoutingProps;
 import com.zebrunner.reporting.domain.properties.MailRoutingProps;
-import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.service.integration.tool.impl.MessageBrokerService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,17 +22,14 @@ public class EventPushService<T> {
     private final MessageBrokerService messageBrokerService;
     private final String exchangeName;
     private final MailRoutingProps mailRoutingProps;
-    private final MailIntegrationRoutingProps mailIntegrationRoutingProps;
 
     public EventPushService(RabbitTemplate rabbitTemplate,
                             @Value("${spring.rabbitmq.template.exchange}") String exchangeName,
                             @Lazy MessageBrokerService messageBrokerService,
-                            MailRoutingProps mailRoutingProps,
-                            MailIntegrationRoutingProps mailIntegrationRoutingProps) {
+                            MailRoutingProps mailRoutingProps) {
         this.rabbitTemplate = rabbitTemplate;
         this.messageBrokerService = messageBrokerService;
         this.exchangeName = exchangeName;
-        this.mailIntegrationRoutingProps = mailIntegrationRoutingProps;
         this.mailRoutingProps = mailRoutingProps;
     }
 
@@ -115,9 +110,6 @@ public class EventPushService<T> {
             case MAIL:
                 name = mailRoutingProps.getExchangeName();
                 break;
-            case MAIL_INTEGRATION:
-                name = mailIntegrationRoutingProps.getExchangeName();
-                break;
             default:
                 break;
         }
@@ -135,9 +127,6 @@ public class EventPushService<T> {
                 break;
             case MAIL:
                 key = mailRoutingProps.getKey();
-                break;
-            case MAIL_INTEGRATION:
-                key = mailIntegrationRoutingProps.getKey();
                 break;
             default:
                 break;

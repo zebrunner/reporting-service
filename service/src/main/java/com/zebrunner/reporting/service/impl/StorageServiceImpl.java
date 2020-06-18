@@ -11,14 +11,15 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.Credentials;
 import software.amazon.awssdk.services.sts.model.GetSessionTokenResponse;
 
-import java.io.InputStream;
 import java.util.UUID;
 
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.S3_TEMPORARY_CREDENTIALS_USAGE_NOT_POSSIBLE;
@@ -31,6 +32,10 @@ public class StorageServiceImpl implements StorageService {
 
     private static final String[] ALLOWED_IMAGE_CONTENT_TYPES = {"image/png", "image/jpeg"};
     private static final String[] APP_EXTENSIONS = {"app", "ipa", "apk", "apks"};
+
+    private static final String ORG_ASSET_PREFIX = "assets/org";
+    private static final String USER_ASSET_PREFIX = "assets/user";
+    private static final String APP_PACKAGE_PREFIX = "artifacts/applications";
 
     private static final long MAX_IMAGE_SIZE = 2 * 1024 * 1024;         // 2 MB
     private static final long MAX_APP_PACKAGE_SIZE = 100 * 1024 * 1024; // 100 MB
@@ -54,8 +59,16 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public InputStream get(String key) {
-        return s3Client.getObject(rb -> rb.bucket(s3Properties.getBucket()).key(key).build());
+    public BinaryObject get(String key) {
+        ResponseInputStream<GetObjectResponse> response = s3Client.getObject(rb -> rb.bucket(s3Properties.getBucket()).key(key).build());
+        return BinaryObject.builder()
+                           .data(response)
+                           .type(getKeyPrefixType(key))
+                           .name(getObjectName(key))
+                           .contentType(response.response().contentType())
+                           .key(key)
+                           .size(response.response().contentLength())
+                           .build();
     }
 
     @Override
@@ -114,16 +127,43 @@ public class StorageServiceImpl implements StorageService {
         String prefix = "";
         switch (type) {
             case ORG_ASSET:
-                prefix = "assets/org";
+                prefix = ORG_ASSET_PREFIX;
                 break;
             case USER_ASSET:
-                prefix = "assets/user";
+                prefix = USER_ASSET_PREFIX;
                 break;
             case APP_PACKAGE:
-                prefix = "artifacts/applications";
+                prefix = APP_PACKAGE_PREFIX;
                 break;
         }
         return prefix;
+    }
+
+    private String getObjectName(String key) {
+        int nameIndex = key.lastIndexOf("/");
+        return nameIndex != -1 ? key.substring(nameIndex + 1) : key;
+    }
+
+    private BinaryObject.Type getKeyPrefixType(String key) {
+        int nameIndex = key.lastIndexOf("/");
+        String prefix = nameIndex != -1 ? key.substring(0, nameIndex) : key;
+        return getObjectType(prefix);
+    }
+
+    private BinaryObject.Type getObjectType(String prefix) {
+        BinaryObject.Type type = null;
+        switch (prefix) {
+            case ORG_ASSET_PREFIX:
+                type = BinaryObject.Type.ORG_ASSET;
+                break;
+            case USER_ASSET_PREFIX:
+                type = BinaryObject.Type.USER_ASSET;
+                break;
+            case APP_PACKAGE_PREFIX:
+                type = BinaryObject.Type.APP_PACKAGE;
+                break;
+        }
+        return type;
     }
 
 }

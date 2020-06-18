@@ -1,7 +1,6 @@
 package com.zebrunner.reporting.service.integration.impl;
 
 import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
-import com.zebrunner.reporting.domain.push.events.MailIntegrationNotification;
 import com.zebrunner.reporting.persistence.repository.IntegrationRepository;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.Job;
@@ -19,8 +18,6 @@ import com.zebrunner.reporting.service.integration.IntegrationSettingService;
 import com.zebrunner.reporting.service.integration.IntegrationTypeService;
 import com.zebrunner.reporting.service.integration.core.IntegrationInitializer;
 import com.zebrunner.reporting.service.integration.tool.AbstractIntegrationService;
-import com.zebrunner.reporting.service.integration.tool.adapter.mail.MailIntegrationAdapter;
-import com.zebrunner.reporting.service.integration.tool.proxy.IntegrationAdapterProxy;
 import com.zebrunner.reporting.service.util.EventPushService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -334,29 +331,5 @@ public class IntegrationServiceImpl implements IntegrationService {
         String tenantName = TenancyContext.getTenantName();
         eventPushService.convertAndSend(EventPushService.Routing.SETTINGS, new ReinitEventMessage(tenantName, integration.getId()));
         integrationInitializer.initIntegration(integration, tenantName);
-
-        notifyMailIntegrationInit(integration.getId());
     }
-
-    @Override
-    public void notifyMailIntegrationInit(Long integrationId) {
-        IntegrationAdapterProxy.getAdapter(integrationId).ifPresent(integrationAdapter -> {
-            if (integrationAdapter instanceof MailIntegrationAdapter) {
-                MailIntegrationAdapter mailIntegrationAdapter = (MailIntegrationAdapter) integrationAdapter;
-                notifyMailIntegrationReInitialized(mailIntegrationAdapter);
-            }
-        });
-    }
-
-    private void notifyMailIntegrationReInitialized(MailIntegrationAdapter integrationAdapter) {
-        String tenantName = TenancyContext.getTenantName();
-        MailIntegrationNotification mailIntegrationNotification = new MailIntegrationNotification(tenantName);
-        mailIntegrationNotification.setHost(integrationAdapter.getHost());
-        mailIntegrationNotification.setPort(integrationAdapter.getPort());
-        mailIntegrationNotification.setUsername(integrationAdapter.getUsername());
-        mailIntegrationNotification.setPassword(integrationAdapter.getPassword());
-        mailIntegrationNotification.setFromAddress(integrationAdapter.getFromAddress());
-        eventPushService.convertAndSend(EventPushService.Exchange.MAIL_INTEGRATION, EventPushService.Routing.MAIL_INTEGRATION, mailIntegrationNotification);
-    }
-
 }

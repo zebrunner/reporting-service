@@ -7,7 +7,6 @@ import com.zebrunner.reporting.domain.push.events.MailNotification;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.email.CommonEmail;
 import com.zebrunner.reporting.service.email.IEmailMessage;
-import com.zebrunner.reporting.service.integration.tool.impl.MailService;
 import com.zebrunner.reporting.service.util.EmailUtils;
 import com.zebrunner.reporting.service.util.EventPushService;
 import com.zebrunner.reporting.service.util.FreemarkerUtil;
@@ -33,22 +32,15 @@ public class EmailService {
     private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
-    private final MailService mailService;
     private final EventPushService<MailNotification> eventPushService;
     private final FreemarkerUtil freemarkerUtil;
     private final MailTemplateProps props;
 
     public String sendEmail(final IEmailMessage message, final String... emails) {
-
-        if (!mailService.isEnabledAndConnected(null)) {
-            return null;
-        }
-
         final String[] recipients = processRecipients(emails);
         String resourceKey = null;
         if (!ArrayUtils.isEmpty(recipients)) {
-            String tenantName = TenancyContext.getTenantName();
-            MailNotification notification = new MailNotification(tenantName);
+            MailNotification notification = new MailNotification();
             notification.setSubject(message.getSubject());
             notification.setMessage(message.getText());
             notification.setContent(message);
@@ -63,7 +55,7 @@ public class EmailService {
             notification.setRecipients(Set.of(recipients));
 
             resourceKey = getTemplateKey(message);
-            notification.setResourceKey(resourceKey);
+            notification.setTemplateReference(resourceKey);
             eventPushService.convertAndSend(EventPushService.Exchange.MAIL, EventPushService.Routing.MAIL, notification);
         }
         return freemarkerUtil.processFreemarkerTemplateFromS3(resourceKey, message);

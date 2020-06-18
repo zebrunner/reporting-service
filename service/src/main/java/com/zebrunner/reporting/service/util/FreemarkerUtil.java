@@ -29,7 +29,7 @@ public class FreemarkerUtil {
     public String processFreemarkerTemplateFromS3(String key, Object obj) {
         String result;
         try {
-            InputStream resource = storageService.get(key);
+            InputStream resource = storageService.get(key).getData();
             Template fTemplate = new Template(UUID.randomUUID().toString(),
                     new InputStreamReader(resource), new Configuration(Configuration.VERSION_2_3_30));
             result = FreeMarkerTemplateUtils.processTemplateIntoString(fTemplate, obj);

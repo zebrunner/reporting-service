@@ -128,13 +128,9 @@ s3:
 
 routing:
   mail:
-    exchange-name: ${MAIL_EXCHANGE_NAME}
-    queue-name: ${MAIL_QUEUE_NAME}
-    key: ${MAIL_KEY}
-  mail-integration:
-    exchange-name: ${MAIL_INTEGRATION_EXCHANGE_NAME}
-    queue-name: ${MAIL_INTEGRATION_QUEUE_NAME}
-    key: ${MAIL_INTEGRATION_KEY}
+    exchange-name: mail
+    queue-name: mail-queue
+    key: mail
 
 mail-template:
     dashboard: ${mail.template.dashboard}

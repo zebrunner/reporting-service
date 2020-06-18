@@ -9,17 +9,13 @@ import java.util.Set;
 
 @Getter
 @Setter
-public final class MailNotification extends EventMessage {
+public final class MailNotification {
 
     private Set<String> recipients;
     private String subject;
     private String message;
-    private String resourceKey;
+    private String templateReference;
     private Object content;
     private List<File> attachments;
 
-
-    public MailNotification(String tenantName) {
-        super(tenantName);
-    }
 }

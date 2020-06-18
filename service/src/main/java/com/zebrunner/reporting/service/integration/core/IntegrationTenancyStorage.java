@@ -10,7 +10,6 @@ import com.zebrunner.reporting.service.CryptoService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.service.integration.IntegrationSettingService;
 import com.zebrunner.reporting.service.integration.tool.proxy.IntegrationAdapterProxy;
-import com.zebrunner.reporting.service.integration.tool.proxy.MailProxy;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.util.EventPushService;
 import org.slf4j.Logger;
@@ -69,7 +68,6 @@ public class IntegrationTenancyStorage {
 
     public void onTenancyInitialization() {
         encryptIntegrationSettings();
-        notifyMailIntegrationInit();
     }
 
     private void encryptIntegrationSettings() {
@@ -86,16 +84,6 @@ public class IntegrationTenancyStorage {
         } catch (Exception e) {
             LOGGER.error("Unable to encrypt value: " + e.getMessage(), e);
         }
-    }
-
-    private void notifyMailIntegrationInit() {
-        integrationProxies.values().stream()
-                          .filter(proxy -> proxy instanceof MailProxy)
-                          .findFirst()
-                          .ifPresent(integrationAdapterProxy -> {
-                              List<Integration> integrations = integrationService.retrieveIntegrationsByGroupName(integrationAdapterProxy.getGroup());
-                              integrations.forEach(integration -> integrationService.notifyMailIntegrationInit(integration.getId()));
-                          });
     }
 
     @RabbitListener(queues = "#{settingsQueue.name}")
