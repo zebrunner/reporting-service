@@ -23,16 +23,10 @@ public class UserSavedListener {
 
         User user = new User(message.getId());
         user.setUsername(message.getUsername());
-        user.setEmail(message.getEmail());
-        user.setFirstName(message.getFirstName());
-        user.setLastName(message.getLastName());
-        user.setPhotoURL(message.getPhotoUrl());
-        user.setStatus(User.Status.valueOf(message.getStatus()));
-        user.setSource(User.Source.valueOf(message.getSource()));
 
         TenancyContext.setTenantName(message.getTenantName());
-        if (!userService.isExistById(user.getId())) {
-            userService.create(user, null);
+        if (!userService.existsById(user.getId())) {
+            userService.create(user);
         }
     }
 

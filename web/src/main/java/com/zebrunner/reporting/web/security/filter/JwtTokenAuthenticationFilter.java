@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.web.security.filter;
 
-import com.zebrunner.reporting.domain.db.User;
-import com.zebrunner.reporting.domain.dto.auth.JwtUserType;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticationTokenContent;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
 import com.zebrunner.reporting.service.JWTService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -29,6 +29,11 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
 public class JwtTokenAuthenticationFilter extends GenericFilterBean {
+
+    public static final String AUTHENTICATION_TOKEN_CLAIM_USERNAME = "username";
+    public static final String AUTHENTICATION_TOKEN_CLAIM_PERMISSIONS = "permissions";
+    public static final String REFRESH_TOKEN_CLAIM_PASSWORD = "password";
+    public static final String CLAIM_TENANT = "tenant";
 
     @Autowired
     private JWTService jwtService;
@@ -65,14 +70,8 @@ public class JwtTokenAuthenticationFilter extends GenericFilterBean {
              * then created and registered in the SecurityContext. The SecurityContext will be analyzed by chained
              * filters that will throw Exceptions if necessary (like if authorizations are incorrect).
              */
-            User user = extractAndDecodeJwt(request);
-
-            if (user.getStatus().equals(User.Status.INACTIVE)) {
-                chain.doFilter(request, response);
-                return;
-            }
-
-            Authentication auth = buildAuthenticationFromJwt(user, request);
+            AuthenticationTokenContent authenticationTokenContent = extractAndDecodeJwt(request);
+            Authentication auth = buildAuthenticationFromJwt(authenticationTokenContent, request);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             chain.doFilter(request, response);
@@ -88,15 +87,15 @@ public class JwtTokenAuthenticationFilter extends GenericFilterBean {
         return requestMatcher.matches(request);
     }
 
-    private User extractAndDecodeJwt(HttpServletRequest request) {
+    private AuthenticationTokenContent extractAndDecodeJwt(HttpServletRequest request) {
         String authHeader = request.getHeader(AUTHORIZATION);
         String token = authHeader.substring("Bearer ".length());
         return jwtService.parseAuthToken(token);
     }
 
-    private Authentication buildAuthenticationFromJwt(User user, HttpServletRequest request) {
-        JwtUserType userDetails = new JwtUserType(user.getId(), user.getUsername(), user.getGroups());
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    private Authentication buildAuthenticationFromJwt(AuthenticationTokenContent content, HttpServletRequest request) {
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(content.getUserId(), content.getUsername(), content.getPermissions(), content.getToken());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         return authentication;
     }

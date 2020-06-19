@@ -1,6 +1,5 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
 import com.zebrunner.reporting.domain.dto.integration.IntegrationDTO;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;

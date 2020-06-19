@@ -1,11 +1,11 @@
 package com.zebrunner.reporting.web.security.expressions;
 
-import com.zebrunner.reporting.domain.dto.auth.JwtUserType;
-import com.zebrunner.reporting.domain.dto.auth.UserGrantedAuthority;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
 import org.springframework.security.core.Authentication;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -37,7 +37,7 @@ public class UserPermissionEvaluator implements IUserPermissionEvaluator {
     @Override
     public boolean isOwner(Authentication authentication, Object targetDomainObject) {
         if (authentication != null && targetDomainObject instanceof Long) {
-            return ((JwtUserType) authentication.getPrincipal()).getId() == (Long) targetDomainObject;
+            return ((AuthenticatedUser) authentication.getPrincipal()).getId() == (Integer) targetDomainObject;
         }
         return false;
     }
@@ -49,8 +49,13 @@ public class UserPermissionEvaluator implements IUserPermissionEvaluator {
     }
 
     private boolean checkAuthority(Authentication authentication, Predicate<String> permissionsPredicate) {
-        return authentication.getAuthorities().stream()
-                .flatMap(grantedAuthority -> ((UserGrantedAuthority) grantedAuthority).getPermissions().stream())
-                .anyMatch(permissionsPredicate);
+        if (authentication.getPrincipal() instanceof AuthenticatedUser) {
+            AuthenticatedUser authenticatedUser = (AuthenticatedUser) authentication.getPrincipal();
+            Set<String> permissions = authenticatedUser.getPermissions();
+            return authentication.getAuthorities().stream()
+                                 .flatMap(grantedAuthority -> permissions.stream())
+                                 .anyMatch(permissionsPredicate);
+        }
+        return false;
     }
 }

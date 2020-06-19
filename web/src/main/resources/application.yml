@@ -125,3 +125,8 @@ s3:
   secret: ${S3_SECRET}
   region: ${S3_REGION}
   bucket: ${S3_BUCKET}
+
+### IAM service settings
+iam:
+  host: ${iam.host}
+  port: ${iam.port}

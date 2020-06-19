@@ -47,7 +47,7 @@ public class JobsService {
     }
 
     private Job createJobFromURL(String jobUrl, Long userId) {
-        User user = userService.getUserById(userId);
+        User user = userService.getById(userId);
         // Replacing trailing slash we make sure that further operations
         // based on splitting by slash will be performed correctly
         jobUrl = jobUrl.replaceAll("/$", "");

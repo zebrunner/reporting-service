@@ -16,40 +16,8 @@
 			<b>username</b>
 		</field>
 		<field>
-			<a>password</a>
-			<b>password</b>
-		</field>
-		<field>
 			<a>email</a>
 			<b>email</b>
-		</field>
-		<field>
-			<a>firstName</a>
-			<b>firstName</b>
-		</field>
-		<field>
-			<a>lastName</a>
-			<b>lastName</b>
-		</field>
-		<field>
-			<a>roles</a>
-			<b>roles</b>
-		</field>
-		<field>
-			<a>lastLogin</a>
-			<b>lastLogin</b>
-		</field>
-		<field>
-			<a>photoURL</a>
-			<b>photoURL</b>
-		</field>
-		<field>
-			<a>source</a>
-			<b>source</b>
-		</field>
-		<field>
-			<a>status</a>
-			<b>status</b>
 		</field>
 	</mapping>
 </mappings>

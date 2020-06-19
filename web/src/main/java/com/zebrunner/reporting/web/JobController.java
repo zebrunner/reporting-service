@@ -44,7 +44,7 @@ public class JobController extends AbstractController implements JobDocumentedCo
     @PostMapping("/url")
     @Override
     public JobDTO createJobByUrl(@RequestBody @Valid JobUrlType jobUrl) {
-        Long principalId = getPrincipalId();
+        Long principalId = Long.valueOf(getPrincipalId());
         Job updatedJob = jobsService.createOrUpdateJobByURL(jobUrl.getJobUrlValue(), principalId);
         return mapper.map(updatedJob, JobDTO.class);
     }

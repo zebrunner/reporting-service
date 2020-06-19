@@ -80,7 +80,7 @@ public class SettingsController extends AbstractController implements SettingDoc
     @ApiResponseStatuses
     @ApiOperation(value = "Updates a setting", nickname = "setting", httpMethod = "PUT", response = Setting.class)
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasPermission('UPDATE_SETTINGS')")
     @PutMapping
     public Setting updateSetting(@RequestBody Setting setting) {
         return settingsService.updateSetting(setting);

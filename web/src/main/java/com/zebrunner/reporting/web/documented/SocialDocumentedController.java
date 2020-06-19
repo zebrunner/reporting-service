@@ -1,12 +1,12 @@
 package com.zebrunner.reporting.web.documented;
 
-import com.zebrunner.reporting.domain.db.Invitation;
-import com.zebrunner.reporting.domain.dto.auth.InvitationListType;
-import com.zebrunner.reporting.domain.dto.auth.InvitationType;
 import com.zebrunner.reporting.domain.dto.errors.ErrorResponse;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchCriteria;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.social.twitter.api.Tweet;
 
 import java.util.List;
