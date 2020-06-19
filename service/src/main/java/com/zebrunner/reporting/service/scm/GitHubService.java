@@ -40,6 +40,19 @@ public class GitHubService implements IScmService {
     }
 
     @Override
+    public String getLoginName(ScmAccount scmAccount) {
+        String result = null;
+        GitHub gitHub;
+        try {
+            gitHub = connectToGitHub(scmAccount);
+            result = gitHub.getMyself().getLogin();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return result;
+    }
+
+    @Override
     public List<Repository> getRepositories(ScmAccount scmAccount, String organizationName, List<String> existingRepos) throws IOException {
         GitHub gitHub = connectToGitHub(scmAccount);
         GHPerson tokenOwner = gitHub.getMyself();
@@ -85,7 +98,7 @@ public class GitHubService implements IScmService {
     }
 
     @Override
-    public ScmConfig getGitHubConfig() {
+    public ScmConfig getScmConfig() {
         return gitHubClient.getConfig();
     }
 

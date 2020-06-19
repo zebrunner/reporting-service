@@ -2,17 +2,17 @@ package com.zebrunner.reporting.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
-import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.JenkinsJob;
 import com.zebrunner.reporting.domain.db.Job;
+import com.zebrunner.reporting.domain.db.ScmAccount;
+import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.db.launcher.Launcher;
 import com.zebrunner.reporting.domain.db.launcher.LauncherCallback;
 import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
-import com.zebrunner.reporting.domain.db.ScmAccount;
-import com.zebrunner.reporting.domain.db.User;
+import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JobResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
@@ -20,6 +20,7 @@ import com.zebrunner.reporting.service.integration.tool.impl.TestAutomationToolS
 import com.zebrunner.reporting.service.scm.GitHubService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
 import com.zebrunner.reporting.service.util.URLResolver;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,7 @@ import static com.zebrunner.reporting.service.exception.ResourceNotFoundExceptio
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.USER_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class LauncherService {
 
     private static final String ERR_MSG_NO_BUILD_LAUNCHER_JOB_SPECIFIED = "No launcher job specified";
@@ -61,36 +63,6 @@ public class LauncherService {
     private final CryptoService cryptoService;
     private final URLResolver urlResolver;
     private final UserService userService;
-
-    public LauncherService(
-            LauncherMapper launcherMapper,
-            LauncherPresetService launcherPresetService,
-            LauncherCallbackService launcherCallbackService,
-            UserLauncherPreferenceService preferenceService,
-            AutomationServerService automationServerService,
-            ScmAccountService scmAccountService,
-            JobsService jobsService,
-            JWTService jwtService,
-            GitHubService gitHubService,
-            TestAutomationToolService testAutomationToolService,
-            CryptoService cryptoService,
-            URLResolver urlResolver,
-            UserService userService
-    ) {
-        this.launcherMapper = launcherMapper;
-        this.launcherPresetService = launcherPresetService;
-        this.launcherCallbackService = launcherCallbackService;
-        this.preferenceService = preferenceService;
-        this.automationServerService = automationServerService;
-        this.scmAccountService = scmAccountService;
-        this.jobsService = jobsService;
-        this.jwtService = jwtService;
-        this.gitHubService = gitHubService;
-        this.testAutomationToolService = testAutomationToolService;
-        this.cryptoService = cryptoService;
-        this.urlResolver = urlResolver;
-        this.userService = userService;
-    }
 
     @Transactional
     public Launcher createLauncher(Launcher launcher, Long userId, Long automationServerId) {
@@ -337,7 +309,7 @@ public class LauncherService {
 
         String organizationName = scmAccount.getOrganizationName();
         String repositoryName = scmAccount.getRepositoryName();
-        String scmUser = scmAccount.getLogin();
+        String scmUser = scmAccount.getLogin() == null ? gitHubService.getLoginName(scmAccount) : scmAccount.getLogin();
         String scmToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String serviceUrl = urlResolver.buildWebserviceUrl();
         String accessToken = jwtService.generateAccessToken(user, TenancyContext.getTenantName());
@@ -346,7 +318,7 @@ public class LauncherService {
         if (StringUtils.isNotEmpty(automationServerService.getFolder(automationServerId))) {
             jobParameters.put("scmOrg", organizationName);
         }
-        jobParameters.put("scmHost", scmAccountService.getScmConfig().getHost());
+        jobParameters.put("scmHost", gitHubService.getScmConfig().getHost());
         jobParameters.put("repo", repositoryName);
         jobParameters.put("branch", branch);
         jobParameters.put("scmUser", scmUser);

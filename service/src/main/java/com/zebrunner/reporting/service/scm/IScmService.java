@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IScmService {
 
-    ScmConfig getGitHubConfig();
+    ScmConfig getScmConfig();
 
     ScmAccount.Name getScmAccountName();
 
@@ -19,5 +19,7 @@ public interface IScmService {
     List<Repository> getRepositories(ScmAccount scmAccount, String organizationName, List<String> existingRepos) throws IOException;
 
     Repository getRepository(ScmAccount scmAccount);
+
+    String getLoginName(ScmAccount scmAccount);
 
 }

@@ -1,13 +1,13 @@
 package com.zebrunner.reporting.service.scm;
 
-import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
-import com.zebrunner.reporting.persistence.dao.mysql.application.ScmAccountMapper;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
+import com.zebrunner.reporting.persistence.dao.mysql.application.ScmAccountMapper;
 import com.zebrunner.reporting.service.CryptoService;
 import com.zebrunner.reporting.service.exception.ExternalSystemException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -21,6 +21,7 @@ import static com.zebrunner.reporting.service.exception.ExternalSystemException.
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.SCM_ACCOUNT_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class ScmAccountService {
 
     private static final String ERR_MSG_SCM_ACCOUNT_NOT_FOUND = "SCM account with id %s can not be found";
@@ -31,12 +32,6 @@ public class ScmAccountService {
     private final ScmAccountMapper scmAccountMapper;
     private final GitHubService gitHubService;
     private final CryptoService cryptoService;
-
-    public ScmAccountService(ScmAccountMapper scmAccountMapper, GitHubService gitHubService, CryptoService cryptoService) {
-        this.scmAccountMapper = scmAccountMapper;
-        this.gitHubService = gitHubService;
-        this.cryptoService = cryptoService;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public ScmAccount createScmAccount(ScmAccount scmAccount) {
@@ -97,10 +92,6 @@ public class ScmAccountService {
                                                  .map(ScmAccount::getRepositoryURL)
                                                  .collect(Collectors.toList());
         return gitHubService.getRepositories(scmAccount, organizationName, existingRepos);
-    }
-
-    public ScmConfig getScmConfig() {
-        return gitHubService.getGitHubConfig();
     }
 
     @Transactional(rollbackFor = Exception.class)

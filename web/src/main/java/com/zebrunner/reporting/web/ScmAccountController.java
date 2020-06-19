@@ -1,16 +1,18 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.domain.dto.ScmAccountDTO;
-import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import com.zebrunner.reporting.domain.db.ScmAccount;
+import com.zebrunner.reporting.domain.dto.ScmAccountDTO;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
+import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
+import com.zebrunner.reporting.service.scm.GitHubService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
 import com.zebrunner.reporting.web.util.swagger.ApiResponseStatuses;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,15 +36,12 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/scm", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class ScmAccountController extends AbstractController {
 
     private final ScmAccountService scmAccountService;
+    private final GitHubService gitHubService;
     private final Mapper mapper;
-
-    public ScmAccountController(ScmAccountService scmAccountService, Mapper mapper) {
-        this.scmAccountService = scmAccountService;
-        this.mapper = mapper;
-    }
 
     @ApiResponseStatuses
     @ApiOperation(value = "Creates an SCM account", nickname = "createScmAccount", httpMethod = "POST", response = ScmAccountDTO.class)
@@ -117,7 +116,7 @@ public class ScmAccountController extends AbstractController {
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS')")
     @GetMapping(path = "github/config")
     public ScmConfig getScmConfig() {
-        return scmAccountService.getScmConfig();
+        return gitHubService.getScmConfig();
     }
 
     @ApiResponseStatuses
@@ -141,13 +140,11 @@ public class ScmAccountController extends AbstractController {
 
     @ApiResponseStatuses
     @ApiOperation(value = "Retrieves all repositories", nickname = "getRepositories", httpMethod = "GET", response = List.class)
-    @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
+    @ApiImplicitParams({@ApiImplicitParam(name = "Authorization", paramType = "header")})
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS')")
     @GetMapping("/github/repositories/{scmId}")
-    public List<Repository> getRepositories(
-            @PathVariable("scmId") Long id,
-            @RequestParam(name = "org", required = false) String organizationName
-    ) throws IOException {
+    public List<Repository> getRepositories(@PathVariable("scmId") Long id,
+                                            @RequestParam(name = "org", required = false) String organizationName) throws IOException {
         return scmAccountService.getScmAccountRepositories(id, organizationName);
     }
 
