@@ -1,11 +1,12 @@
 package com.zebrunner.reporting.service.scm;
 
 import com.zebrunner.reporting.domain.db.ScmAccount;
-import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
+import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import com.zebrunner.reporting.service.CryptoService;
 import com.zebrunner.reporting.service.util.GitHubClient;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.github.GHPerson;
 import org.kohsuke.github.GHRepository;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class GitHubService implements IScmService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHubService.class);
@@ -26,30 +28,12 @@ public class GitHubService implements IScmService {
     private final GitHubClient gitHubClient;
     private final CryptoService cryptoService;
 
-    public GitHubService(GitHubClient gitHubClient, CryptoService cryptoService) {
-        this.gitHubClient = gitHubClient;
-        this.cryptoService = cryptoService;
-    }
-
     public String getAccessToken(String code) {
         return gitHubClient.getAccessToken(code);
     }
 
     public String getUsername(String token) {
         return gitHubClient.getUsername(token);
-    }
-
-    @Override
-    public String getLoginName(ScmAccount scmAccount) {
-        String result = null;
-        GitHub gitHub;
-        try {
-            gitHub = connectToGitHub(scmAccount);
-            result = gitHub.getMyself().getLogin();
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return result;
     }
 
     @Override
@@ -105,6 +89,19 @@ public class GitHubService implements IScmService {
     @Override
     public ScmAccount.Name getScmAccountName() {
         return gitHubClient.getAccountName();
+    }
+
+    @Override
+    public String getLoginName(ScmAccount scmAccount) {
+        String result = null;
+        GitHub gitHub;
+        try {
+            gitHub = connectToGitHub(scmAccount);
+            result = gitHub.getMyself().getLogin();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return result;
     }
 
     private static boolean isRepositoryOwner(String loginName, GHRepository repository) {
