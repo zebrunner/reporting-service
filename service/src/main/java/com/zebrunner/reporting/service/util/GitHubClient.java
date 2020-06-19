@@ -56,14 +56,13 @@ public class GitHubClient {
                   .addParameter("code", code)
                   .addParameter("accept", "json");
 
-        log.info("PATH: " + uriBuilder.getPath());
         HttpPost getAccessTokenRequest = new HttpPost(uriBuilder.build());
         getAccessTokenRequest.addHeader("Accept", "application/json");
 
         HttpResponse httpResponse = this.httpClient.execute(getAccessTokenRequest);
 
         String response = EntityUtils.toString(httpResponse.getEntity());
-        log.info("RESPONSE: " + response);
+
         return parseValue(response, "access_token");
     }
 
