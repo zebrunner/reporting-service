@@ -225,13 +225,10 @@ public class DashboardService {
     }
 
     @Transactional
-    public void setDefaultDashboard(Map<String, Object> extendedUserProfile, String title, String key) {
-        Dashboard dashboard;
-        if ("defaultDashboardId".equals(key)) {
-            dashboard = retrieveDefaultForUser(((UserDTO) extendedUserProfile.get("user")).getId());
-        } else {
-            dashboard = retrieveByTitle(title);
-        }
+    public void setDefaultDashboard(Map<String, Object> extendedUserProfile, Long userId, String title, String key) {
+        Dashboard dashboard = "defaultDashboardId".equals(key)
+                ? retrieveDefaultForUser(userId)
+                : retrieveByTitle(title);
         if (dashboard == null) {
             extendedUserProfile.put(key, null);
         } else {
