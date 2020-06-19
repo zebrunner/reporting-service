@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.domain.dto.ScmAccountDTO;
-import com.zebrunner.reporting.domain.dto.scm.ScmAuthData;
+import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
@@ -112,12 +112,12 @@ public class ScmAccountController extends AbstractController {
     }
 
     @ApiResponseStatuses
-    @ApiOperation(value = "Retrieves the Github client id", nickname = "getScmClientId", httpMethod = "GET", response = ScmAuthData.class)
+    @ApiOperation(value = "Retrieves the Github config", nickname = "getScmConfig", httpMethod = "GET", response = ScmConfig.class)
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
     @PreAuthorize("hasAnyPermission('MODIFY_LAUNCHERS')")
-    @GetMapping(path = "github/client")
-    public ScmAuthData getScmClientId() {
-        return scmAccountService.getScmAuthData();
+    @GetMapping(path = "github/config")
+    public ScmConfig getScmConfig() {
+        return scmAccountService.getScmConfig();
     }
 
     @ApiResponseStatuses

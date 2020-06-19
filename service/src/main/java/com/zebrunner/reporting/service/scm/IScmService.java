@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.service.scm;
 
 import com.zebrunner.reporting.domain.db.ScmAccount;
-import com.zebrunner.reporting.domain.dto.scm.ScmAuthData;
+import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IScmService {
 
-    ScmAuthData getGitHubAuthData();
+    ScmConfig getGitHubConfig();
 
     ScmAccount.Name getScmAccountName();
 

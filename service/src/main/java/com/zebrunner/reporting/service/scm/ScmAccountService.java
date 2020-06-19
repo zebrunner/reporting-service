@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.service.scm;
 
-import com.zebrunner.reporting.domain.dto.scm.ScmAuthData;
+import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import com.zebrunner.reporting.persistence.dao.mysql.application.ScmAccountMapper;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
@@ -99,8 +99,8 @@ public class ScmAccountService {
         return gitHubService.getRepositories(scmAccount, organizationName, existingRepos);
     }
 
-    public ScmAuthData getScmAuthData() {
-        return gitHubService.getGitHubAuthData();
+    public ScmConfig getScmConfig() {
+        return gitHubService.getGitHubConfig();
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -1,7 +1,7 @@
 package com.zebrunner.reporting.service.scm;
 
 import com.zebrunner.reporting.domain.db.ScmAccount;
-import com.zebrunner.reporting.domain.dto.scm.ScmAuthData;
+import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
 import com.zebrunner.reporting.service.CryptoService;
@@ -85,8 +85,8 @@ public class GitHubService implements IScmService {
     }
 
     @Override
-    public ScmAuthData getGitHubAuthData() {
-        return gitHubClient.getGitHubAuthData();
+    public ScmConfig getGitHubConfig() {
+        return gitHubClient.getConfig();
     }
 
     @Override

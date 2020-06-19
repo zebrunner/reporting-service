@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.zebrunner.reporting.domain.db.ScmAccount;
-import com.zebrunner.reporting.domain.dto.scm.ScmAuthData;
+import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.http.HttpResponse;
@@ -91,8 +91,8 @@ public class GitHubClient {
         return accessToken != null ? accessToken.getAsString() : null;
     }
 
-    public ScmAuthData getGitHubAuthData() {
-        return new ScmAuthData(gitHubClientId, gitHubHost);
+    public ScmConfig getConfig() {
+        return new ScmConfig(gitHubClientId, gitHubHost);
     }
 
     /**

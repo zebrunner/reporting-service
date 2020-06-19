@@ -346,7 +346,7 @@ public class LauncherService {
         if (StringUtils.isNotEmpty(automationServerService.getFolder(automationServerId))) {
             jobParameters.put("scmOrg", organizationName);
         }
-        jobParameters.put("scmHost", scmAccountService.getScmAuthData().getHost());
+        jobParameters.put("scmHost", scmAccountService.getScmConfig().getHost());
         jobParameters.put("repo", repositoryName);
         jobParameters.put("branch", branch);
         jobParameters.put("scmUser", scmUser);
