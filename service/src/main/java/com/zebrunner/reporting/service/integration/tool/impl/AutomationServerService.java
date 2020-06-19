@@ -9,7 +9,6 @@ import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.service.integration.tool.AbstractIntegrationService;
 import com.zebrunner.reporting.service.integration.tool.adapter.automationserver.AutomationServerAdapter;
 import com.zebrunner.reporting.service.integration.tool.proxy.AutomationServerProxy;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@Slf4j
 public class AutomationServerService extends AbstractIntegrationService<AutomationServerAdapter> {
 
     private final IntegrationSettingRepository integrationSettingRepository;
@@ -56,10 +54,7 @@ public class AutomationServerService extends AbstractIntegrationService<Automati
     }
 
     public JobResult buildScannerJob(String repositoryName, Map<String, String> jobParameters, boolean rescan, Long automationServerId) {
-        log.info("AUTOMATION_SERVER_ID: " + automationServerId);
-        log.info("RESCAN: " + rescan);
         AutomationServerAdapter adapter = getAdapterByIntegrationId(automationServerId);
-        log.info("ADAPTER: " + adapter);
         String jobUrl = adapter.buildScannerJobUrl(repositoryName, rescan);
         return adapter.buildJob(jobUrl, jobParameters);
     }

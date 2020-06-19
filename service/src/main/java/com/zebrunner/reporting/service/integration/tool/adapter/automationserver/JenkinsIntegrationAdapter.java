@@ -189,15 +189,12 @@ public class JenkinsIntegrationAdapter extends AbstractIntegrationAdapter implem
     }
 
     private JobResult buildJobByURL(String jobURL, Map<String, String> jobParameters) {
-        LOGGER.info("JOB_URL: " + jobURL);
         QueueReference reference = buildJobWithParameters(jobURL, jobParameters, true);
         return new JobResult(reference.getQueueItemUrlPart(), true);
     }
 
     private QueueReference buildJobWithParameters(String jobURL, Map<String, String> jobParameters, boolean crumbFlag) {
         JobWithDetails jobWithDetails = getJobWithDetails(jobURL);
-        LOGGER.info("JOB_DISPLAY_NAME: " + jobWithDetails.getDisplayName());
-        LOGGER.info("JOB_PARAMETERS: " + jobParameters);
         QueueReference queueReference;
         try {
             queueReference = jobWithDetails.build(jobParameters, crumbFlag);
