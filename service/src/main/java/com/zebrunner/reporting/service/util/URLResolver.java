@@ -4,9 +4,6 @@ import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Component
 public class URLResolver {
 
@@ -35,21 +32,11 @@ public class URLResolver {
     }
 
     public String getServiceURL() {
-        return getUrlFromWebUrl(buildWebURL());
+        return buildWebURL();
     }
 
     public String buildInvitationUrl(String token) {
         return String.format(SIGNUP_PATH_PATTERN, buildWebURL(), token);
     }
-
-    private static String getUrlFromWebUrl(String webUrl) {
-        String result = null;
-        Matcher matcher = Pattern.compile("^.+(?=/)").matcher(webUrl);
-        while (matcher.find()) {
-            result = matcher.group(0);
-        }
-        return result;
-    }
-
 
 }

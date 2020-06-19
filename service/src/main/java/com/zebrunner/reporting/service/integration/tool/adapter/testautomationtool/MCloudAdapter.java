@@ -22,7 +22,13 @@ public class MCloudAdapter extends AbstractIntegrationAdapter implements TestAut
 
     @Override
     public boolean isConnected() {
-        return HttpUtils.isReachable(url, username, accessKey, "/status", false);
+        boolean connected = false;
+        try {
+            connected = HttpUtils.isReachable(url, username, accessKey, "/status", false);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        return connected;
     }
 
     @Override

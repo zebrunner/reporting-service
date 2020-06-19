@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.zebrunner.reporting.web.util.dozer.NullSafeDozerBeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,8 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternUtils;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
@@ -39,6 +42,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -60,6 +64,23 @@ public class WebConfig implements WebMvcConfigurer {
         this.multitenant = multitenant;
 
         objectMapper(objectMapper);
+    }
+
+    // hypothetical fix for a peculiar communication scenario of SockJS.
+    // sometimes SockJS is not able to establish a native websocket connection.
+    // in this case, it uses some http-based alternatives.
+    // one of these alternatives expects application/javascript content to be returned.
+    // generally, spring internals handles client's expectations.
+    // but if client disconnects before the connection has been fully established,
+    // Spring throws an error which is handled by the api exception handler.
+    // the result of this handling cannot be converted to application/javascript, which leads to useless exceptions in logs.
+    // hypothetically, this mappingJackson2HttpMessageConverter should help gracefully omit the error.
+    @Autowired
+    public void mappingJackson2HttpMessageConverter(MappingJackson2HttpMessageConverter jsonConverter) {
+        List<MediaType> mediaTypes = new ArrayList<>(jsonConverter.getSupportedMediaTypes());
+        mediaTypes.add(new MediaType("application", "javascript"));
+        mediaTypes.add(new MediaType("text", "event-stream"));
+        jsonConverter.setSupportedMediaTypes(mediaTypes);
     }
 
     @Bean
@@ -159,6 +180,7 @@ public class WebConfig implements WebMvcConfigurer {
      * Registers placeholder configurer to resolve properties
      * Order is required, `cause  there is at least one placeholder configurer in servlet context by default.
      * Order is necessary to resolve their conflicts
+     *
      * @return a created placeholder configurer
      */
     @Bean

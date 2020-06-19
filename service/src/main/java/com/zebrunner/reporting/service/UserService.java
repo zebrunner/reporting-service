@@ -8,7 +8,6 @@ import com.zebrunner.reporting.persistence.dao.mysql.application.search.UserSear
 import com.zebrunner.reporting.service.cache.UserCacheableService;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
-import com.zebrunner.reporting.service.integration.tool.impl.StorageProviderService;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.util.DateTimeUtil;
 import org.apache.commons.lang.StringUtils;
@@ -69,9 +68,6 @@ public class UserService {
     private TenancyService tenancyService;
 
     @Autowired
-    private StorageProviderService storageProviderService;
-
-    @Autowired
     private UserCacheableService userCacheableService;
     
     @PostConstruct
@@ -105,14 +101,6 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUserById(long id) {
         return userMapper.getUserById(id);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteProfilePhoto(Long userId) {
-        User user = getNotNullUserById(userId);
-        storageProviderService.removeFile(user.getPhotoURL());
-        user.setPhotoURL(StringUtils.EMPTY);
-        updateUser(user);
     }
 
     @Transactional(readOnly = true)
@@ -283,6 +271,8 @@ public class UserService {
 
         List<User> users = userMapper.searchUsers(sc, publicDetails);
         int count = userMapper.getUserSearchCount(sc, publicDetails);
+
+        users.forEach(user -> user.getGroups().removeIf(group -> group.getId() == null));
 
         return SearchResult.<User>builder()
                 .page(sc.getPage())

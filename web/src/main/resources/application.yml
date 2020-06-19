@@ -4,7 +4,7 @@ service:
   version: ${version}
   docs-enabled: true
   debug-enabled: ${debug.enabled}
-  web-url: ${web.host}/${web.context.path}
+  web-url: ${web.host}
   api-url: ${api.host}/${api.context.path}
   use-artifact-proxy: ${use.artifact.proxy}
   admin:
@@ -113,3 +113,15 @@ db-state-management:
 crypto-salt: ${crypto.salt}
 amazon-token-expiration: 43200
 google-token-expiration: 43200
+
+### Twitter settings
+twitter:
+  enabled: ${twitter.enabled:false}
+  consumer-key: ${twitter.consumer.key}
+  consumer-secret: ${twitter.consumer.secret}
+
+s3:
+  access-key-id: ${S3_ACCESS_KEY_ID}
+  secret: ${S3_SECRET}
+  region: ${S3_REGION}
+  bucket: ${S3_BUCKET}
