@@ -134,4 +134,4 @@ routing:
     key: mail
 
 mail:
-  template-reference-prefix: /templates/
+  templates-directory-location: /templates/

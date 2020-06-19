@@ -2,7 +2,7 @@ package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.domain.db.Attachment;
 import com.zebrunner.reporting.domain.dto.EmailType;
-import com.zebrunner.reporting.domain.push.events.MailNotification;
+import com.zebrunner.reporting.domain.push.events.MailMessage;
 import com.zebrunner.reporting.service.email.CommonEmail;
 import com.zebrunner.reporting.service.email.IEmailMessage;
 import com.zebrunner.reporting.service.util.EmailUtils;
@@ -30,30 +30,30 @@ public class EmailService {
     private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
-    private final EventPushService<MailNotification> eventPushService;
+    private final EventPushService<MailMessage> eventPushService;
     private final FreemarkerUtil freemarkerUtil;
 
     public String sendEmail(final IEmailMessage message, final String... emails) {
         final String[] recipients = processRecipients(emails);
         String templateName = null;
         if (!ArrayUtils.isEmpty(recipients)) {
-            MailNotification notification = new MailNotification();
-            notification.setSubject(message.getSubject());
-            notification.setMessage(message.getText());
-            notification.setContent(message);
+            MailMessage mailMessage = new MailMessage();
+            mailMessage.setSubject(message.getSubject());
+            mailMessage.setBody(message.getText());
+            mailMessage.setContent(message);
 
             boolean hasAttachments = message.getAttachments() != null;
             if (hasAttachments) {
                 List<File> attachments = message.getAttachments().stream()
                                                 .map(Attachment::getFile)
                                                 .collect(Collectors.toList());
-                notification.setAttachments(attachments);
+                mailMessage.setAttachments(attachments);
             }
-            notification.setRecipients(Set.of(recipients));
+            mailMessage.setRecipients(Set.of(recipients));
 
             templateName = message.getType().getTemplateName();
-            notification.setTemplateName(templateName);
-            eventPushService.convertAndSend(EventPushService.Exchange.MAIL, EventPushService.Routing.MAIL, notification);
+            mailMessage.setTemplateName(templateName);
+            eventPushService.convertAndSend(EventPushService.Exchange.MAIL, EventPushService.Routing.MAIL, mailMessage);
         }
         return freemarkerUtil.processEmailFreemarkerTemplateFromS3(templateName, message);
     }
