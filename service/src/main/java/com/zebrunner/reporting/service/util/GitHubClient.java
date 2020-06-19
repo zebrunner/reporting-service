@@ -7,6 +7,7 @@ import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.dto.scm.ScmConfig;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -23,6 +24,7 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class GitHubClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHubClient.class);
@@ -54,13 +56,14 @@ public class GitHubClient {
                   .addParameter("code", code)
                   .addParameter("accept", "json");
 
+        log.info("PATH: " + uriBuilder.getPath());
         HttpPost getAccessTokenRequest = new HttpPost(uriBuilder.build());
         getAccessTokenRequest.addHeader("Accept", "application/json");
 
         HttpResponse httpResponse = this.httpClient.execute(getAccessTokenRequest);
 
         String response = EntityUtils.toString(httpResponse.getEntity());
-
+        log.info("RESPONSE: " + response);
         return parseValue(response, "access_token");
     }
 
