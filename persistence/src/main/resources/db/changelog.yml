@@ -297,13 +297,24 @@ databaseChangeLog:
             relativeToChangelogFile: true
             splitStatements: false
   - changeSet:
-      id: 028_remove_mail_integration
+      id: 028_remove_event_work_item
+      validCheckSum: ANY
+      labels: stable
+      author: itsvirko
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/028_remove_event_work_item.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+  - changeSet:
+      id: 029_remove_mail_integration
       validCheckSum: ANY
       labels: stable
       author: brutskov
       changes:
         - sqlFile:
             encoding: utf8
-            path: changeset/028_remove_mail_integration.sql
+            path: changeset/029_remove_mail_integration.sql
             relativeToChangelogFile: true
             splitStatements: false
