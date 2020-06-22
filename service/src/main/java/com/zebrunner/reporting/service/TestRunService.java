@@ -23,8 +23,6 @@ import com.zebrunner.reporting.persistence.dao.mysql.application.search.FilterSe
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.JobSearchCriteria;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestRunSearchCriteria;
-import com.zebrunner.reporting.service.email.EmailType;
-import com.zebrunner.reporting.service.email.TestRunResultsEmail;
 import com.zebrunner.reporting.service.exception.ExternalSystemException;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.IntegrationException;
@@ -750,17 +748,15 @@ public class TestRunService implements ProjectReassignable {
                                                   boolean showOnlyFailures,
                                                   boolean showStacktrace,
                                                   final String... recipients) {
-
-        TestRunResultsEmail email = buildTestRunResultEmail(testRun, tests);
-
-        String jiraUrl = getJiraUrl();
-        email.setJiraURL(jiraUrl);
-        email.setShowOnlyFailures(showOnlyFailures);
-        email.setShowStacktrace(showStacktrace);
-        email.setSuccessRate(calculateSuccessRate(testRun));
         String emailContent = null;
         try {
-            emailContent = emailService.sendEmail(email, recipients);
+            String jiraUrl = getJiraUrl();
+            tests.forEach(test -> test.setArtifacts(new HashSet<>(test.getArtifacts())));
+            Long automationServerId = testRun.getJob().getAutomationServerId();
+            boolean showJenkinsUrl = automationServerService.showJobUrl(automationServerId);
+            int sucessRate = calculateSuccessRate(testRun);
+
+            emailContent = emailService.sendTestRunResultsEmail(testRun, tests, jiraUrl, showOnlyFailures, showStacktrace, showJenkinsUrl, sucessRate, recipients);
         } catch (IntegrationException e) {
             LOGGER.error("Unable to send results email " + e);
         }
@@ -780,32 +776,18 @@ public class TestRunService implements ProjectReassignable {
         if (testRun != null) {
             List<Test> tests = testService.getTestsByTestRunId(id);
 
-            TestRunResultsEmail email = buildTestRunResultEmail(testRun, tests);
-
             String jiraUrl = getJiraUrl();
-            email.setJiraURL(jiraUrl);
-            email.setSuccessRate(calculateSuccessRate(testRun));
-            result = freemarkerUtil.processEmailFreemarkerTemplateFromS3(EmailType.TEST_RUN.getTemplateName(), email);
+            tests.forEach(test -> test.setArtifacts(new HashSet<>(test.getArtifacts())));
+            Long automationServerId = testRun.getJob().getAutomationServerId();
+            boolean showJenkinsUrl = automationServerService.showJobUrl(automationServerId);
+            int sucessRate = calculateSuccessRate(testRun);
+
+            Map<String, Object> templateData = emailService.buildTestRunResultsMailData(testRun, tests, jiraUrl, false, true, showJenkinsUrl, sucessRate);
+            result = freemarkerUtil.processEmailFreemarkerTemplateFromS3(EmailService.getTestRunResultTemplateName(), templateData);
         } else {
             LOGGER.error(String.format(ERR_MSG_TEST_RUN_NOT_FOUND, id));
         }
         return result;
-    }
-
-    private TestRunResultsEmail buildTestRunResultEmail(TestRun testRun, List<Test> tests) {
-
-        tests.forEach(test -> test.setArtifacts(new HashSet<>(test.getArtifacts())));
-
-        TestRunResultsEmail testRunResultsEmail = new TestRunResultsEmail(testRun, tests);
-        testRunResultsEmail.getCustomValues().put("zafira_service_url", urlResolver.buildWebURL());
-
-        Long automationServerId = testRun.getJob().getAutomationServerId();
-        boolean appendJenkinsUrl = automationServerService.showJobUrl(automationServerId);
-        if (appendJenkinsUrl) {
-            testRunResultsEmail.setShowJenkinsUrl(true);
-        }
-
-        return testRunResultsEmail;
     }
 
     private String getJiraUrl() {

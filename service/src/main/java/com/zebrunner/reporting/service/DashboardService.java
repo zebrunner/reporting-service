@@ -7,9 +7,11 @@ import com.zebrunner.reporting.domain.db.Widget;
 import com.zebrunner.reporting.domain.dto.user.UserDTO;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ import static com.zebrunner.reporting.service.exception.IllegalOperationExceptio
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.DASHBOARD_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class DashboardService {
 
     private static final String ERR_MSG_DASHBOARD_CAN_NOT_BE_FOUND = "Dashboard with id %s can not be found";
@@ -32,11 +35,7 @@ public class DashboardService {
 
     private final DashboardMapper dashboardMapper;
     private final UserPreferenceService userPreferenceService;
-
-    public DashboardService(DashboardMapper dashboardMapper, UserPreferenceService userPreferenceService) {
-        this.dashboardMapper = dashboardMapper;
-        this.userPreferenceService = userPreferenceService;
-    }
+    private final EmailService emailService;
 
     @Transactional
     public Dashboard createDashboard(Dashboard dashboard) {
@@ -237,6 +236,10 @@ public class DashboardService {
         } else {
             extendedUserProfile.put(key, dashboard.getId());
         }
+    }
+
+    public void sendByEmail(String subject, String body, List<File> attachments, String... toEmails) {
+        emailService.sendDashboardEmail(subject, body, attachments, toEmails);
     }
 
 }
