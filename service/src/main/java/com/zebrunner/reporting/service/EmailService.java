@@ -4,7 +4,7 @@ import com.zebrunner.reporting.domain.db.Status;
 import com.zebrunner.reporting.domain.db.Test;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.push.events.Attachment;
-import com.zebrunner.reporting.domain.push.events.MailMessage;
+import com.zebrunner.reporting.domain.push.events.MailDataMessage;
 import com.zebrunner.reporting.service.exception.ProcessingException;
 import com.zebrunner.reporting.service.util.EventPushService;
 import com.zebrunner.reporting.service.util.FreemarkerUtil;
@@ -51,12 +51,12 @@ public class EmailService {
     private static final String FORGOT_PASSWORD_LDAP_TEMPLATE_NAME = "forgot_password_ldap.ftl";
     private static final String FORGOT_PASSWORD_LDAP_MAIL_SUBJECT = "Password reset";
 
-    private final EventPushService<MailMessage> eventPushService;
+    private final EventPushService<MailDataMessage> eventPushService;
     private final FreemarkerUtil freemarkerUtil;
     private final URLResolver urlResolver;
     private final String logoUrl;
 
-    public EmailService(EventPushService<MailMessage> eventPushService,
+    public EmailService(EventPushService<MailDataMessage> eventPushService,
                         FreemarkerUtil freemarkerUtil,
                         URLResolver urlResolver,
                         @Value("${slack.image-url}") String logoUrl) {
@@ -69,30 +69,39 @@ public class EmailService {
     public String sendDashboardEmail(String subject, String body, List<File> files, String... emails) {
         List<Attachment> attachments = convertFilesToAttachments(files);
 
-        Map<String, Object> mailData = new HashMap<>(buildMailData());
-        mailData.put("text", body);
-        mailData.put("subject", subject);
-        mailData.put("attachments", attachments);
+        Map<String, Object> templateModel = new HashMap<>(templateModel());
+        templateModel.put("text", body);
+        templateModel.put("subject", subject);
+        templateModel.put("attachments", attachments);
 
-        MailMessage mailMessage = MailMessage.builder(DASHBOARD_TEMPLATE_NAME, subject, Set.of(emails), mailData)
-                                             .attachments(attachments)
-                                             .build();
-        return sendEmail(mailMessage);
+        MailDataMessage mailDataMessage = MailDataMessage.builder()
+                                                         .templateName(DASHBOARD_TEMPLATE_NAME)
+                                                         .subject(subject)
+                                                         .toEmails(Set.of(emails))
+                                                         .templateModel(templateModel)
+                                                         .attachments(attachments)
+                                                         .build();
+        return sendEmail(mailDataMessage);
     }
 
     public String sendTestRunResultsEmail(TestRun testRun, List<Test> tests, String jiraUrl, boolean showOnlyFailures, boolean showStacktrace, boolean showJenkinsUrl, int successRate, String... emails) {
         String status = buildStatusText(testRun);
         String subject = String.format("%s: %s", status, testRun.getName());
 
-        Map<String, Object> mailData = buildTestRunResultsMailData(testRun, tests, jiraUrl, showOnlyFailures, showStacktrace, showJenkinsUrl, successRate);
-        MailMessage mailMessage = MailMessage.builder(TEST_RUN_RESULT_TEMPLATE_NAME, subject, Set.of(emails), mailData)
-                                             .build();
-        return sendEmail(mailMessage);
+        Map<String, Object> templateModel = buildTestRunResultsTemplateModel(testRun, tests, jiraUrl, showOnlyFailures, showStacktrace, showJenkinsUrl, successRate);
+
+        MailDataMessage mailDataMessage = MailDataMessage.builder()
+                                                         .templateName(TEST_RUN_RESULT_TEMPLATE_NAME)
+                                                         .subject(subject)
+                                                         .toEmails(Set.of(emails))
+                                                         .templateModel(templateModel)
+                                                         .build();
+        return sendEmail(mailDataMessage);
     }
 
-    public Map<String, Object> buildTestRunResultsMailData(TestRun testRun, List<Test> tests, String jiraUrl, boolean showOnlyFailures, boolean showStacktrace, boolean showJenkinsUrl, int successRate) {
+    public Map<String, Object> buildTestRunResultsTemplateModel(TestRun testRun, List<Test> tests, String jiraUrl, boolean showOnlyFailures, boolean showStacktrace, boolean showJenkinsUrl, int successRate) {
         String elapsed = testRun.getElapsed() != null ? LocalTime.ofSecondOfDay(testRun.getElapsed()).toString() : null;
-        Map<String, Object> mailData = new HashMap<>(buildMailData());
+        Map<String, Object> mailData = new HashMap<>(templateModel());
         mailData.put("testRun", testRun);
         mailData.put("tests", tests);
         mailData.put("jiraURL", jiraUrl);
@@ -110,50 +119,66 @@ public class EmailService {
     }
 
     public String sendUserInvitationEmail(String invitationUrl, String... emails) {
-        Map<String, Object> mailData = new HashMap<>(buildMailData());
-        mailData.put("invitationUrl", invitationUrl);
-        MailMessage mailMessage = MailMessage.builder(USER_INVITATION_TEMPLATE_NAME, USER_INVITATION_MAIL_SUBJECT, Set.of(emails), mailData)
-                                             .build();
-        return sendEmail(mailMessage);
+        Map<String, Object> templateModel = new HashMap<>(templateModel());
+        templateModel.put("invitationUrl", invitationUrl);
+        MailDataMessage mailDataMessage = MailDataMessage.builder()
+                                                         .templateName(USER_INVITATION_TEMPLATE_NAME)
+                                                         .subject(USER_INVITATION_MAIL_SUBJECT)
+                                                         .toEmails(Set.of(emails))
+                                                         .templateModel(templateModel)
+                                                         .build();
+        return sendEmail(mailDataMessage);
     }
 
     public String sendUserInvitationLdapEmail(String invitationUrl, String... emails) {
-        Map<String, Object> mailData = new HashMap<>(buildMailData());
-        mailData.put("invitationUrl", invitationUrl);
-        MailMessage mailMessage = MailMessage.builder(USER_INVITATION_LDAP_TEMPLATE_NAME, USER_INVITATION_LDAP_MAIL_SUBJECT, Set.of(emails), mailData)
-                                             .build();
-        return sendEmail(mailMessage);
+        Map<String, Object> templateModel = new HashMap<>(templateModel());
+        templateModel.put("invitationUrl", invitationUrl);
+        MailDataMessage mailDataMessage = MailDataMessage.builder()
+                                                         .templateName(USER_INVITATION_LDAP_TEMPLATE_NAME)
+                                                         .subject(USER_INVITATION_LDAP_MAIL_SUBJECT)
+                                                         .toEmails(Set.of(emails))
+                                                         .templateModel(templateModel)
+                                                         .build();
+        return sendEmail(mailDataMessage);
     }
 
     public String sendForgotPasswordEmail(String token, String... emails) {
-        Map<String, Object> mailData = new HashMap<>(buildMailData());
-        mailData.put("token", token);
-        MailMessage mailMessage = MailMessage.builder(FORGOT_PASSWORD_TEMPLATE_NAME, FORGOT_PASSWORD_MAIL_SUBJECT, Set.of(emails), mailData)
-                                             .build();
-        return sendEmail(mailMessage);
+        Map<String, Object> templateModel = new HashMap<>(templateModel());
+        templateModel.put("token", token);
+        MailDataMessage mailDataMessage = MailDataMessage.builder()
+                                                         .templateName(FORGOT_PASSWORD_TEMPLATE_NAME)
+                                                         .subject(FORGOT_PASSWORD_MAIL_SUBJECT)
+                                                         .toEmails(Set.of(emails))
+                                                         .templateModel(templateModel)
+                                                         .build();
+        return sendEmail(mailDataMessage);
     }
 
     public String sendForgotPasswordLdapEmail(String token, String... emails) {
-        Map<String, Object> mailData = new HashMap<>(buildMailData());
-        mailData.put("token", token);
-        MailMessage mailMessage = MailMessage.builder(FORGOT_PASSWORD_LDAP_TEMPLATE_NAME, FORGOT_PASSWORD_LDAP_MAIL_SUBJECT, Set.of(emails), mailData)
-                                             .build();
-        return sendEmail(mailMessage);
+        Map<String, Object> templateModel = new HashMap<>(templateModel());
+        templateModel.put("token", token);
+        MailDataMessage mailDataMessage = MailDataMessage.builder()
+                                                         .templateName(FORGOT_PASSWORD_LDAP_TEMPLATE_NAME)
+                                                         .subject(FORGOT_PASSWORD_LDAP_MAIL_SUBJECT)
+                                                         .toEmails(Set.of(emails))
+                                                         .templateModel(templateModel)
+                                                         .build();
+        return sendEmail(mailDataMessage);
     }
 
-    private Map<String, Object> buildMailData() {
+    private Map<String, Object> templateModel() {
         return Map.of(
                 "logoUrl", logoUrl,
                 "workspaceURL", urlResolver.buildWebURL()
         );
     }
 
-    public String sendEmail(MailMessage mailMessage) {
-        Set<String> toEmails = processRecipients(mailMessage.getToEmails());
+    public String sendEmail(MailDataMessage mailDataMessage) {
+        Set<String> toEmails = processRecipients(mailDataMessage.getToEmails());
         if (!toEmails.isEmpty()) {
-            eventPushService.convertAndSend(EventPushService.Exchange.MAIL, EventPushService.Routing.MAIL, mailMessage);
+            eventPushService.convertAndSend(EventPushService.Exchange.MAIL, EventPushService.Routing.MAIL, mailDataMessage);
         }
-        return freemarkerUtil.processEmailFreemarkerTemplateFromS3(mailMessage.getTemplateName(), mailMessage.getMailData());
+        return freemarkerUtil.processEmailFreemarkerTemplateFromS3(mailDataMessage.getTemplateName(), mailDataMessage.getTemplateModel());
     }
 
     private List<Attachment> convertFilesToAttachments(List<File> files) {

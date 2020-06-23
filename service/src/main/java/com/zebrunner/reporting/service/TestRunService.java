@@ -782,7 +782,7 @@ public class TestRunService implements ProjectReassignable {
             boolean showJenkinsUrl = automationServerService.showJobUrl(automationServerId);
             int sucessRate = calculateSuccessRate(testRun);
 
-            Map<String, Object> templateData = emailService.buildTestRunResultsMailData(testRun, tests, jiraUrl, false, true, showJenkinsUrl, sucessRate);
+            Map<String, Object> templateData = emailService.buildTestRunResultsTemplateModel(testRun, tests, jiraUrl, false, true, showJenkinsUrl, sucessRate);
             result = freemarkerUtil.processEmailFreemarkerTemplateFromS3(EmailService.getTestRunResultTemplateName(), templateData);
         } else {
             LOGGER.error(String.format(ERR_MSG_TEST_RUN_NOT_FOUND, id));
