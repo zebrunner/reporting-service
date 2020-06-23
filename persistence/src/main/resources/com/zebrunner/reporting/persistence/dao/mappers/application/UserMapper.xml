@@ -6,8 +6,9 @@
 
     <insert id="createUser" useGeneratedKeys="true" keyProperty="id">
 		<![CDATA[
-        INSERT INTO USERS (USERNAME, EMAIL)
+        INSERT INTO USERS (ID, USERNAME, EMAIL)
         VALUES (
+                   #{id},
                    #{username},
                    #{email}
                )
