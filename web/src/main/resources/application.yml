@@ -127,11 +127,5 @@ s3:
   region: ${S3_REGION}
   bucket: ${S3_BUCKET}
 
-routing:
-  mail:
-    exchange-name: mail
-    queue-name: mail-queue
-    key: mail
-
-mail:
-  templates-directory-location: /templates/
+mailing:
+  templates-directory: ${MAIL_TEMPLATES_DIRECTORY:/templates/}

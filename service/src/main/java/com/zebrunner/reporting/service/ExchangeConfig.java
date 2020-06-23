@@ -7,15 +7,18 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.UUID;
 
 @Configuration
-@EnableConfigurationProperties(MailRoutingProps.class)
 public class ExchangeConfig {
+
+    public static final String MAIL_DATA_EXCHANGE = "mail-data-exchange";
+    public static final String MAIL_DATA_ROUTING_KEY = "mail-data";
+
+    private static final String MAIL_DATA_QUEUE = "mail-data-queue";
 
     private final String exchangeName;
 
@@ -33,8 +36,8 @@ public class ExchangeConfig {
     }
 
     @Bean
-    public DirectExchange mailExchange(MailRoutingProps props) {
-        return new DirectExchange(props.getExchangeName(), false, false);
+    public DirectExchange mailExchange() {
+        return new DirectExchange(MAIL_DATA_EXCHANGE, false, false);
     }
 
     /**
@@ -48,8 +51,8 @@ public class ExchangeConfig {
     }
 
     @Bean
-    public Queue mailQueue(MailRoutingProps props) {
-        return new Queue(props.getQueueName(), false);
+    public Queue mailQueue() {
+        return new Queue(MAIL_DATA_QUEUE, false);
     }
 
     /**
@@ -83,8 +86,8 @@ public class ExchangeConfig {
     }
 
     @Bean
-    public Binding mailBinding(DirectExchange mailExchange, Queue mailQueue, MailRoutingProps props) {
-        return BindingBuilder.bind(mailQueue).to(mailExchange).with(props.getKey());
+    public Binding mailBinding(DirectExchange mailExchange, Queue mailQueue) {
+        return BindingBuilder.bind(mailQueue).to(mailExchange).with(MAIL_DATA_ROUTING_KEY);
     }
 
     @Bean

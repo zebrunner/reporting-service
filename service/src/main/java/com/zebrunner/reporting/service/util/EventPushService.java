@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.service.util;
 
-import com.zebrunner.reporting.service.MailRoutingProps;
+import com.zebrunner.reporting.service.ExchangeConfig;
 import com.zebrunner.reporting.service.integration.tool.impl.MessageBrokerService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,16 +21,13 @@ public class EventPushService<T> {
     private final RabbitTemplate rabbitTemplate;
     private final MessageBrokerService messageBrokerService;
     private final String exchangeName;
-    private final MailRoutingProps mailRoutingProps;
 
     public EventPushService(RabbitTemplate rabbitTemplate,
                             @Value("${spring.rabbitmq.template.exchange}") String exchangeName,
-                            @Lazy MessageBrokerService messageBrokerService,
-                            MailRoutingProps mailRoutingProps) {
+                            @Lazy MessageBrokerService messageBrokerService) {
         this.rabbitTemplate = rabbitTemplate;
         this.messageBrokerService = messageBrokerService;
         this.exchangeName = exchangeName;
-        this.mailRoutingProps = mailRoutingProps;
     }
 
     @AllArgsConstructor
@@ -108,7 +105,7 @@ public class EventPushService<T> {
                 name = this.exchangeName;
                 break;
             case MAIL:
-                name = mailRoutingProps.getExchangeName();
+                name = ExchangeConfig.MAIL_DATA_EXCHANGE;
                 break;
             default:
                 break;
@@ -126,7 +123,7 @@ public class EventPushService<T> {
                 key = routing.key;
                 break;
             case MAIL:
-                key = mailRoutingProps.getKey();
+                key = ExchangeConfig.MAIL_DATA_ROUTING_KEY;
                 break;
             default:
                 break;

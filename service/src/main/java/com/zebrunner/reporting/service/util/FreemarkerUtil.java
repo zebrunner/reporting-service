@@ -27,8 +27,8 @@ public class FreemarkerUtil {
     private final Configuration freemarkerConfiguration;
     private final StorageService storageService;
 
-    @Value("${mail.templates-directory-location}")
-    private String emailTemplatesDirectoryLocation;
+    @Value("${mailing.templates-directory}")
+    private String emailTemplatesDirectory;
 
     public String processFreemarkerTemplateFromS3(String key, Object obj) {
         String result;
@@ -78,9 +78,9 @@ public class FreemarkerUtil {
     }
 
     private String buildEmailTemplateReference(String templateName) {
-        if (!emailTemplatesDirectoryLocation.endsWith("/")) {
-            emailTemplatesDirectoryLocation = emailTemplatesDirectoryLocation + "/";
+        if (!emailTemplatesDirectory.endsWith("/")) {
+            emailTemplatesDirectory = emailTemplatesDirectory + "/";
         }
-        return emailTemplatesDirectoryLocation + templateName;
+        return emailTemplatesDirectory + templateName;
     }
 }
