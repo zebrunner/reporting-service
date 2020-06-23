@@ -57,11 +57,6 @@ ext {
                 "ch.qos.logback:logback-classic:1.2.3"
         ],
 
-        javax_mail: [
-            "javax.mail:mail:1.4.7",
-            "javax.mail:javax.mail-api:1.5.5"
-        ],
-
         javax_validation : "javax.validation:validation-api:2.0.1.Final",
         hibernate_validator : "org.hibernate:hibernate-validator:6.1.2.Final",
 

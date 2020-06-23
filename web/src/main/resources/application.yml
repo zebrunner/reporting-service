@@ -127,5 +127,4 @@ s3:
   region: ${S3_REGION}
   bucket: ${S3_BUCKET}
 
-mailing:
-  templates-directory: ${MAIL_TEMPLATES_DIRECTORY:/templates/}
+templates-directory: ${TEMPLATES_DIRECTORY:/templates/}
