@@ -3,6 +3,7 @@ package com.zebrunner.reporting.web.documented;
 import com.zebrunner.reporting.domain.db.Attribute;
 import com.zebrunner.reporting.domain.db.Widget;
 import com.zebrunner.reporting.domain.dto.DashboardType;
+import com.zebrunner.reporting.domain.dto.EmailType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -10,7 +11,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -271,5 +274,21 @@ public interface DashboardDocumentedController {
             @ApiResponse(code = 400, message = "Indicates that a dashboard attributes is not editable", response = ResponseEntity.class)
     })
     List<Attribute> deleteDashboardAttribute(long dashboardId, long id);
+
+    @ApiOperation(
+            value = "Sends a dashboard by email",
+            notes = "Sends a dashboard using information about recipients from the part named ‘email’",
+            nickname = "sendByEmail",
+            httpMethod = "POST"
+    )
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", paramType = "header", required = true, value = "The auth token (Bearer)"),
+            @ApiImplicitParam(name = "email", paramType = "path", dataType = "MultipartFile", required = true, value = "The multipart file part named 'email'"),
+            @ApiImplicitParam(name = "file", paramType = "path", dataType = "MultipartFile", required = true, value = "The multipart file part named 'file'")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Indicates that the dashboard email was sent")
+    })
+    void sendByEmail(MultipartFile file, EmailType email);
 
 }

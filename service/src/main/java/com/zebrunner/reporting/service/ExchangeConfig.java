@@ -10,31 +10,34 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import java.util.UUID;
 
 @Configuration
 public class ExchangeConfig {
 
+    public static final String MAIL_DATA_EXCHANGE = "mail-data-exchange";
+    public static final String MAIL_DATA_ROUTING_KEY = "mail-data";
+
+    private static final String MAIL_DATA_QUEUE = "mail-data-queue";
+
     private final String exchangeName;
-    private final RabbitTemplate rabbitTemplate;
 
     public ExchangeConfig(
             @Value("${spring.rabbitmq.template.exchange}") String exchangeName,
             RabbitTemplate rabbitTemplate
     ) {
         this.exchangeName = exchangeName;
-        this.rabbitTemplate = rabbitTemplate;
-    }
-
-    @PostConstruct
-    public void init() {
-        this.rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
     }
 
     @Bean
-    public DirectExchange eventsTopicExchange() {
+    public DirectExchange exchange() {
         return new DirectExchange(exchangeName, false, true);
+    }
+
+    @Bean
+    public DirectExchange mailExchange() {
+        return new DirectExchange(MAIL_DATA_EXCHANGE, false, false);
     }
 
     /**
@@ -44,7 +47,12 @@ public class ExchangeConfig {
      */
     @Bean
     public Queue settingsQueue() {
-        return new Queue(generateQueueName("settingsQueue"), false, false, true);
+        return new Queue("settingsQueue", false, false, true);
+    }
+
+    @Bean
+    public Queue mailQueue() {
+        return new Queue(MAIL_DATA_QUEUE, false);
     }
 
     /**
@@ -67,7 +75,6 @@ public class ExchangeConfig {
         return new Queue("zbrEventsQueue", false, false, true);
     }
 
-
     @Bean
     public Queue zfrCallbacksQueue() {
         return new Queue("zfrCallbacksQueue", false, false, true);
@@ -76,6 +83,11 @@ public class ExchangeConfig {
     @Bean
     public Binding settingsBinding(DirectExchange exchange, Queue settingsQueue) {
         return BindingBuilder.bind(settingsQueue).to(exchange).with("settings");
+    }
+
+    @Bean
+    public Binding mailBinding(DirectExchange mailExchange, Queue mailQueue) {
+        return BindingBuilder.bind(mailQueue).to(mailExchange).with(MAIL_DATA_ROUTING_KEY);
     }
 
     @Bean

@@ -4,8 +4,8 @@ import com.zebrunner.reporting.domain.db.TestConfig;
 import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
+import com.zebrunner.reporting.service.EmailService;
 import com.zebrunner.reporting.service.TestRunService;
-import com.zebrunner.reporting.service.email.TestRunResultsEmail;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.service.integration.IntegrationTypeService;
@@ -62,7 +62,7 @@ public class NotificationService extends AbstractIntegrationService<Notification
     public void sendStatusOnFinish(String ciRunId, String channels) {
         TestRun testRun = updateTestRunChannels(ciRunId, channels);
         String readableTime = asReadableTime(testRun.getElapsed());
-        String statusText = TestRunResultsEmail.buildStatusText(testRun);
+        String statusText = EmailService.buildStatusText(testRun);
         String onFinishMessage = String.format(ON_FINISH_PATTERN, testRun.getId(), readableTime, statusText);
         sendNotifications(testRun, onFinishMessage);
     }
@@ -74,7 +74,7 @@ public class NotificationService extends AbstractIntegrationService<Notification
      */
     public void sendStatusOnReview(long testRunId) {
         TestRun testRun = testRunService.getTestRunByIdFull(testRunId);
-        String statusText = TestRunResultsEmail.buildStatusText(testRun);
+        String statusText = EmailService.buildStatusText(testRun);
         String reviewedMessage = String.format(REVIEWED_PATTERN, testRun.getId(), statusText);
         sendNotifications(testRun, reviewedMessage);
     }
