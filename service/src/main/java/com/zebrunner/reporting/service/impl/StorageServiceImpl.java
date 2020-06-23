@@ -34,10 +34,6 @@ public class StorageServiceImpl implements StorageService {
     private static final String[] ALLOWED_IMAGE_CONTENT_TYPES = {"image/png", "image/jpeg"};
     private static final String[] APP_EXTENSIONS = {"app", "ipa", "apk", "apks"};
 
-    private static final String ORG_ASSET_PREFIX = "assets/org";
-    private static final String USER_ASSET_PREFIX = "assets/user";
-    private static final String APP_PACKAGE_PREFIX = "artifacts/applications";
-
     private static final long MAX_IMAGE_SIZE = 2 * 1024 * 1024;         // 2 MB
     private static final long MAX_APP_PACKAGE_SIZE = 100 * 1024 * 1024; // 100 MB
 
@@ -65,7 +61,6 @@ public class StorageServiceImpl implements StorageService {
         ResponseInputStream<GetObjectResponse> response = s3Client.getObject(rb -> rb.bucket(s3Properties.getBucket()).key(key).build());
         return BinaryObject.builder()
                            .data(response)
-                           .type(getKeyPrefixType(key))
                            .name(getObjectName(key))
                            .contentType(response.response().contentType())
                            .key(key)
@@ -126,46 +121,21 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private String getKeyPrefix(BinaryObject.Type type) {
-        String prefix = "";
         switch (type) {
             case ORG_ASSET:
-                prefix = ORG_ASSET_PREFIX;
-                break;
+                return "assets/org";
             case USER_ASSET:
-                prefix = USER_ASSET_PREFIX;
-                break;
+                return  "assets/user";
             case APP_PACKAGE:
-                prefix = APP_PACKAGE_PREFIX;
-                break;
+                return  "artifacts/applications";
+            default:
+                return "";
         }
-        return prefix;
     }
 
     private String getObjectName(String key) {
         int nameIndex = key.lastIndexOf("/");
         return nameIndex != -1 ? key.substring(nameIndex + 1) : key;
-    }
-
-    private BinaryObject.Type getKeyPrefixType(String key) {
-        int nameIndex = key.lastIndexOf("/");
-        String prefix = nameIndex != -1 ? key.substring(0, nameIndex) : key;
-        return getObjectType(prefix);
-    }
-
-    private BinaryObject.Type getObjectType(String prefix) {
-        BinaryObject.Type type = null;
-        switch (prefix) {
-            case ORG_ASSET_PREFIX:
-                type = BinaryObject.Type.ORG_ASSET;
-                break;
-            case USER_ASSET_PREFIX:
-                type = BinaryObject.Type.USER_ASSET;
-                break;
-            case APP_PACKAGE_PREFIX:
-                type = BinaryObject.Type.APP_PACKAGE;
-                break;
-        }
-        return type;
     }
 
 }
