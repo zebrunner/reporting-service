@@ -27,7 +27,7 @@ public class FreemarkerUtil {
     private final Configuration freemarkerConfiguration;
     private final StorageService storageService;
 
-    @Value("${test-run-result.template.location}")
+    @Value("${templates-directory}")
     private String testRunResultTemplateLocation;
 
     public String processFreemarkerTemplateFromS3(String key, Object obj) {
