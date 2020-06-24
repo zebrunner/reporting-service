@@ -126,4 +126,4 @@ s3:
   region: ${S3_REGION}
   bucket: ${S3_BUCKET}
 
-templates-directory: ${TEMPLATES_DIRECTORY:_common/templates}
+templates-directory: ${TEMPLATES_DIRECTORY:templates}
