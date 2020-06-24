@@ -15,9 +15,9 @@ import java.util.List;
 public interface SocialDocumentedController {
 
     @ApiOperation(
-            value = "Returns user twitter timeline",
-            notes = "Returns user twitter timeline by user name",
-            nickname = "getUserTimeline",
+            value = "Returns user tweets",
+            notes = "Returns user tweets by user name",
+            nickname = "getUserTweets",
             httpMethod = "GET",
             response = List.class
     )
@@ -30,5 +30,5 @@ public interface SocialDocumentedController {
             @ApiResponse(code = 400, message = "Indicates that the userName not specified", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Indicates that twitter user not found", response = ErrorResponse.class)
     })
-    List<Tweet> getUserTimeline(String userName, int pageSize);
+    List<Tweet> getUserTweets(String userName, int pageSize);
 }
