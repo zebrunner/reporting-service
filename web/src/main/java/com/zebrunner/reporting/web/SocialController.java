@@ -1,15 +1,17 @@
 package com.zebrunner.reporting.web;
 
 import com.zebrunner.reporting.service.TwitterService;
-import com.zebrunner.reporting.service.exception.ForbiddenOperationException;
 import com.zebrunner.reporting.web.documented.SocialDocumentedController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.social.twitter.api.Tweet;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -18,13 +20,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "twitter.enabled", havingValue = "true")
-public class SocialController extends AbstractController implements SocialDocumentedController {
+public class SocialController implements SocialDocumentedController {
 
     private final TwitterService twitterService;
 
     @GetMapping("/tweets")
     @Override
-    public List<Tweet> getUserTweets(@RequestParam(value = "userName", defaultValue = TwitterService.ZEBRUNNER_NEWS) String userName, @RequestParam(value = "pageSize", defaultValue = "25") int pageSize) {
-        return twitterService.getUserTweets(userName, pageSize);
+    public List<Tweet> getZebrunnerTweets(@RequestParam(value = "pageSize", defaultValue = "25") int pageSize) {
+        return twitterService.getZebrunnerTweets(pageSize);
     }
+
 }
