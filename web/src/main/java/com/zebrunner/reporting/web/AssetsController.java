@@ -47,7 +47,7 @@ public class AssetsController implements AssetsDocumentedController {
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAsset(@RequestParam("key") String key) {
-        storageService.removeObject(key);
+        storageService.remove(key);
     }
 
 }

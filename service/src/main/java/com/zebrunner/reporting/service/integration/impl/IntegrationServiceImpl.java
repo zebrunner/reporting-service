@@ -45,7 +45,7 @@ public class IntegrationServiceImpl implements IntegrationService {
     private final IntegrationGroupService integrationGroupService;
     private final IntegrationTypeService integrationTypeService;
     private final IntegrationSettingService integrationSettingService;
-    private final EventPushService<ReinitEventMessage> eventPushService;
+    private final EventPushService<Object> eventPushService;
     private final IntegrationInitializer integrationInitializer;
 
     @Autowired
@@ -56,7 +56,7 @@ public class IntegrationServiceImpl implements IntegrationService {
             IntegrationGroupService integrationGroupService,
             IntegrationTypeService integrationTypeService,
             IntegrationSettingService integrationSettingService,
-            EventPushService<ReinitEventMessage> eventPushService,
+            EventPushService<Object> eventPushService,
             IntegrationInitializer integrationInitializer
     ) {
         this.integrationRepository = integrationRepository;
@@ -329,8 +329,7 @@ public class IntegrationServiceImpl implements IntegrationService {
 
     private void notifyToolReInitialized(Integration integration) {
         String tenantName = TenancyContext.getTenantName();
-        eventPushService.convertAndSend(EventPushService.Type.SETTINGS, new ReinitEventMessage(tenantName, integration.getId()));
+        eventPushService.convertAndSend(EventPushService.Routing.SETTINGS, new ReinitEventMessage(tenantName, integration.getId()));
         integrationInitializer.initIntegration(integration, tenantName);
     }
-
 }
