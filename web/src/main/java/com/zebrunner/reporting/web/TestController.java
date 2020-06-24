@@ -95,6 +95,7 @@ public class TestController extends AbstractController implements TestDocumented
         test.setId(id);
         testService.finishTest(test, t.getConfigXML(), t.getTestMetrics());
 
+        // Needs to get clear data from Db to avoid confusion due finishTest action result construction
         test = testService.getTestById(id);
         TestRunStatistics testRunStatistic = statisticsService.getTestRunStatistic(test.getTestRunId());
         websocketTemplate.convertAndSend(getStatisticsWebsocketPath(), new TestRunStatisticPush(testRunStatistic));
