@@ -24,7 +24,7 @@
             <b>type</b>
         </field>
         <field>
-            <a>scmAccountType</a>
+            <a>scmAccountDTO</a>
             <b>scmAccount</b>
         </field>
         <field>
