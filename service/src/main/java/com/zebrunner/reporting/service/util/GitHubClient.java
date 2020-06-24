@@ -55,28 +55,22 @@ public class GitHubClient {
                   .addParameter("client_secret", gitHubSecret)
                   .addParameter("code", code)
                   .addParameter("accept", "json");
-
         HttpPost getAccessTokenRequest = new HttpPost(uriBuilder.build());
         getAccessTokenRequest.addHeader("Accept", "application/json");
 
-        HttpResponse httpResponse = this.httpClient.execute(getAccessTokenRequest);
-
+        HttpResponse httpResponse = httpClient.execute(getAccessTokenRequest);
         String response = EntityUtils.toString(httpResponse.getEntity());
-
         return parseValue(response, "access_token");
     }
 
     @SneakyThrows
     public String getUsername(String token) {
         URIBuilder uriBuilder = new URIBuilder(getApiVersion() + "/user");
-
         HttpGet userRequest = new HttpGet(uriBuilder.build());
         userRequest.addHeader("Authorization", "Bearer " + token);
 
-        HttpResponse httpResponse = this.httpClient.execute(userRequest);
-
+        HttpResponse httpResponse = httpClient.execute(userRequest);
         String response = EntityUtils.toString(httpResponse.getEntity());
-
         return parseValue(response, "login");
     }
 
@@ -133,7 +127,7 @@ public class GitHubClient {
     public void close() {
         try {
             if (httpClient != null)
-                this.httpClient.close();
+                httpClient.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
