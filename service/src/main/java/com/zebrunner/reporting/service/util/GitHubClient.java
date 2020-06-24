@@ -30,8 +30,8 @@ public class GitHubClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHubClient.class);
 
     private static final String GITHUB_ACCESS_TOKEN_PATH = "https://%s/login/oauth/access_token";
-    public static final String GITHUB_ENTERPRISE_API = "https://%s/api/v3";
-    public static final String GITHUB_API = "https://api.%s";
+    private static final String GITHUB_ENTERPRISE_API = "https://%s/api/v3";
+    private static final String GITHUB_API = "https://api.%s";
 
     @Setter(onMethod = @__(@Value("${github.client-id}")))
     private String gitHubClientId;
