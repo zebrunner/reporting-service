@@ -29,14 +29,8 @@ public class BrowserStackAdapter extends AbstractIntegrationAdapter implements T
 
     @Override
     public boolean isConnected() {
-        boolean connected = false;
-        try {
-            connected = HttpUtils.isReachable(HEALTH_CHECK_PATH, username, accessKey, "", false) &&
-                    HttpUtils.isReachable(url, username, accessKey, "/status", false);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        return connected;
+        return HttpUtils.isReachable(HEALTH_CHECK_PATH, username, accessKey, "", false) &&
+                HttpUtils.isReachable(url, username, accessKey, "/status", false);
     }
 
     @Getter

@@ -24,15 +24,9 @@ public class SauceLabsAdapter extends AbstractIntegrationAdapter implements Test
 
     @Override
     public boolean isConnected() {
-        boolean connected = false;
-        try {
-            String usersPath = String.format(HEALTH_CHECK_PATH_PATTERN, username);
-            connected = HttpUtils.isReachable(usersPath, username, accessKey, "", false) &&
-                    HttpUtils.isReachable(url, username, accessKey, "/status", false);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        return connected;
+        String usersPath = String.format(HEALTH_CHECK_PATH_PATTERN, username);
+        return HttpUtils.isReachable(usersPath, username, accessKey, "", false) &&
+                HttpUtils.isReachable(url, username, accessKey, "/status", false);
     }
 
     @Override

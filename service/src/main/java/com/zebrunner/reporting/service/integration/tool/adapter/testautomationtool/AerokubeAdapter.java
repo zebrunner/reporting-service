@@ -22,14 +22,8 @@ public class AerokubeAdapter extends AbstractIntegrationAdapter implements TestA
 
     @Override
     public boolean isConnected() {
-        boolean connected = false;
-        try {
-            connected = HttpUtils.isReachable(url, username, accessKey, "/quota") &&
-                    HttpUtils.isReachable(url, username, accessKey, "/status", false);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        return connected;
+        return HttpUtils.isReachable(url, username, accessKey, "/quota") &&
+                HttpUtils.isReachable(url, username, accessKey, "/status", false);
     }
 
     @Override

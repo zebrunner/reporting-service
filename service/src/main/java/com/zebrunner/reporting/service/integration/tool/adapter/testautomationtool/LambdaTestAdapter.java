@@ -24,14 +24,8 @@ public class LambdaTestAdapter extends AbstractIntegrationAdapter implements Tes
 
     @Override
     public boolean isConnected() {
-        boolean connected = false;
-        try {
-            connected = HttpUtils.isReachable(HEALTH_CHECK_PATH, username, password, "", false) &&
-                    HttpUtils.isReachable(url, username, password, "/status", false);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-        return connected;
+        return HttpUtils.isReachable(HEALTH_CHECK_PATH, username, password, "", false) &&
+                HttpUtils.isReachable(url, username, password, "/status", false);
     }
 
     @Override
