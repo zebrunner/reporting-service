@@ -17,7 +17,6 @@ dependencies {
     implementation libraries.cloud_starter_feign
     implementation libraries.spring_security_ldap
     implementation libraries.spring_twitter
-    implementation libraries.javax_mail
     implementation libraries.jaxb
     implementation libraries.commons_lang
     implementation libraries.commons_io

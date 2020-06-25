@@ -93,8 +93,10 @@ public class TestController extends AbstractController implements TestDocumented
     public TestType finishTest(@PathVariable("id") long id, @RequestBody TestType t) {
         Test test = mapper.map(t, Test.class);
         test.setId(id);
-        test = testService.finishTest(test, t.getConfigXML(), t.getTestMetrics());
+        testService.finishTest(test, t.getConfigXML(), t.getTestMetrics());
 
+        // Needs to get clear data from Db to avoid confusion due finishTest action result construction
+        test = testService.getTestById(id);
         TestRunStatistics testRunStatistic = statisticsService.getTestRunStatistic(test.getTestRunId());
         websocketTemplate.convertAndSend(getStatisticsWebsocketPath(), new TestRunStatisticPush(testRunStatistic));
         websocketTemplate.convertAndSend(getTestsWebsocketPath(test.getTestRunId()), new TestPush(test));

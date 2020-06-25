@@ -1,7 +1,5 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.persistence.utils.SQLAdapter;
-import com.zebrunner.reporting.domain.db.Attribute;
 import com.zebrunner.reporting.domain.db.Widget;
 import com.zebrunner.reporting.domain.db.WidgetTemplate;
 import com.zebrunner.reporting.domain.dto.QueryParametersDTO;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;

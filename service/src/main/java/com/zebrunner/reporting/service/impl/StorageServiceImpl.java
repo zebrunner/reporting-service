@@ -12,8 +12,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.Credentials;
@@ -55,7 +57,19 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void removeObject(String key) {
+    public BinaryObject get(String key) {
+        ResponseInputStream<GetObjectResponse> response = s3Client.getObject(rb -> rb.bucket(s3Properties.getBucket()).key(key).build());
+        return BinaryObject.builder()
+                           .data(response)
+                           .name(getObjectName(key))
+                           .contentType(response.response().contentType())
+                           .key(key)
+                           .size(response.response().contentLength())
+                           .build();
+    }
+
+    @Override
+    public void remove(String key) {
         s3Client.deleteObject(rb -> rb.bucket(s3Properties.getBucket()).key(key).build());
     }
 
@@ -107,19 +121,21 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private String getKeyPrefix(BinaryObject.Type type) {
-        String prefix = "";
         switch (type) {
             case ORG_ASSET:
-                prefix = "assets/org";
-                break;
+                return "assets/org";
             case USER_ASSET:
-                prefix = "assets/user";
-                break;
+                return  "assets/user";
             case APP_PACKAGE:
-                prefix = "artifacts/applications";
-                break;
+                return  "artifacts/applications";
+            default:
+                return "";
         }
-        return prefix;
+    }
+
+    private String getObjectName(String key) {
+        int nameIndex = key.lastIndexOf("/");
+        return nameIndex != -1 ? key.substring(nameIndex + 1) : key;
     }
 
 }

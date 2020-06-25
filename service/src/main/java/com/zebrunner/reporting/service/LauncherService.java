@@ -6,12 +6,15 @@ import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
 import com.zebrunner.reporting.domain.db.JenkinsJob;
 import com.zebrunner.reporting.domain.db.Job;
+import com.zebrunner.reporting.domain.db.ScmAccount;
+import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.db.launcher.Launcher;
 import com.zebrunner.reporting.domain.db.launcher.LauncherCallback;
 import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
-import com.zebrunner.reporting.domain.db.ScmAccount;
-import com.zebrunner.reporting.domain.db.User;
+import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JobResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.feign.IamAuthClient;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
@@ -309,7 +312,7 @@ public class LauncherService {
 
         String organizationName = scmAccount.getOrganizationName();
         String repositoryName = scmAccount.getRepositoryName();
-        String scmUser = gitHubService.getLoginName(scmAccount);
+        String scmUser = scmAccount.getLogin() == null ? gitHubService.getLoginName(scmAccount) : scmAccount.getLogin();
         String scmToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String serviceUrl = urlResolver.buildWebserviceUrl();
 
@@ -319,6 +322,7 @@ public class LauncherService {
         if (StringUtils.isNotEmpty(automationServerService.getFolder(automationServerId))) {
             jobParameters.put("scmOrg", organizationName);
         }
+        jobParameters.put("scmHost", gitHubService.getScmConfig().getHost());
         jobParameters.put("repo", repositoryName);
         jobParameters.put("branch", branch);
         jobParameters.put("scmUser", scmUser);

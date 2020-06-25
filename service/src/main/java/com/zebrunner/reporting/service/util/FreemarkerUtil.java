@@ -1,27 +1,52 @@
 package com.zebrunner.reporting.service.util;
 
+import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.exception.ProcessingException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.UUID;
 
 import static com.zebrunner.reporting.service.exception.ProcessingException.ProcessingErrorDetail.MALFORMED_FREEMARKER_TEMPLATE;
 
+@RequiredArgsConstructor
 @Component
 public class FreemarkerUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FreemarkerUtil.class);
 
     private final Configuration freemarkerConfiguration;
+    private final StorageService storageService;
 
-    public FreemarkerUtil(Configuration freemarkerConfiguration) {
-        this.freemarkerConfiguration = freemarkerConfiguration;
+    @Value("${templates-directory}")
+    private String testRunResultTemplateLocation;
+
+    public String processFreemarkerTemplateFromS3(String key, Object obj) {
+        String result;
+        try {
+            InputStream resource = storageService.get(key).getData();
+            Template fTemplate = new Template(UUID.randomUUID().toString(),
+                    new InputStreamReader(resource), new Configuration(Configuration.VERSION_2_3_30));
+            result = FreeMarkerTemplateUtils.processTemplateIntoString(fTemplate, obj);
+        } catch (Exception e) {
+            LOGGER.error("Problem with free marker template compilation: " + e.getMessage());
+            throw new ProcessingException(MALFORMED_FREEMARKER_TEMPLATE, e.getMessage());
+        }
+        return result;
+    }
+
+    public String processEmailFreemarkerTemplateFromS3(String name, Object obj) {
+        String key = buildEmailTemplateReference(name);
+        return processFreemarkerTemplateFromS3(key, obj);
     }
 
     public String getFreeMarkerTemplateContent(String template, Object obj) {
@@ -42,7 +67,7 @@ public class FreemarkerUtil {
         try {
             Template fTemplate = isPath ? freemarkerConfiguration.getTemplate(template)
                     : new Template(UUID.randomUUID().toString(),
-                            new StringReader(template), new Configuration(Configuration.VERSION_2_3_23));
+                            new StringReader(template), new Configuration(Configuration.VERSION_2_3_30));
             content.append(FreeMarkerTemplateUtils
                     .processTemplateIntoString(fTemplate, obj));
         } catch (Exception e) {
@@ -50,5 +75,12 @@ public class FreemarkerUtil {
             throw new ProcessingException(MALFORMED_FREEMARKER_TEMPLATE, e.getMessage());
         }
         return content.toString();
+    }
+
+    private String buildEmailTemplateReference(String templateName) {
+        if (!testRunResultTemplateLocation.endsWith("/")) {
+            testRunResultTemplateLocation = testRunResultTemplateLocation + "/";
+        }
+        return testRunResultTemplateLocation + templateName;
     }
 }

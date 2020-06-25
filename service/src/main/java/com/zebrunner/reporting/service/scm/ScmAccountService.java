@@ -1,18 +1,18 @@
 package com.zebrunner.reporting.service.scm;
 
-import com.zebrunner.reporting.persistence.dao.mysql.application.ScmAccountMapper;
 import com.zebrunner.reporting.domain.db.ScmAccount;
 import com.zebrunner.reporting.domain.dto.scm.Organization;
 import com.zebrunner.reporting.domain.dto.scm.Repository;
+import com.zebrunner.reporting.persistence.dao.mysql.application.ScmAccountMapper;
 import com.zebrunner.reporting.service.CryptoService;
 import com.zebrunner.reporting.service.exception.ExternalSystemException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +21,7 @@ import static com.zebrunner.reporting.service.exception.ExternalSystemException.
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.SCM_ACCOUNT_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class ScmAccountService {
 
     private static final String ERR_MSG_SCM_ACCOUNT_NOT_FOUND = "SCM account with id %s can not be found";
@@ -31,12 +32,6 @@ public class ScmAccountService {
     private final ScmAccountMapper scmAccountMapper;
     private final GitHubService gitHubService;
     private final CryptoService cryptoService;
-
-    public ScmAccountService(ScmAccountMapper scmAccountMapper, GitHubService gitHubService, CryptoService cryptoService) {
-        this.scmAccountMapper = scmAccountMapper;
-        this.gitHubService = gitHubService;
-        this.cryptoService = cryptoService;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public ScmAccount createScmAccount(ScmAccount scmAccount) {
@@ -49,12 +44,14 @@ public class ScmAccountService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ScmAccount createScmAccount(String code, ScmAccount.Name name) throws IOException, URISyntaxException {
+    public ScmAccount createScmAccount(String code) {
         String token = gitHubService.getAccessToken(code);
         if (StringUtils.isEmpty(token)) {
             throw new ExternalSystemException(GITHUB_AUTHENTICATION_FAILED, ERR_MSG_CANNOT_RECOGNIZE_YOUR_AUTHORITY);
         }
-        ScmAccount scmAccount = new ScmAccount(token, name);
+        String username = gitHubService.getUsername(token);
+        ScmAccount.Name scmAccountName = gitHubService.getScmAccountName();
+        ScmAccount scmAccount = new ScmAccount(username, token, scmAccountName);
         return createScmAccount(scmAccount);
     }
 
@@ -95,10 +92,6 @@ public class ScmAccountService {
                                                  .map(ScmAccount::getRepositoryURL)
                                                  .collect(Collectors.toList());
         return gitHubService.getRepositories(scmAccount, organizationName, existingRepos);
-    }
-
-    public String getScmClientId() {
-        return gitHubService.getClientId();
     }
 
     @Transactional(rollbackFor = Exception.class)

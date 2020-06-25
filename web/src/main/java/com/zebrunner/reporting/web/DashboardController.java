@@ -4,10 +4,14 @@ import com.zebrunner.reporting.domain.db.Attribute;
 import com.zebrunner.reporting.domain.db.Dashboard;
 import com.zebrunner.reporting.domain.db.Widget;
 import com.zebrunner.reporting.domain.dto.DashboardType;
+import com.zebrunner.reporting.domain.dto.EmailType;
 import com.zebrunner.reporting.service.DashboardService;
 import com.zebrunner.reporting.service.WidgetTemplateService;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import com.zebrunner.reporting.service.util.EmailUtils;
 import com.zebrunner.reporting.web.documented.DashboardDocumentedController;
+import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,11 +24,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @CrossOrigin
@@ -173,6 +181,17 @@ public class DashboardController extends AbstractController implements Dashboard
     public List<Attribute> deleteDashboardAttribute(@PathVariable("dashboardId") long dashboardId, @PathVariable("id") long id) {
         dashboardService.removeByAttributeById(id);
         return dashboardService.retrieveAttributesByDashboardId(dashboardId);
+    }
+
+    @PostMapping("/email")
+    @Override
+    @SneakyThrows
+    public void sendByEmail(@RequestPart("file") MultipartFile file, @RequestPart("email") EmailType email) {
+        String fileExtension = String.format(".%s", FilenameUtils.getExtension(file.getOriginalFilename()));
+        File attachment = File.createTempFile(UUID.randomUUID().toString(), fileExtension);
+        file.transferTo(attachment);
+        String[] toEmails = EmailUtils.obtainRecipients(email.getRecipients());
+        dashboardService.sendByEmail(email.getSubject(), email.getText(), List.of(attachment), toEmails);
     }
 
 }

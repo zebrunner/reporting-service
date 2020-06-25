@@ -14,11 +14,19 @@ public interface StorageService {
     String save(BinaryObject binaryObject);
 
     /**
+     * Gets input stream by key from underlying storage
+     *
+     * @param key that uniquely identifies object in storage
+     * @return input stream of defined resource
+     */
+    BinaryObject get(String key);
+
+    /**
      * Deletes object with provided key from underlying storage
      *
      * @param key key identifying the object to be deleted
      */
-    void removeObject(String key);
+    void remove(String key);
 
     @Deprecated
     SessionCredentials getTemporarySessionCredentials();

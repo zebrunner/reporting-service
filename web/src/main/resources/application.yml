@@ -91,6 +91,7 @@ elasticsearch:
 github:
   client-id: ${github.client.id}
   client-secret: ${github.client.secret}
+  host: ${github.client.host}
 
 ### Slack Notifications settings
 slack:
@@ -125,6 +126,8 @@ s3:
   secret: ${S3_SECRET}
   region: ${S3_REGION}
   bucket: ${S3_BUCKET}
+
+templates-directory: ${TEMPLATES_DIRECTORY:templates}
 
 ### IAM service settings
 iam:

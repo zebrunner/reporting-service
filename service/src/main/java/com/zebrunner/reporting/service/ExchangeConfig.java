@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import java.util.UUID;
 
 @Configuration
@@ -32,16 +31,29 @@ public class ExchangeConfig {
     public static final String CREATE_DEFAULT_USER_QUEUE = "create-default-user-queue";
     public static final String CREATE_DEFAULT_USER_ROUTING_KEY = "create-default-user-routing-key";
 
-    private final RabbitTemplate rabbitTemplate;
+    public static final String MAIL_DATA_EXCHANGE = "mail-data-exchange";
+    public static final String MAIL_DATA_ROUTING_KEY = "mail-data";
 
-    @PostConstruct
-    public void init() {
-        this.rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+    private static final String MAIL_DATA_QUEUE = "mail-data-queue";
+
+    private final String exchangeName;
+
+    public ExchangeConfig(
+            @Value("${spring.rabbitmq.template.exchange}") String exchangeName,
+            RabbitTemplate rabbitTemplate
+    ) {
+        this.exchangeName = exchangeName;
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
     }
 
     @Bean
     public DirectExchange eventsTopicExchange(@Value("${spring.rabbitmq.template.exchange}") String exchangeName) {
         return new DirectExchange(exchangeName, false, true);
+    }
+
+    @Bean
+    public DirectExchange mailExchange() {
+        return new DirectExchange(MAIL_DATA_EXCHANGE, false, false);
     }
 
     //////////////////////////////////////////////////////////
@@ -119,7 +131,12 @@ public class ExchangeConfig {
      */
     @Bean
     public Queue settingsQueue() {
-        return new Queue(generateQueueName("settingsQueue"), false, false, true);
+        return new Queue("settingsQueue", false, false, true);
+    }
+
+    @Bean
+    public Queue mailQueue() {
+        return new Queue(MAIL_DATA_QUEUE, false);
     }
 
     /**
@@ -155,6 +172,11 @@ public class ExchangeConfig {
     @Bean
     public Binding tenanciesBinding(DirectExchange eventsTopicExchange, Queue tenanciesQueue) {
         return BindingBuilder.bind(tenanciesQueue).to(eventsTopicExchange).with("tenancies");
+    }
+
+    @Bean
+    public Binding mailBinding(DirectExchange mailExchange, Queue mailQueue) {
+        return BindingBuilder.bind(mailQueue).to(mailExchange).with(MAIL_DATA_ROUTING_KEY);
     }
 
     @Bean

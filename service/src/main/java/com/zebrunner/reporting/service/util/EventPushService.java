@@ -1,61 +1,79 @@
 package com.zebrunner.reporting.service.util;
 
-import com.zebrunner.reporting.domain.push.events.EventMessage;
+import com.zebrunner.reporting.service.ExchangeConfig;
 import com.zebrunner.reporting.service.integration.tool.impl.MessageBrokerService;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
 @Component
-public class EventPushService {
+public class EventPushService<T> {
 
-    private static final String EXCHANGE_NAME = "events";
     private static final String SUPPLIER_QUEUE_NAME_HEADER = "SUPPLIER_QUEUE";
 
     private final RabbitTemplate rabbitTemplate;
     private final MessageBrokerService messageBrokerService;
+    private final String exchangeName;
 
-    public EventPushService(RabbitTemplate rabbitTemplate, @Lazy MessageBrokerService messageBrokerService) {
+    public EventPushService(RabbitTemplate rabbitTemplate,
+                            @Value("${spring.rabbitmq.template.exchange}") String exchangeName,
+                            @Lazy MessageBrokerService messageBrokerService) {
         this.rabbitTemplate = rabbitTemplate;
         this.messageBrokerService = messageBrokerService;
+        this.exchangeName = exchangeName;
     }
 
-    public enum Type {
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public enum Routing {
 
         SETTINGS("settings"),
         ZBR_EVENTS("zbr_events"),
-        TENANCIES("tenancies");
+        TENANCIES("tenancies"),
+        MAIL,
+        MAIL_INTEGRATION;
 
-        private final String routingKey;
-
-        Type(String routingKey) {
-            this.routingKey = routingKey;
-        }
-
-        public String getRoutingKey() {
-            return routingKey;
-        }
+        private String key;
     }
 
-    public <T extends EventMessage> boolean convertAndSend(Type type, T eventMessage) {
-        return convertAndSend(type, eventMessage, setSupplierQueueNameHeader());
+    public enum Exchange {
+        DEFAULT,
+        MAIL,
+        MAIL_INTEGRATION;
     }
 
-    public <T extends EventMessage> boolean convertAndSend(Type type, T eventMessage, String headerName, String headerValue) {
-        return convertAndSend(type, eventMessage, message -> {
+    public boolean convertAndSend(Routing routing, T eventMessage) {
+        return convertAndSend(routing, eventMessage, setSupplierQueueNameHeader());
+    }
+
+    public boolean convertAndSend(Exchange exchange, Routing routing, T eventMessage) {
+        return convertAndSend(exchange, routing, eventMessage, message -> message);
+    }
+
+    public boolean convertAndSend(Routing routing, T eventMessage, String headerName, String headerValue) {
+        return convertAndSend(routing, eventMessage, message -> {
             message.getMessageProperties().setHeader(headerName, headerValue);
             return message;
         });
     }
 
-    private <T extends EventMessage> boolean convertAndSend(Type type, T eventMessage, MessagePostProcessor messagePostProcessor) {
+    private boolean convertAndSend(Routing routing, T eventMessage, MessagePostProcessor messagePostProcessor) {
+        return convertAndSend(Exchange.DEFAULT, routing, eventMessage, messagePostProcessor);
+    }
+
+    private boolean convertAndSend(Exchange exchange, Routing routing, T eventMessage, MessagePostProcessor messagePostProcessor) {
         try {
-            rabbitTemplate.convertAndSend(EXCHANGE_NAME, type.getRoutingKey(), eventMessage, messagePostProcessor);
+            String name = getExchangeName(exchange);
+            String key = getRoutingKey(routing);
+            rabbitTemplate.convertAndSend(name, key, eventMessage, messagePostProcessor);
             return true;
         } catch (AmqpException e) {
             return false;
@@ -102,6 +120,39 @@ public class EventPushService {
         return supplier != null
                 ? message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER).toString()
                 : null;
+    }
+
+    private String getExchangeName(Exchange exchange) {
+        String name = null;
+        switch (exchange) {
+            case DEFAULT:
+                name = this.exchangeName;
+                break;
+            case MAIL:
+                name = ExchangeConfig.MAIL_DATA_EXCHANGE;
+                break;
+            default:
+                break;
+        }
+        return name;
+    }
+
+    private String getRoutingKey(Routing routing) {
+        String key = null;
+        switch (routing) {
+            case SETTINGS:
+            case ZFR_CALLBACKS:
+            case ZBR_EVENTS:
+            case TENANCIES:
+                key = routing.key;
+                break;
+            case MAIL:
+                key = ExchangeConfig.MAIL_DATA_ROUTING_KEY;
+                break;
+            default:
+                break;
+        }
+        return key;
     }
 
 }
