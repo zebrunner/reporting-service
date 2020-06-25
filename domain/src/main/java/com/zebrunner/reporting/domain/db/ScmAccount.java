@@ -25,7 +25,8 @@ public class ScmAccount extends AbstractEntity {
         GITHUB, GITHUB_ENTERPRISE
     }
 
-    public ScmAccount(String accessToken, Name name) {
+    public ScmAccount(String login, String accessToken, Name name) {
+        this.login = login;
         this.accessToken = accessToken;
         this.name = name;
     }

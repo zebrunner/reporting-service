@@ -8,10 +8,8 @@ import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.service.cache.UserCacheableService;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
-import com.zebrunner.reporting.service.integration.tool.impl.StorageProviderService;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.util.DateTimeUtil;
-import com.zebrunner.reporting.service.util.TenancyDbInitial;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.jasypt.util.password.PasswordEncryptor;
@@ -31,7 +29,7 @@ import static com.zebrunner.reporting.service.exception.IllegalOperationExceptio
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.USER_NOT_FOUND;
 
 @Service
-public class UserService implements TenancyDbInitial {
+public class UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     private static final String ERR_MSG_USER_NOT_FOUND_BY_RESET_TOKEN = "User with such token doesn't exist or is not internal";
@@ -69,19 +67,15 @@ public class UserService implements TenancyDbInitial {
     private TenancyService tenancyService;
 
     @Autowired
-    private StorageProviderService storageProviderService;
-
-    @Autowired
     private UserCacheableService userCacheableService;
 
     @PostConstruct
     public void postConstruct() {
-        tenancyService.iterateItems(this::initDb);
+        tenancyService.iterateItems(this::initAdmin);
     }
 
-    @Override
     @Transactional(rollbackFor = Exception.class)
-    public void initDb() {
+    public void initAdmin() {
         if (!StringUtils.isBlank(adminUsername) && !StringUtils.isBlank(adminPassword)) {
             try {
                 User user = getUserByUsername(adminUsername);
@@ -106,14 +100,6 @@ public class UserService implements TenancyDbInitial {
     @Transactional(readOnly = true)
     public User getUserById(long id) {
         return userMapper.getUserById(id);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteProfilePhoto(Long userId) {
-        User user = getNotNullUserById(userId);
-        storageProviderService.removeFile(user.getPhotoURL());
-        user.setPhotoURL(StringUtils.EMPTY);
-        updateUser(user);
     }
 
     @Transactional(readOnly = true)

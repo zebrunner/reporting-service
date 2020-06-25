@@ -6,20 +6,17 @@ import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchRe
 import com.zebrunner.reporting.domain.db.Group;
 import com.zebrunner.reporting.domain.db.Invitation;
 import com.zebrunner.reporting.domain.db.User;
-import com.zebrunner.reporting.service.email.IEmailMessage;
-import com.zebrunner.reporting.service.email.UserInviteEmail;
-import com.zebrunner.reporting.service.email.UserInviteLdapEmail;
 import com.zebrunner.reporting.service.exception.ExternalSystemException;
 import com.zebrunner.reporting.service.exception.ForbiddenOperationException;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.tool.impl.AccessManagementService;
 import com.zebrunner.reporting.service.util.URLResolver;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +32,7 @@ import static com.zebrunner.reporting.service.exception.IllegalOperationExceptio
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.INVITATION_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class InvitationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvitationService.class);
@@ -47,29 +45,12 @@ public class InvitationService {
     private static final String ERR_MSG_INVITATION_STATUS_IS_INCORRECT = "Invitation status for token %s is null or incorrect";
     private static final String ERR_MSG_USER_NOT_FOUND_IN_LDAP = "User with username %s is not found in LDAP";
 
-    private final String slackImageUrl;
     private final URLResolver urlResolver;
     private final InvitationMapper invitationMapper;
     private final EmailService emailService;
     private final UserService userService;
     private final GroupService groupService;
     private final AccessManagementService accessManagementService;
-
-    public InvitationService(@Value("${slack.image-url}") String slackImageUrl,
-                             URLResolver urlResolver,
-                             InvitationMapper invitationMapper,
-                             EmailService emailService,
-                             UserService userService,
-                             GroupService groupService,
-                             AccessManagementService accessManagementService) {
-        this.slackImageUrl = slackImageUrl;
-        this.urlResolver = urlResolver;
-        this.invitationMapper = invitationMapper;
-        this.emailService = emailService;
-        this.userService = userService;
-        this.groupService = groupService;
-        this.accessManagementService = accessManagementService;
-    }
 
     @Transactional
     public Invitation createInvitation(Long principalId, Invitation invitation, boolean checkExisting, boolean force) {
@@ -249,10 +230,12 @@ public class InvitationService {
     }
 
     private void sendEmail(Invitation invitation) {
-        IEmailMessage userInviteEmail = User.Source.LDAP.equals(invitation.getSource())
-                ? new UserInviteEmail(invitation.getUrl(), slackImageUrl, urlResolver.buildWebURL())
-                : new UserInviteLdapEmail(invitation.getUrl(), slackImageUrl, urlResolver.buildWebURL());
-        emailService.sendEmail(userInviteEmail, invitation.getEmail());
+        boolean ldapUser = User.Source.LDAP.equals(invitation.getSource());
+        if (ldapUser) {
+            emailService.sendUserInvitationLdapEmail(invitation.getUrl(), invitation.getEmail());
+        } else {
+            emailService.sendUserInvitationEmail(invitation.getUrl(), invitation.getEmail());
+        }
     }
 
     private void insertInvitationUrl(Invitation invitation) {

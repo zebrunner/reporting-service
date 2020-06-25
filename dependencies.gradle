@@ -57,11 +57,6 @@ ext {
                 "ch.qos.logback:logback-classic:1.2.3"
         ],
 
-        javax_mail: [
-            "javax.mail:mail:1.4.7",
-            "javax.mail:javax.mail-api:1.5.5"
-        ],
-
         javax_validation : "javax.validation:validation-api:2.0.1.Final",
         hibernate_validator : "org.hibernate:hibernate-validator:6.1.2.Final",
 
@@ -73,7 +68,8 @@ ext {
         lombok: "org.projectlombok:lombok",
 
         integration_clients: [
-            "com.amazonaws:aws-java-sdk:1.11.386",
+            "software.amazon.awssdk:s3:2.13.32",
+            "software.amazon.awssdk:sts:2.13.32",
             "com.offbytwo.jenkins:jenkins-client:0.3.7",
             "org.kohsuke:github-api:1.95",
             "in.ashwanthkumar:slack-java-webhook:0.0.7",

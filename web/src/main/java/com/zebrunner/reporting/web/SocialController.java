@@ -6,23 +6,28 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.social.twitter.api.Tweet;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 
 @CrossOrigin
-@RequestMapping(path = "api/social", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "v1/social", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "twitter.enabled", havingValue = "true")
-public class SocialController extends AbstractController implements SocialDocumentedController {
+public class SocialController implements SocialDocumentedController {
 
     private final TwitterService twitterService;
 
-    @GetMapping("/twitter/timeline")
+    @GetMapping("/tweets")
     @Override
-    public List<Tweet> getUserTimeline(@RequestParam("userName") String userName, @RequestParam(value = "pageSize", defaultValue = "20") int pageSize) {
-        return twitterService.getUserTimeline(userName, pageSize);
+    public List<Tweet> getZebrunnerTweets(@RequestParam(value = "pageSize", defaultValue = "25") int pageSize) {
+        return twitterService.getZebrunnerTweets(pageSize);
     }
+
 }

@@ -31,7 +31,7 @@ import java.util.List;
 
 import static com.zebrunner.reporting.service.exception.IllegalOperationException.IllegalOperationErrorDetail.TOKEN_REFRESH_IS_NOT_SUPPORTED;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.TEST_SESSION_NOT_FOUND;
-import static com.zebrunner.reporting.service.util.EventPushService.Type.ZBR_EVENTS;
+import static com.zebrunner.reporting.service.util.EventPushService.Routing.ZBR_EVENTS;
 
 @Service
 public class TestSessionService {

@@ -6,13 +6,14 @@ import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.service.CryptoService;
 import com.zebrunner.reporting.service.ElasticsearchService;
 import com.zebrunner.reporting.service.SettingsService;
+import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
-import com.zebrunner.reporting.service.integration.tool.impl.StorageProviderService;
 import com.zebrunner.reporting.web.documented.SettingDocumentedController;
 import com.zebrunner.reporting.web.util.swagger.ApiResponseStatuses;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,28 +30,14 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RestController
 @RequestMapping(path = "api/settings", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 public class SettingsController extends AbstractController implements SettingDocumentedController {
 
     private final SettingsService settingsService;
     private final CryptoService cryptoService;
     private final ElasticsearchService elasticsearchService;
     private final IntegrationService integrationService;
-
-    private final StorageProviderService storageProviderService;
-
-    public SettingsController(
-            SettingsService settingsService,
-            CryptoService cryptoService,
-            ElasticsearchService elasticsearchService,
-            IntegrationService integrationService,
-            StorageProviderService storageProviderService
-    ) {
-        this.settingsService = settingsService;
-        this.cryptoService = cryptoService;
-        this.elasticsearchService = elasticsearchService;
-        this.integrationService = integrationService;
-        this.storageProviderService = storageProviderService;
-    }
+    private final StorageService storageService;
 
     @GetMapping("tool/{tool}")
     @Override
@@ -112,7 +99,7 @@ public class SettingsController extends AbstractController implements SettingDoc
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
     @GetMapping("amazon/creds")
     public SessionCredentials getSessionCredentials() {
-        return storageProviderService.getTemporarySessionCredentials().orElse(null);
+        return storageService.getTemporarySessionCredentials();
     }
 
 }
