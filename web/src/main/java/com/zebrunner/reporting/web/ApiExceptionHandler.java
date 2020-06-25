@@ -233,7 +233,7 @@ public class ApiExceptionHandler {
             headersBuilder.append("]");
 
 
-            LOGGER.error("Unexpected internal server error processing " + request.getMethod() + " " + request.getRequestURI() + " with headers " + headersBuilder.toString());
+            LOGGER.error("Unexpected internal server error processing " + request.getMethod() + " " + request.getRequestURI() + " with headers " + headersBuilder.toString(), e);
         }
 
         ErrorResponse response = new ErrorResponse();
