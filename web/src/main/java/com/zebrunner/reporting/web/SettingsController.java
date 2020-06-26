@@ -48,9 +48,6 @@ public class SettingsController extends AbstractController implements SettingDoc
             case "ELASTICSEARCH":
                 settings = elasticsearchService.getSettings();
                 break;
-            case "RABBITMQ":
-                settings = collectDecryptedIntegrationSettings("RABBITMQ");
-                break;
             case "ZEBRUNNER":
                 settings = collectDecryptedIntegrationSettings("ZEBRUNNER");
                 break;

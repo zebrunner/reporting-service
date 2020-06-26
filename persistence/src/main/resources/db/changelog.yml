@@ -318,3 +318,14 @@ databaseChangeLog:
             path: changeset/029_remove_mail_integration.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 030_remove_rabbitmq_integration
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/030_remove_rabbitmq_integration.sql
+            relativeToChangelogFile: true
+            splitStatements: false
