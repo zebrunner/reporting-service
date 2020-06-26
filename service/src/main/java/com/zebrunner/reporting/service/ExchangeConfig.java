@@ -23,10 +23,6 @@ public class ExchangeConfig {
     public static final String USER_SAVED_EXCHANGE = "user-saved";
     public static final String USER_SAVED_REPORTING_SERVICE_QUEUE = "user-saved-reporting-service-queue";
 
-    public static final String SEND_EMAIL_EXCHANGE = "send-email";
-    public static final String SEND_EMAIL_QUEUE = "send-email-queue";
-    public static final String SEND_EMAIL_ROUTING_KEY = "send-email-routing-key";
-
     public static final String CREATE_DEFAULT_USER_EXCHANGE = "create-default-user";
     public static final String CREATE_DEFAULT_USER_QUEUE = "create-default-user-queue";
     public static final String CREATE_DEFAULT_USER_ROUTING_KEY = "create-default-user-routing-key";
@@ -88,25 +84,6 @@ public class ExchangeConfig {
     }
 
     //////////////////////////////////////////////////////////
-    //                    Send Email
-    //////////////////////////////////////////////////////////
-
-    @Bean
-    public DirectExchange sendEmailExchange() {
-        return new DirectExchange(SEND_EMAIL_EXCHANGE);
-    }
-
-    @Bean
-    public Queue sendEmailQueue() {
-        return new Queue(SEND_EMAIL_QUEUE);
-    }
-
-    @Bean
-    public Binding sendEmailBinding(DirectExchange sendEmailExchange, Queue sendEmailQueue) {
-        return BindingBuilder.bind(sendEmailQueue).to(sendEmailExchange).with(SEND_EMAIL_ROUTING_KEY);
-    }
-
-    //////////////////////////////////////////////////////////
     //                    Create default user
     //////////////////////////////////////////////////////////
 
@@ -157,11 +134,6 @@ public class ExchangeConfig {
         return new Queue("zbrEventsQueue", false, false, true);
     }
 
-//    @Bean
-//    public Queue zbrIntegrationsQueue() {
-//        return new Queue(INTEGRATION_SAVED_QUEUE, false, false, true);
-//    }
-
     @Bean
     public Binding settingsBinding(DirectExchange eventsTopicExchange, Queue settingsQueue) {
         return BindingBuilder.bind(settingsQueue).to(eventsTopicExchange).with("settings");
@@ -181,11 +153,6 @@ public class ExchangeConfig {
     public Binding zbrEventsBinding(DirectExchange eventsTopicExchange, Queue zbrEventsQueue) {
         return BindingBuilder.bind(zbrEventsQueue).to(eventsTopicExchange).with("zbr_events");
     }
-
-//    @Bean
-//    public Binding integrationSavedBinding(DirectExchange eventsTopicExchange, Queue zbrIntegrationsQueue) {
-//        return BindingBuilder.bind(zbrIntegrationsQueue).to(eventsTopicExchange).with(INTEGRATION_SAVED_ROUTING_KEY);
-//    }
 
     private String generateQueueName(String prefix) {
         return String.format("%s-%s", prefix, UUID.randomUUID().toString());

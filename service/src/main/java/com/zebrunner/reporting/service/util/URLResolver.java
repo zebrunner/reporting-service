@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class URLResolver {
 
-    private static final String SIGNUP_PATH_PATTERN = "%s/signup?token=%s";
-
     @Value("${service.multitenant}")
     private boolean isMultitenant;
 
@@ -33,10 +31,6 @@ public class URLResolver {
 
     public String getServiceURL() {
         return buildWebURL();
-    }
-
-    public String buildInvitationUrl(String token) {
-        return String.format(SIGNUP_PATH_PATTERN, buildWebURL(), token);
     }
 
 }

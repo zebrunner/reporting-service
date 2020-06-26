@@ -10,6 +10,7 @@ import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerSer
 import com.zebrunner.reporting.service.integration.tool.impl.NotificationService;
 import com.zebrunner.reporting.service.integration.tool.impl.TestCaseManagementService;
 import com.zebrunner.reporting.service.util.URLResolver;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import static com.zebrunner.reporting.service.exception.ResourceNotFoundExceptio
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.TEST_RUN_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class ConfigurationService {
 
     private static final String ERR_MSG_TEST_RUN_NOT_FOUND = "Test run with id %s can not be found";
@@ -36,24 +38,6 @@ public class ConfigurationService {
 
     @Value("${service.version}")
     private String serviceVersion;
-
-    public ConfigurationService(
-            URLResolver urlResolver,
-            AutomationServerService automationServerService,
-            IntegrationTypeService integrationTypeService,
-            IntegrationService integrationService,
-            TestCaseManagementService testCaseManagementService,
-            TestRunService testRunService,
-            NotificationService notificationService
-    ) {
-        this.urlResolver = urlResolver;
-        this.automationServerService = automationServerService;
-        this.integrationTypeService = integrationTypeService;
-        this.integrationService = integrationService;
-        this.testCaseManagementService = testCaseManagementService;
-        this.testRunService = testRunService;
-        this.notificationService = notificationService;
-    }
 
     public Map<String, Object> getAppConfig() {
         return Map.of("service", serviceVersion, "service_url", urlResolver.buildWebserviceUrl());

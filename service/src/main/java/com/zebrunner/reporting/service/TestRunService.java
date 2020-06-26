@@ -84,9 +84,6 @@ public class TestRunService implements ProjectReassignable {
     private IntegrationService integrationService;
 
     @Autowired
-    private URLResolver urlResolver;
-
-    @Autowired
     private TestService testService;
 
     @Autowired
