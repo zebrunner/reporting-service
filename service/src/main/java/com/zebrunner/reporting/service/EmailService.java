@@ -39,18 +39,6 @@ public class EmailService {
 
     private static final String TEST_RUN_RESULT_TEMPLATE_NAME = "test_run_results.ftl";
 
-    private static final String USER_INVITATION_TEMPLATE_NAME = "invitation.ftl";
-    private static final String USER_INVITATION_MAIL_SUBJECT = "Join the workspace";
-
-    private static final String USER_INVITATION_LDAP_TEMPLATE_NAME = "invitation_ldap.ftl";
-    private static final String USER_INVITATION_LDAP_MAIL_SUBJECT = "Join the workspace";
-
-    private static final String FORGOT_PASSWORD_TEMPLATE_NAME = "forgot_password.ftl";
-    private static final String FORGOT_PASSWORD_MAIL_SUBJECT = "Password reset";
-
-    private static final String FORGOT_PASSWORD_LDAP_TEMPLATE_NAME = "forgot_password_ldap.ftl";
-    private static final String FORGOT_PASSWORD_LDAP_MAIL_SUBJECT = "Password reset";
-
     private final EventPushService<MailDataMessage> eventPushService;
     private final FreemarkerUtil freemarkerUtil;
     private final URLResolver urlResolver;
@@ -116,54 +104,6 @@ public class EmailService {
     public static String buildStatusText(TestRun testRun) {
         return Status.PASSED.equals(testRun.getStatus()) && testRun.isKnownIssue() && !testRun.isBlocker() ? "PASSED (known issues)"
                 : testRun.isBlocker() ? "FAILED (BLOCKERS)" : testRun.getStatus().name();
-    }
-
-    public String sendUserInvitationEmail(String invitationUrl, String... emails) {
-        Map<String, Object> templateModel = new HashMap<>(templateModel());
-        templateModel.put("invitationUrl", invitationUrl);
-        MailDataMessage mailDataMessage = MailDataMessage.builder()
-                                                         .templateName(USER_INVITATION_TEMPLATE_NAME)
-                                                         .subject(USER_INVITATION_MAIL_SUBJECT)
-                                                         .toEmails(Set.of(emails))
-                                                         .templateModel(templateModel)
-                                                         .build();
-        return sendEmail(mailDataMessage);
-    }
-
-    public String sendUserInvitationLdapEmail(String invitationUrl, String... emails) {
-        Map<String, Object> templateModel = new HashMap<>(templateModel());
-        templateModel.put("invitationUrl", invitationUrl);
-        MailDataMessage mailDataMessage = MailDataMessage.builder()
-                                                         .templateName(USER_INVITATION_LDAP_TEMPLATE_NAME)
-                                                         .subject(USER_INVITATION_LDAP_MAIL_SUBJECT)
-                                                         .toEmails(Set.of(emails))
-                                                         .templateModel(templateModel)
-                                                         .build();
-        return sendEmail(mailDataMessage);
-    }
-
-    public String sendForgotPasswordEmail(String token, String... emails) {
-        Map<String, Object> templateModel = new HashMap<>(templateModel());
-        templateModel.put("token", token);
-        MailDataMessage mailDataMessage = MailDataMessage.builder()
-                                                         .templateName(FORGOT_PASSWORD_TEMPLATE_NAME)
-                                                         .subject(FORGOT_PASSWORD_MAIL_SUBJECT)
-                                                         .toEmails(Set.of(emails))
-                                                         .templateModel(templateModel)
-                                                         .build();
-        return sendEmail(mailDataMessage);
-    }
-
-    public String sendForgotPasswordLdapEmail(String token, String... emails) {
-        Map<String, Object> templateModel = new HashMap<>(templateModel());
-        templateModel.put("token", token);
-        MailDataMessage mailDataMessage = MailDataMessage.builder()
-                                                         .templateName(FORGOT_PASSWORD_LDAP_TEMPLATE_NAME)
-                                                         .subject(FORGOT_PASSWORD_LDAP_MAIL_SUBJECT)
-                                                         .toEmails(Set.of(emails))
-                                                         .templateModel(templateModel)
-                                                         .build();
-        return sendEmail(mailDataMessage);
     }
 
     private Map<String, Object> templateModel() {

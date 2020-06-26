@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class EventPushService<T> {
 
@@ -80,7 +82,7 @@ public class EventPushService<T> {
         }
     }
 
-    public <T extends EventMessage> boolean sendFanout(String exchange, T message) {
+    public boolean sendFanout(String exchange, T message) {
         try {
             rabbitTemplate.convertAndSend(exchange, "", message);
             return true;
@@ -141,7 +143,6 @@ public class EventPushService<T> {
         String key = null;
         switch (routing) {
             case SETTINGS:
-            case ZFR_CALLBACKS:
             case ZBR_EVENTS:
             case TENANCIES:
                 key = routing.key;

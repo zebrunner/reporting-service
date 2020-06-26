@@ -21,7 +21,7 @@ import java.util.Map;
 
 import static com.zebrunner.reporting.service.ExchangeConfig.CREATE_DEFAULT_USER_EXCHANGE;
 import static com.zebrunner.reporting.service.ExchangeConfig.CREATE_DEFAULT_USER_ROUTING_KEY;
-import static com.zebrunner.reporting.service.util.EventPushService.Type.TENANCIES;
+import static com.zebrunner.reporting.service.util.EventPushService.Routing.TENANCIES;
 
 @Component
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class TenancyInitializer {
     private final URLResolver urlResolver;
     private final TenancyService tenancyService;
     private final ScmAccountService scmAccountService;
-    private final EventPushService eventPushService;
+    private final EventPushService<EventMessage> eventPushService;
     private final IntegrationTenancyStorage integrationTenancyStorage;
     private final MessageHelper messageHelper;
 

@@ -7,6 +7,7 @@ import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationSetting;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
+import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.domain.push.events.IntegrationSavedEventMessage;
 import com.zebrunner.reporting.domain.push.events.ReinitEventMessage;
 import com.zebrunner.reporting.persistence.repository.IntegrationRepository;
@@ -46,7 +47,7 @@ public class IntegrationServiceImpl implements IntegrationService {
     private static final String ERR_MSG_DEFAULT_VALUE_IS_NOT_PROVIDED_BY_NAME = "Default value for integration with name '%s' is not provided";
 
     private final SettingsService settingsService;
-    private final EventPushService eventPushService;
+    private final EventPushService<EventMessage> eventPushService;
     private final TransactionTemplate transactionTemplate;
     private final IntegrationRepository integrationRepository;
     private final IntegrationInitializer integrationInitializer;
@@ -317,7 +318,6 @@ public class IntegrationServiceImpl implements IntegrationService {
     private void notifyToolReInitialized(Integration integration) {
         String tenantName = TenancyContext.getTenantName();
         eventPushService.convertAndSend(EventPushService.Routing.SETTINGS, new ReinitEventMessage(tenantName, integration.getId()));
-        eventPushService.convertAndSend(EventPushService.Type.SETTINGS, new ReinitEventMessage(tenantName, integration.getId()));
         eventPushService.sendFanout(ExchangeConfig.INTEGRATION_SAVED_EXCHANGE, toIntegrationSavedMessage(tenantName, integration));
         integrationInitializer.initIntegration(integration, tenantName);
     }

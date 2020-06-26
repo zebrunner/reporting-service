@@ -1,6 +1,7 @@
 package com.zebrunner.reporting.service;
 
 import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
+import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSessionSearchCriteria;
 import com.zebrunner.reporting.persistence.repository.TestSessionRepository;
@@ -40,7 +41,7 @@ public class TestSessionService {
     private static final String ERR_MSG_TEST_SESSION_NOT_EXISTS_BY_SESSION_ID = "Test session does not exist by sessionId '%s'";
     private static final String ERR_MSG_FOR_INTEGRATION_TOKEN_REFRESH_IS_NOT_SUPPORTED = "For integration of type %s token refresh is not supported";
 
-    private final EventPushService eventPushService;
+    private final EventPushService<EventMessage> eventPushService;
     private final IntegrationService integrationService;
     private final TestSessionRepository testSessionRepository;
     private final IntegrationTypeService integrationTypeService;
