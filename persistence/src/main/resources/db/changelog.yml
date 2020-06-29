@@ -318,3 +318,14 @@ databaseChangeLog:
             path: changeset/029_remove_mail_integration.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 030_nullable_job_id_for_test_run
+      validCheckSum: ANY
+      labels: stable
+      author: sbrenko
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/030_nullable_job_id_for_test_run.sql
+            relativeToChangelogFile: true
+            splitStatements: false
