@@ -132,6 +132,7 @@ public class ApiExceptionHandler {
     public ErrorResponse handleAccessDeniedException(AccessDeniedException e) {
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.FORBIDDEN));
+        LOGGER.error("handleAccessDeniedException", e);
         return response;
     }
 
