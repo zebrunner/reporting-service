@@ -44,8 +44,6 @@ public class TestRunDTO {
     @Null(groups = ValidationGroups.TestRunFinishGroup.class)
     private TestConfig config;
 
-    @NotNull(groups = ValidationGroups.TestRunStartGroup.class)
-    @Null(groups = ValidationGroups.TestRunFinishGroup.class)
     @Valid
     private LaunchContextDTO launchContext;
 
@@ -59,12 +57,18 @@ public class TestRunDTO {
 
         @NotNull(groups = ValidationGroups.TestRunStartGroup.class)
         private String upstreamJobNumber;
+
     }
 
     public static class ValidationGroups {
-        public interface AllGroups {}
-        public interface TestRunStartGroup extends AllGroups {}
-        public interface TestRunFinishGroup extends AllGroups {}
+        public interface AllGroups {
+        }
+
+        public interface TestRunStartGroup extends AllGroups {
+        }
+
+        public interface TestRunFinishGroup extends AllGroups {
+        }
     }
 
 }
