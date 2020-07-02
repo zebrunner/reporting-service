@@ -1,16 +1,15 @@
 package com.zebrunner.reporting.service.util;
 
 import com.zebrunner.reporting.service.ExchangeConfig;
-import com.zebrunner.reporting.service.integration.tool.impl.MessageBrokerService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -21,14 +20,14 @@ public class EventPushService<T> {
     private static final String SUPPLIER_QUEUE_NAME_HEADER = "SUPPLIER_QUEUE";
 
     private final RabbitTemplate rabbitTemplate;
-    private final MessageBrokerService messageBrokerService;
+    private final Map<String, Queue> queues;
     private final String exchangeName;
 
     public EventPushService(RabbitTemplate rabbitTemplate,
-                            @Value("${spring.rabbitmq.template.exchange}") String exchangeName,
-                            @Lazy MessageBrokerService messageBrokerService) {
+                            Map<String, Queue> queues,
+                            @Value("${spring.rabbitmq.template.exchange}") String exchangeName) {
         this.rabbitTemplate = rabbitTemplate;
-        this.messageBrokerService = messageBrokerService;
+        this.queues = queues;
         this.exchangeName = exchangeName;
     }
 
@@ -114,7 +113,7 @@ public class EventPushService<T> {
 
 
     public boolean isSettingQueueConsumer(Message message) {
-        return messageBrokerService.getSettingQueueName().equals(getSupplierQueueNameHeader(message));
+        return getSettingQueueName().equals(getSupplierQueueNameHeader(message));
     }
 
     private String getSupplierQueueNameHeader(Message message) {
@@ -154,6 +153,10 @@ public class EventPushService<T> {
                 break;
         }
         return key;
+    }
+
+    public String getSettingQueueName() {
+        return queues.get("settingsQueue").getName();
     }
 
 }

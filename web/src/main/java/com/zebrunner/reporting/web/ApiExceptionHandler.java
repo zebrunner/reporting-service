@@ -11,6 +11,7 @@ import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.IntegrationException;
 import com.zebrunner.reporting.service.exception.ProcessingException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -43,11 +44,8 @@ public class ApiExceptionHandler {
     private static final String ERR_MSG_INTERNAL_SERVER_ERROR = "Unexpected error has occurred. Please try again later.";
     private static final String ERR_MSG_DEBUG_INFO = "Error message: [%s]. Caused by: [%s]";
 
+    @Setter(onMethod = @__(@Value("${service.debug-enabled:false}")))
     private boolean debugEnabled;
-
-    public void setDebugEnabled(@Value("${service.debug-enabled:false}") boolean debugEnabled) {
-        this.debugEnabled = debugEnabled;
-    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

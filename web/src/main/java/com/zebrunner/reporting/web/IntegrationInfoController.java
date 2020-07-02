@@ -4,6 +4,7 @@ import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.web.documented.IntegrationInfoDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,13 +19,10 @@ import java.util.Map;
 @CrossOrigin
 @RequestMapping(path = "api/integrations-info", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class IntegrationInfoController extends AbstractController implements IntegrationInfoDocumentedController {
 
     private final IntegrationService integrationService;
-
-    public IntegrationInfoController(IntegrationService integrationService) {
-        this.integrationService = integrationService;
-    }
 
     @GetMapping()
     @Override
@@ -43,4 +41,5 @@ public class IntegrationInfoController extends AbstractController implements Int
     public IntegrationInfo getIntegrationsInfoById(@PathVariable("id") Long id, @RequestParam("groupName") String groupName) {
         return integrationService.retrieveInfoByIntegrationId(groupName, id);
     }
+
 }

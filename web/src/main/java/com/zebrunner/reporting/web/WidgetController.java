@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,19 +33,12 @@ import java.util.stream.Collectors;
 @Api("Widgets API")
 @RequestMapping(path = "api/widgets", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class WidgetController extends AbstractController {
 
     private final WidgetService widgetService;
     private final WidgetTemplateService widgetTemplateService;
     private final Mapper mapper;
-
-    public WidgetController(WidgetService widgetService,
-                            WidgetTemplateService widgetTemplateService,
-                            Mapper mapper) {
-        this.widgetService = widgetService;
-        this.widgetTemplateService = widgetTemplateService;
-        this.mapper = mapper;
-    }
 
     @ApiResponseStatuses
     @ApiOperation(value = "Create widget", nickname = "createWidget", httpMethod = "POST", response = Widget.class)

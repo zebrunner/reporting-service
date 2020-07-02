@@ -3,7 +3,6 @@ package com.zebrunner.reporting.web;
 import com.zebrunner.reporting.domain.dto.integration.IntegrationDTO;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;
-import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.web.documented.IntegrationDocumentedController;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 public class IntegrationController extends AbstractController implements IntegrationDocumentedController {
 
     private final IntegrationService integrationService;
-    private final StorageService storageService;
     private final Mapper mapper;
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_INTEGRATIONS')")

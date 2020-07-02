@@ -25,11 +25,11 @@ import com.zebrunner.reporting.service.TestService;
 import com.zebrunner.reporting.service.cache.TestRunStatisticsCacheableService;
 import com.zebrunner.reporting.service.util.EmailUtils;
 import com.zebrunner.reporting.web.documented.TestRunDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 
 @RequestMapping(path = "api/tests/runs", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class TestRunController extends AbstractController implements TestRunDocumentedController {
 
     private final TestRunService testRunService;
@@ -59,17 +60,6 @@ public class TestRunController extends AbstractController implements TestRunDocu
     private final TestRunStatisticsCacheableService statisticsService;
     private final LauncherCallbackService launcherCallbackService;
     private final Mapper mapper;
-
-    public TestRunController(TestRunService testRunService, TestService testService, TestConfigService testConfigService, SimpMessagingTemplate websocketTemplate,
-                             TestRunStatisticsCacheableService statisticsService, LauncherCallbackService launcherCallbackService, Mapper mapper) {
-        this.testRunService = testRunService;
-        this.testService = testService;
-        this.testConfigService = testConfigService;
-        this.websocketTemplate = websocketTemplate;
-        this.statisticsService = statisticsService;
-        this.launcherCallbackService = launcherCallbackService;
-        this.mapper = mapper;
-    }
 
     @PostMapping()
     @Override

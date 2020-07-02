@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,15 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RequestMapping(path = "api/launcher-callbacks", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class LauncherCallbackAPIController extends AbstractController {
 
     private final LauncherCallbackService launcherCallbackService;
     private final Mapper mapper;
-
-    public LauncherCallbackAPIController(LauncherCallbackService launcherCallbackService, Mapper mapper) {
-        this.launcherCallbackService = launcherCallbackService;
-        this.mapper = mapper;
-    }
 
     @ApiResponseStatuses
     @ApiOperation(value = "Retrieves test run by launcher callback reference token", nickname = "getInfo", httpMethod = "GET", response = TestRunType.class)

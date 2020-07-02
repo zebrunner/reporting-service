@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,6 +39,7 @@ public class SettingsController extends AbstractController implements SettingDoc
     private final ElasticsearchService elasticsearchService;
     private final IntegrationService integrationService;
     private final StorageService storageService;
+    private final RabbitProperties props;
 
     @GetMapping("tool/{tool}")
     @Override
@@ -49,7 +51,7 @@ public class SettingsController extends AbstractController implements SettingDoc
                 settings = elasticsearchService.getSettings();
                 break;
             case "RABBITMQ":
-                settings = collectDecryptedIntegrationSettings("RABBITMQ");
+                settings = buildRabbitMQSettings();
                 break;
             case "ZEBRUNNER":
                 settings = collectDecryptedIntegrationSettings("ZEBRUNNER");
@@ -75,6 +77,15 @@ public class SettingsController extends AbstractController implements SettingDoc
                                               .collect(Collectors.toList());
         settings.add(new Setting(integrationTypeName + "_ENABLED", Boolean.toString(integration.isEnabled())));
         return settings;
+    }
+
+    private List<Setting> buildRabbitMQSettings() {
+        return List.of(
+                new Setting("RABBITMQ_HOST", props.getHost()),
+                new Setting("RABBITMQ_PORT", String.valueOf(props.getPort())),
+                new Setting("RABBITMQ_USER", props.getUsername()),
+                new Setting("RABBITMQ_PASSWORD", props.getPassword())
+        );
     }
 
     @ApiResponseStatuses

@@ -31,7 +31,7 @@ public class TestSuiteController extends AbstractController implements TestSuite
     private final TestSuiteService testSuiteService;
     private final TestRunService testRunService;
 
-    @PostMapping()
+    @PostMapping
     @Override
     public TestSuiteType createTestSuite(@RequestBody @Valid TestSuiteType testSuite) {
         return mapper.map(testSuiteService.createOrUpdateTestSuite(mapper.map(testSuite, TestSuite.class)), TestSuiteType.class);
@@ -46,4 +46,5 @@ public class TestSuiteController extends AbstractController implements TestSuite
                                 .map(stability -> mapper.map(stability, TestRunResultDTO.class))
                                 .collect(Collectors.toList());
     }
+
 }
