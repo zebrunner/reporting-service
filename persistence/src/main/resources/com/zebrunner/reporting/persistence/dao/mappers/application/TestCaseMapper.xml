@@ -425,10 +425,6 @@
 			property="primaryOwner.id" />
 		<result column="TEST_CASE_PRIMARY_OWNER_USERNAME"
 			property="primaryOwner.username" />
-		<result column="TEST_CASE_PRIMARY_OWNER_FIRST_NAME"
-			property="primaryOwner.firstName" />
-		<result column="TEST_CASE_PRIMARY_OWNER_LAST_NAME"
-			property="primaryOwner.lastName" />
 		<result column="TEST_CASE_PRIMARY_OWNER_EMAIL"
 			property="primaryOwner.email" />
 		<result column="TEST_CASE_PRIMARY_OWNER_MODIFIED_AT"
@@ -440,10 +436,6 @@
 			property="secondaryOwner.id" />
 		<result column="TEST_CASE_SECONDARY_OWNER_USERNAME"
 			property="secondaryOwner.username" />
-		<result column="TEST_CASE_SECONDARY_OWNER_FIRST_NAME"
-			property="secondaryOwner.firstName" />
-		<result column="TEST_CASE_SECONDARY_OWNER_LAST_NAME"
-			property="secondaryOwner.lastName" />
 		<result column="TEST_CASE_SECONDARY_OWNER_EMAIL"
 			property="secondaryOwner.email" />
 		<result column="TEST_CASE_SECONDARY_OWNER_MODIFIED_AT"
