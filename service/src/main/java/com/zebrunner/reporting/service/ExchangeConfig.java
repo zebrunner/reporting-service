@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import java.util.UUID;
 
 @Configuration
-@EnableConfigurationProperties(RabbitMQProperties.class)
 public class ExchangeConfig {
 
     public static final String MAIL_DATA_EXCHANGE = "mail-data-exchange";

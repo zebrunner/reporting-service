@@ -5,7 +5,6 @@ import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.service.CryptoService;
 import com.zebrunner.reporting.service.ElasticsearchService;
-import com.zebrunner.reporting.service.RabbitMQProperties;
 import com.zebrunner.reporting.service.SettingsService;
 import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
@@ -15,6 +14,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,7 +39,7 @@ public class SettingsController extends AbstractController implements SettingDoc
     private final ElasticsearchService elasticsearchService;
     private final IntegrationService integrationService;
     private final StorageService storageService;
-    private final RabbitMQProperties props;
+    private final RabbitProperties props;
 
     @GetMapping("tool/{tool}")
     @Override
@@ -82,7 +82,7 @@ public class SettingsController extends AbstractController implements SettingDoc
     private List<Setting> buildRabbitMQSettings() {
         return List.of(
                 new Setting("RABBITMQ_HOST", props.getHost()),
-                new Setting("RABBITMQ_PORT", props.getPort()),
+                new Setting("RABBITMQ_PORT", String.valueOf(props.getPort())),
                 new Setting("RABBITMQ_USER", props.getUsername()),
                 new Setting("RABBITMQ_PASSWORD", props.getPassword())
         );
