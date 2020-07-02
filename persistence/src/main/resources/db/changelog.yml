@@ -319,13 +319,24 @@ databaseChangeLog:
             relativeToChangelogFile: true
             splitStatements: false
   - changeSet:
-      id: 030_remove_rabbitmq_integration
+      id: 030_nullable_job_id_for_test_run
+      validCheckSum: ANY
+      labels: stable
+      author: sbrenko
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/030_nullable_job_id_for_test_run.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+  - changeSet:
+      id: 031_remove_rabbitmq_integration
       validCheckSum: ANY
       labels: stable
       author: brutskov
       changes:
         - sqlFile:
             encoding: utf8
-            path: changeset/030_remove_rabbitmq_integration.sql
+            path: changeset/031_remove_rabbitmq_integration.sql
             relativeToChangelogFile: true
             splitStatements: false
