@@ -2,8 +2,6 @@ package com.zebrunner.reporting.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
-import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
 import com.zebrunner.reporting.domain.db.JenkinsJob;
 import com.zebrunner.reporting.domain.db.Job;
 import com.zebrunner.reporting.domain.db.ScmAccount;
@@ -14,16 +12,16 @@ import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JobResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
-import com.zebrunner.reporting.service.feign.IamAuthClient;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import com.zebrunner.reporting.service.feign.IamAuthClient;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
 import com.zebrunner.reporting.service.integration.tool.impl.TestAutomationToolService;
 import com.zebrunner.reporting.service.scm.GitHubService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +41,7 @@ import static com.zebrunner.reporting.service.exception.IllegalOperationExceptio
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.LAUNCHER_NOT_FOUND;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.USER_NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LauncherService {
@@ -163,14 +162,6 @@ public class LauncherService {
         return launchers;
     }
 
-    private Launcher createLauncherForJenkinsJob(long userId, ScmAccount scmAccount, JenkinsJob jenkinsJob) {
-        String jobUrl = jenkinsJob.getUrl();
-        Job job = jobsService.createOrUpdateJobByURL(jobUrl, userId);
-        Launcher launcher = new Launcher(job.getName(), jenkinsJob.getParameters(), scmAccount, job, jenkinsJob.getType(), true);
-        launcherMapper.createLauncher(launcher);
-        return launcher;
-    }
-
     @Transactional(readOnly = true)
     public List<Launcher> getAutoScannedByScmAccountId(Long scmAccountId) {
         return launcherMapper.getAllAutoScannedByScmAccountId(scmAccountId);
@@ -234,14 +225,15 @@ public class LauncherService {
         // It must be returned with test run on start in testRun.ciRunId field
         String ciRunId = UUID.randomUUID().toString();
 
-        Map<String, String> jobParameters = buildLauncherJobParametersMap(launcher, user, scmAccount, ciRunId, providerId);
+        Map<String, String> jobParameters = buildLauncherJobParametersMap(launcher, scmAccount, ciRunId, providerId);
         automationServerService.buildJob(job, jobParameters);
 
         return ciRunId;
     }
 
-    private Map<String, String> buildLauncherJobParametersMap(Launcher launcher, User user, ScmAccount scmAccount, String ciRunId, Long providerId) throws IOException {
-        Map<String, String> jobParameters = new ObjectMapper().readValue(launcher.getModel(), new TypeReference<Map<String, String>>() {});
+    private Map<String, String> buildLauncherJobParametersMap(Launcher launcher, ScmAccount scmAccount, String ciRunId, Long providerId) throws IOException {
+        Map<String, String> jobParameters = new ObjectMapper().readValue(launcher.getModel(), new TypeReference<>() {
+        });
 
         String decryptedAccessToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String authorizedURL = scmAccount.buildAuthorizedURL(decryptedAccessToken);
@@ -261,7 +253,15 @@ public class LauncherService {
 
         jobParameters.put("zafira_enabled", "true");
         jobParameters.put("zafira_service_url", urlResolver.buildWebserviceUrl());
-        jobParameters.put("zafira_access_token", iamAuthClient.getServiceRefreshToken().getToken());
+        String accessToken = "";
+        try {
+            accessToken = iamAuthClient.getServiceRefreshToken().getToken();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        log.info(accessToken);
+        jobParameters.put("zafira_access_token", accessToken);
 
         String args = jobParameters.entrySet().stream()
                                    .filter(param -> !MANDATORY_ARGUMENTS.contains(param.getKey()))
@@ -275,6 +275,7 @@ public class LauncherService {
             throw new IllegalOperationException(JOB_CAN_NOT_BE_STARTED, ERR_MSG_REQUIRED_JOB_ARGUMENTS_NOT_FOUND);
         }
 
+        log.info("66666666666\n" + jobParameters);
         return jobParameters;
     }
 
