@@ -47,13 +47,13 @@ public class IntegrationServiceImpl implements IntegrationService {
     private static final String ERR_MSG_DEFAULT_VALUE_IS_NOT_PROVIDED_BY_NAME = "Default value for integration with name '%s' is not provided";
 
     private final SettingsService settingsService;
-    private final EventPushService<EventMessage> eventPushService;
     private final TransactionTemplate transactionTemplate;
     private final IntegrationRepository integrationRepository;
-    private final IntegrationInitializer integrationInitializer;
-    private final IntegrationTypeService integrationTypeService;
     private final IntegrationGroupService integrationGroupService;
+    private final IntegrationTypeService integrationTypeService;
     private final IntegrationSettingService integrationSettingService;
+    private final EventPushService<EventMessage> eventPushService;
+    private final IntegrationInitializer integrationInitializer;
 
     @Override
     public Integration create(final Integration integration, Long typeId) {
@@ -318,7 +318,7 @@ public class IntegrationServiceImpl implements IntegrationService {
     private void notifyToolReInitialized(Integration integration) {
         String tenantName = TenancyContext.getTenantName();
         eventPushService.convertAndSend(EventPushService.Routing.SETTINGS, new ReinitEventMessage(tenantName, integration.getId()));
-//        eventPushService.sendFanout(ExchangeConfig.INTEGRATION_SAVED_EXCHANGE, toIntegrationSavedMessage(tenantName, integration));
+        eventPushService.sendFanout(ExchangeConfig.INTEGRATION_SAVED_EXCHANGE, toIntegrationSavedMessage(tenantName, integration));
         integrationInitializer.initIntegration(integration, tenantName);
     }
 
