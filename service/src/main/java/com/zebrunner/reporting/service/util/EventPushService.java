@@ -106,7 +106,7 @@ public class EventPushService<T> {
         return message -> {
             message.getMessageProperties()
                    .getHeaders()
-                   .putIfAbsent(SUPPLIER_QUEUE_NAME_HEADER, messageBrokerService.getSettingQueueName());
+                   .putIfAbsent(SUPPLIER_QUEUE_NAME_HEADER, getSettingQueueName());
             return message;
         };
     }
