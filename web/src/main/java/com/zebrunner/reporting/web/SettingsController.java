@@ -5,6 +5,7 @@ import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.service.CryptoService;
 import com.zebrunner.reporting.service.ElasticsearchService;
+import com.zebrunner.reporting.service.RabbitMQProperties;
 import com.zebrunner.reporting.service.SettingsService;
 import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
@@ -38,6 +39,7 @@ public class SettingsController extends AbstractController implements SettingDoc
     private final ElasticsearchService elasticsearchService;
     private final IntegrationService integrationService;
     private final StorageService storageService;
+    private final RabbitMQProperties props;
 
     @GetMapping("tool/{tool}")
     @Override
@@ -47,6 +49,9 @@ public class SettingsController extends AbstractController implements SettingDoc
         switch (typeName.toUpperCase()) {
             case "ELASTICSEARCH":
                 settings = elasticsearchService.getSettings();
+                break;
+            case "RABBITMQ":
+                settings = buildRabbitMQSettings();
                 break;
             case "ZEBRUNNER":
                 settings = collectDecryptedIntegrationSettings("ZEBRUNNER");
@@ -72,6 +77,15 @@ public class SettingsController extends AbstractController implements SettingDoc
                                               .collect(Collectors.toList());
         settings.add(new Setting(integrationTypeName + "_ENABLED", Boolean.toString(integration.isEnabled())));
         return settings;
+    }
+
+    private List<Setting> buildRabbitMQSettings() {
+        return List.of(
+                new Setting("RABBITMQ_HOST", props.getHost()),
+                new Setting("RABBITMQ_PORT", props.getPort()),
+                new Setting("RABBITMQ_USER", props.getUsername()),
+                new Setting("RABBITMQ_PASSWORD", props.getPassword())
+        );
     }
 
     @ApiResponseStatuses
