@@ -1,16 +1,16 @@
 package com.zebrunner.reporting.service;
 
-import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
-import com.zebrunner.reporting.domain.push.events.EventMessage;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
-import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSessionSearchCriteria;
-import com.zebrunner.reporting.persistence.repository.TestSessionRepository;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.dto.testsession.SearchParameter;
 import com.zebrunner.reporting.domain.entity.TestSession;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationParam;
+import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
+import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.domain.push.events.ZbrHubTokenRefreshMessage;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.SearchResult;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestSessionSearchCriteria;
+import com.zebrunner.reporting.persistence.repository.TestSessionRepository;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.IntegrationService;
@@ -41,10 +41,10 @@ public class TestSessionService {
     private static final String ERR_MSG_TEST_SESSION_NOT_EXISTS_BY_SESSION_ID = "Test session does not exist by sessionId '%s'";
     private static final String ERR_MSG_FOR_INTEGRATION_TOKEN_REFRESH_IS_NOT_SUPPORTED = "For integration of type %s token refresh is not supported";
 
-    private final EventPushService<EventMessage> eventPushService;
-    private final IntegrationService integrationService;
     private final TestSessionRepository testSessionRepository;
+    private final IntegrationService integrationService;
     private final IntegrationTypeService integrationTypeService;
+    private final EventPushService<EventMessage> eventPushService;
 
     @Transactional(readOnly = true)
     public TestSession retrieveBySessionId(String sessionId) {
