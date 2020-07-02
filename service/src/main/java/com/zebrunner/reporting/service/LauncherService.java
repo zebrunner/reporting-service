@@ -253,15 +253,7 @@ public class LauncherService {
 
         jobParameters.put("zafira_enabled", "true");
         jobParameters.put("zafira_service_url", urlResolver.buildWebserviceUrl());
-        String accessToken = "";
-        try {
-            accessToken = iamAuthClient.getServiceRefreshToken().getToken();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-
-        log.info(accessToken);
-        jobParameters.put("zafira_access_token", accessToken);
+        jobParameters.put("zafira_access_token", iamAuthClient.getServiceRefreshToken().getToken());
 
         String args = jobParameters.entrySet().stream()
                                    .filter(param -> !MANDATORY_ARGUMENTS.contains(param.getKey()))
@@ -275,7 +267,6 @@ public class LauncherService {
             throw new IllegalOperationException(JOB_CAN_NOT_BE_STARTED, ERR_MSG_REQUIRED_JOB_ARGUMENTS_NOT_FOUND);
         }
 
-        log.info("66666666666\n" + jobParameters);
         return jobParameters;
     }
 
