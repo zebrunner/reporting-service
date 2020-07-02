@@ -68,7 +68,6 @@ public class SlackIntegrationAdapter extends AbstractIntegrationAdapter implemen
             push(null, new SlackMessage(StringUtils.EMPTY));
             result = true;
         } catch (IOException e) {
-            LOGGER.error(ERR_MSG_SLACK_CONNECTION_IS_NOT_ESTABLISHED + e.getMessage());
              /*
              Based on slackService functionality method push is void and in case of 4** response
              throws exception with message containing status code.
