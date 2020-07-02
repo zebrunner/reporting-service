@@ -3,6 +3,7 @@ package com.zebrunner.reporting.web;
 import com.zebrunner.reporting.domain.dto.integration.IntegrationGroupDTO;
 import com.zebrunner.reporting.service.integration.IntegrationGroupService;
 import com.zebrunner.reporting.web.documented.IntegrationGroupDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,15 +18,11 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/integration-groups", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class IntegrationGroupController extends AbstractController implements IntegrationGroupDocumentedController {
 
     private final IntegrationGroupService integrationGroupService;
     private final Mapper mapper;
-
-    public IntegrationGroupController(IntegrationGroupService integrationGroupService, Mapper mapper) {
-        this.integrationGroupService = integrationGroupService;
-        this.mapper = mapper;
-    }
 
     @PreAuthorize("hasPermission('VIEW_INTEGRATIONS')")
     @GetMapping()
@@ -35,4 +32,5 @@ public class IntegrationGroupController extends AbstractController implements In
                                  .map(integration -> mapper.map(integration, IntegrationGroupDTO.class))
                                  .collect(Collectors.toList());
     }
+
 }

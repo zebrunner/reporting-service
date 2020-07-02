@@ -7,6 +7,7 @@ import com.zebrunner.reporting.domain.dto.auth.InvitationListType;
 import com.zebrunner.reporting.domain.dto.auth.InvitationType;
 import com.zebrunner.reporting.service.InvitationService;
 import com.zebrunner.reporting.web.documented.InvitationDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,15 +28,11 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/invitations", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class InvitationController extends AbstractController implements InvitationDocumentedController {
 
     private final InvitationService invitationService;
     private final Mapper mapper;
-
-    public InvitationController(InvitationService invitationService, Mapper mapper) {
-        this.invitationService = invitationService;
-        this.mapper = mapper;
-    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('INVITE_USERS')")
     @PostMapping()

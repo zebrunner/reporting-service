@@ -12,6 +12,7 @@ import com.zebrunner.reporting.service.DashboardService;
 import com.zebrunner.reporting.service.UserPreferenceService;
 import com.zebrunner.reporting.service.UserService;
 import com.zebrunner.reporting.web.documented.UserDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
@@ -35,20 +36,13 @@ import java.util.Map;
 @CrossOrigin
 @RequestMapping(path = "api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class UserController extends AbstractController implements UserDocumentedController {
 
     private final UserService userService;
     private final DashboardService dashboardService;
     private final UserPreferenceService userPreferenceService;
     private final Mapper mapper;
-
-    public UserController(UserService userService, DashboardService dashboardService,
-                          UserPreferenceService userPreferenceService, Mapper mapper) {
-        this.userService = userService;
-        this.dashboardService = dashboardService;
-        this.userPreferenceService = userPreferenceService;
-        this.mapper = mapper;
-    }
 
     @GetMapping("/profile")
     @Override

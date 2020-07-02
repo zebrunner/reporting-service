@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,15 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Api("Tags operations")
 @RequestMapping(path = "api/tags", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class TagController extends AbstractController {
 
     private final TagService tagService;
     private final Mapper mapper;
-
-    public TagController(TagService tagService, Mapper mapper) {
-        this.tagService = tagService;
-        this.mapper = mapper;
-    }
 
     @ApiResponseStatuses
     @ApiOperation(value = "Retrieves integration information", nickname = "getTestIntegrationInfo", httpMethod = "GET", response = TagIntegrationDataDTO.class)

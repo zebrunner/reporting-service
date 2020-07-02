@@ -11,6 +11,7 @@ import com.zebrunner.reporting.service.WidgetTemplateService;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.util.EmailUtils;
 import com.zebrunner.reporting.web.documented.DashboardDocumentedController;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.dozer.Mapper;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/dashboards", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class DashboardController extends AbstractController implements DashboardDocumentedController {
 
     private static final String ERR_MSG_ILLEGAL_DASHBOARD_ACCESS_BY_ID = "Cannot access requested dashboard by id '%d'";
@@ -47,12 +49,6 @@ public class DashboardController extends AbstractController implements Dashboard
     private final DashboardService dashboardService;
     private final WidgetTemplateService widgetTemplateService;
     private final Mapper mapper;
-
-    public DashboardController(DashboardService dashboardService, WidgetTemplateService widgetTemplateService, Mapper mapper) {
-        this.dashboardService = dashboardService;
-        this.widgetTemplateService = widgetTemplateService;
-        this.mapper = mapper;
-    }
 
     @PreAuthorize("hasPermission('MODIFY_DASHBOARDS') and ((hasPermission('VIEW_HIDDEN_DASHBOARDS') and #dashboardType.hidden) or !#dashboardType.hidden)")
     @PostMapping()

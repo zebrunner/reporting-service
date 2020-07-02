@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,15 +24,11 @@ import java.util.Optional;
 @CrossOrigin
 @RequestMapping(path = "api/config", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class ConfigurationController extends AbstractController {
 
     private final ConfigurationService configurationService;
     private final ProjectService projectService;
-
-    public ConfigurationController(ConfigurationService configurationService, ProjectService projectService) {
-        this.configurationService = configurationService;
-        this.projectService = projectService;
-    }
 
     @ApiResponseStatuses
     @ApiOperation(value = "Retrieves the version value/number", nickname = "getVersion", httpMethod = "GET", response = Map.class)
