@@ -12,6 +12,7 @@ import com.zebrunner.reporting.service.cache.TestRunStatisticsCacheableService;
 import com.zebrunner.reporting.service.reporting.ReportingService;
 import com.zebrunner.reporting.web.dto.TestDTO;
 import com.zebrunner.reporting.web.dto.TestRunDTO;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -34,21 +35,13 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "v1/test-runs", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class ReportingController extends AbstractController {
 
     private final ReportingService reportingService;
     private final TestRunStatisticsCacheableService statisticsCacheableService;
     private final LauncherCallbackService launcherCallbackService;
     private final SimpMessagingTemplate messagingTemplate;
-
-    public ReportingController(ReportingService reportingService, TestRunStatisticsCacheableService statisticsCacheableService, LauncherCallbackService launcherCallbackService, SimpMessagingTemplate messagingTemplate, Mapper mapper) {
-        this.reportingService = reportingService;
-        this.statisticsCacheableService = statisticsCacheableService;
-        this.launcherCallbackService = launcherCallbackService;
-        this.messagingTemplate = messagingTemplate;
-        this.mapper = mapper;
-    }
-
     private final Mapper mapper;
 
     @PostMapping
@@ -137,4 +130,5 @@ public class ReportingController extends AbstractController {
         TestRunStatistics testRunStatistics = statisticsCacheableService.getTestRunStatistic(runId);
         messagingTemplate.convertAndSend(getStatisticsWebsocketPath(), new TestRunStatisticPush(testRunStatistics));
     }
+
 }

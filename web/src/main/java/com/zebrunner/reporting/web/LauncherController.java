@@ -13,6 +13,7 @@ import com.zebrunner.reporting.service.LauncherService;
 import com.zebrunner.reporting.web.documented.LauncherDocumentedController;
 import com.zebrunner.reporting.web.util.patch.PatchDecorator;
 import com.zebrunner.reporting.web.util.patch.PatchDescriptor;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -37,17 +38,12 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/launchers", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class LauncherController extends AbstractController implements LauncherDocumentedController {
 
     private final LauncherService launcherService;
     private final Mapper mapper;
     private final SimpMessagingTemplate websocketTemplate;
-
-    public LauncherController(LauncherService launcherService, Mapper mapper, SimpMessagingTemplate websocketTemplate) {
-        this.launcherService = launcherService;
-        this.mapper = mapper;
-        this.websocketTemplate = websocketTemplate;
-    }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
     @PostMapping()

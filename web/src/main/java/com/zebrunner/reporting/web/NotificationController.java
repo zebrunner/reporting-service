@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,13 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RequestMapping(path = {"api/notification", "api/slack"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class NotificationController extends AbstractController {
 
     private final NotificationService notificationService;
-
-    public NotificationController(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
 
     @ApiResponseStatuses
     @ApiOperation(value = "Sends a notification after a test run was reviewed", nickname = "sendReviewNotification", httpMethod = "GET")

@@ -7,6 +7,7 @@ import com.zebrunner.reporting.domain.dto.testsession.TokenDTO;
 import com.zebrunner.reporting.domain.entity.TestSession;
 import com.zebrunner.reporting.service.TestSessionService;
 import com.zebrunner.reporting.web.documented.TestSessionDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(path = "api/tests/sessions", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class TestSessionController extends AbstractController implements TestSessionDocumentedController {
 
     private final TestSessionService testSessionService;
-
-    public TestSessionController(TestSessionService testSessionService) {
-        this.testSessionService = testSessionService;
-    }
 
     @GetMapping("/{sessionId}")
     @Override

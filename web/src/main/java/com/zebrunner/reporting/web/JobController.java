@@ -4,8 +4,8 @@ import com.zebrunner.reporting.domain.db.Job;
 import com.zebrunner.reporting.domain.dto.JobDTO;
 import com.zebrunner.reporting.domain.dto.JobUrlType;
 import com.zebrunner.reporting.service.JobsService;
-import com.zebrunner.reporting.service.TestRunService;
 import com.zebrunner.reporting.web.documented.JobDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -21,17 +21,11 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping(path = "api/jobs", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class JobController extends AbstractController implements JobDocumentedController {
 
     private final Mapper mapper;
     private final JobsService jobsService;
-    private final TestRunService testRunService;
-
-    public JobController(Mapper mapper, JobsService jobsService, TestRunService testRunService) {
-        this.mapper = mapper;
-        this.jobsService = jobsService;
-        this.testRunService = testRunService;
-    }
 
     @PostMapping()
     @Override
@@ -54,4 +48,5 @@ public class JobController extends AbstractController implements JobDocumentedCo
     public List<Job> getAllJobs() {
         return jobsService.getAllJobs();
     }
+
 }

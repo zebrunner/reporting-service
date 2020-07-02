@@ -1,6 +1,5 @@
 package com.zebrunner.reporting.web;
 
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.Invitation;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.dto.auth.AccessTokenDTO;
@@ -12,6 +11,7 @@ import com.zebrunner.reporting.domain.dto.auth.TenancyInfoDTO;
 import com.zebrunner.reporting.domain.dto.auth.TenantAuth;
 import com.zebrunner.reporting.domain.dto.user.PasswordDTO;
 import com.zebrunner.reporting.domain.dto.user.UserDTO;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.AuthService;
 import com.zebrunner.reporting.service.InvitationService;
 import com.zebrunner.reporting.service.JWTService;
@@ -20,6 +20,7 @@ import com.zebrunner.reporting.service.UserService;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import com.zebrunner.reporting.web.documented.AuthDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,42 +43,18 @@ import javax.validation.Valid;
 @CrossOrigin
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class AuthController extends AbstractController implements AuthDocumentedController {
 
     private static final String FIRST_LOGIN_HEADER_NAME = "First-Login";
 
     private final AuthService authService;
-
     private final JWTService jwtService;
-
     private final ResetPasswordService resetPasswordService;
-
     private final UserService userService;
-
     private final InvitationService invitationService;
-
     private final URLResolver urlResolver;
-
     private final Mapper mapper;
-
-    public AuthController(AuthService authService,
-                          JWTService jwtService,
-                          ResetPasswordService resetPasswordService,
-                          UserService userService,
-                          InvitationService invitationService,
-                          URLResolver urlResolver,
-                          Mapper mapper,
-                          TenancyService tenancyService) {
-        this.authService = authService;
-        this.jwtService = jwtService;
-        this.resetPasswordService = resetPasswordService;
-        this.userService = userService;
-        this.invitationService = invitationService;
-        this.urlResolver = urlResolver;
-        this.mapper = mapper;
-        this.tenancyService = tenancyService;
-    }
-
     private final TenancyService tenancyService;
 
     @GetMapping("api/auth/tenant")
