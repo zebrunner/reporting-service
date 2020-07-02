@@ -38,7 +38,7 @@ public class TestDTO {
     private String methodName;
 
     @PastOrPresent(groups = ValidationGroups.TestStartGroup.class)
-    @NotNull(groups = ValidationGroups.TestStartGroup.class)
+    @NotNull(groups = {ValidationGroups.TestStartGroup.class, ValidationGroups.HeadlessTestStartGroup.class})
     @Null(groups = ValidationGroups.TestFinishGroup.class)
     private OffsetDateTime startedAt;
 
@@ -69,6 +69,7 @@ public class TestDTO {
     public static class ValidationGroups {
         public interface AllGroups {}
         public interface TestStartGroup extends AllGroups {}
+        public interface HeadlessTestStartGroup extends AllGroups {}
         public interface TestFinishGroup extends AllGroups {}
     }
 }

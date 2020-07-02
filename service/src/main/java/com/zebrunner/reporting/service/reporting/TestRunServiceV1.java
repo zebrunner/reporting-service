@@ -62,7 +62,10 @@ public class TestRunServiceV1 {
     }
 
     @Transactional
-    public Test startTest(Test test, Long testRunId) {
+    public Test startTest(Test test, Long testRunId, boolean headless, boolean rerun) {
+        if (headless) {
+            startHeadlessTest(test);
+        }
         TestCase testCase = convertToTestCase(test, testRunId);
         testCase = testCaseService.createOrUpdateCase(testCase, testCase.getProject().getName());
 
@@ -70,14 +73,45 @@ public class TestRunServiceV1 {
         oldTest.setTestCaseId(testCase.getId());
         oldTest.setStartTime(Timestamp.valueOf(test.getStartedAt().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()));
 
+        com.zebrunner.reporting.domain.db.Test headlessTest = null;
+        if (test.getId() != null) { // headless test override (next headless test or test start)
+            headlessTest = testService.getTestById(test.getId());
+            if (headlessTest != null) {
+                oldTest.setUuid(test.getUuid());
+                oldTest.setStartTime(headlessTest.getStartTime());
+            }
+        }
+
+        boolean updateHeadlessTest = false;
         com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
         if (existingTest != null) {
             oldTest.setId(existingTest.getId());
+            if (headless && !rerun) { // if there are many headless tests in chain
+                oldTest.setStatus(existingTest.getStatus());
+                updateHeadlessTest = true;
+            }
         }
 
-        oldTest = testService.startTest(oldTest, null, null);
+        if (updateHeadlessTest) {
+            oldTest = testService.updateTest(oldTest);
+        } else {
+            oldTest = testService.startTest(oldTest, null, null, headless, headlessTest != null, rerun);
+        }
 
         test.setId(oldTest.getId());
+        return test;
+    }
+
+    private Test startHeadlessTest(Test test) {
+        if (test.getName() == null) {
+            test.setName("system");
+        }
+        if (test.getClassName() == null) {
+            test.setClassName("system");
+        }
+        if (test.getMethodName() == null) {
+            test.setMethodName("system");
+        }
         return test;
     }
 
