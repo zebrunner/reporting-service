@@ -1,4 +1,4 @@
-package com.zebrunner.reporting.web.util;
+package com.zebrunner.reporting.web.util.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

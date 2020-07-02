@@ -16,6 +16,7 @@ import com.zebrunner.reporting.service.TestService;
 import com.zebrunner.reporting.service.TestSuiteService;
 import com.zebrunner.reporting.service.UserService;
 import com.zebrunner.reporting.service.project.ProjectService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,25 +27,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class ReportingService {
+@RequiredArgsConstructor
+public class TestRunServiceV1 {
 
-    private final TestRunService testRunService;
-    private final TestSuiteService testSuiteService;
-    private final TestService testService;
     private final TestMapper testMapper;
-    private final TestCaseService testCaseService;
+    private final TestService testService;
     private final UserService userService;
     private final ProjectService projectService;
-
-    public ReportingService(TestRunService testRunService, TestSuiteService testSuiteService, TestService testService, TestMapper testMapper, TestCaseService testCaseService, UserService userService, ProjectService projectService) {
-        this.testRunService = testRunService;
-        this.testSuiteService = testSuiteService;
-        this.testService = testService;
-        this.testMapper = testMapper;
-        this.testCaseService = testCaseService;
-        this.userService = userService;
-        this.projectService = projectService;
-    }
+    private final TestRunService testRunService;
+    private final TestCaseService testCaseService;
+    private final TestSuiteService testSuiteService;
 
     @Transactional
     public TestRun startRun(TestRun testRun, String projectKey, Long userId) {

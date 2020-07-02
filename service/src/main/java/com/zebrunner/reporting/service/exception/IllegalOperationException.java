@@ -45,7 +45,8 @@ public class IllegalOperationException extends ApplicationException {
         ILLEGAL_ATTRIBUTE_VALUE(2085),
         ILLEGAL_BATCH_OPERATION(2086),
         INTEGRATION_USAGE_NOT_POSSIBLE(2087),
-        S3_TEMPORARY_CREDENTIALS_USAGE_NOT_POSSIBLE(2088);
+        S3_TEMPORARY_CREDENTIALS_USAGE_NOT_POSSIBLE(2088),
+        TEST_SESSION_CAN_NOT_BE_UPDATED(2089);
 
         private final Integer code;
         private String messageKey;

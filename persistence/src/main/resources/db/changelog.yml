@@ -329,3 +329,14 @@ databaseChangeLog:
             path: changeset/030_nullable_job_id_for_test_run.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 031_create_test_sessions_table
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/031_create_test_sessions_table.sql
+            relativeToChangelogFile: true
+            splitStatements: false

@@ -64,4 +64,6 @@ public interface TestMapper {
     List<Test> searchTests(TestSearchCriteria sc);
 
     Integer getTestsSearchCount(TestSearchCriteria sc);
+
+    Set<Long> findExistingIds(@Param("ids") Set<Long> ids);
 }
