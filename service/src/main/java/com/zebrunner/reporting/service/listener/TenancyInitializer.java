@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service.listener;
 
+import com.google.gson.Gson;
 import com.zebrunner.reporting.domain.push.events.EmailEventMessage;
 import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
@@ -10,6 +11,7 @@ import com.zebrunner.reporting.service.scm.ScmAccountService;
 import com.zebrunner.reporting.service.util.EventPushService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,7 @@ import static com.zebrunner.reporting.service.ExchangeConfig.CREATE_DEFAULT_USER
 import static com.zebrunner.reporting.service.ExchangeConfig.CREATE_DEFAULT_USER_ROUTING_KEY;
 import static com.zebrunner.reporting.service.util.EventPushService.Routing.TENANCIES;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TenancyInitializer {
@@ -43,17 +46,19 @@ public class TenancyInitializer {
      */
     @RabbitListener(queues = "#{tenanciesQueue.name}")
     public void initTenancy(Message message) {
+        Gson gson = new Gson();
+        log.info("\nMESSAGE:\n" + gson.toJson(message));;
         try {
             EventMessage eventMessage = messageHelper.parse(message, EventMessage.class);
             String tenancy = eventMessage.getTenantName();
 
-            LOGGER.info("Tenancy '{}' initialization is started.", tenancy);
+            log.info("Tenancy '{}' initialization is started.", tenancy);
 
             processMessage(tenancy, integrationTenancyStorage::initIntegrationProxies);
 
-            LOGGER.info("Tenancy '{}' initialization is finished.", tenancy);
+            log.info("Tenancy '{}' initialization is finished.", tenancy);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -65,17 +70,17 @@ public class TenancyInitializer {
                 .buildWebURL(),
                 eventMessage.getEmail(), true, "");
         try {
-            LOGGER.info("Tenancy '{}' DB initialization is started.", tenancy);
+            log.info("Tenancy '{}' DB initialization is started.", tenancy);
 
             processMessage(tenancy, integrationTenancyStorage::encryptIntegrationSettings);
             processMessage(tenancy, scmAccountService::encryptTokens);
 
             eventPushService.convertAndSend(TENANCIES, new EventMessage(tenancy));
 
-            LOGGER.info("Tenancy '{}' DB initialization is finished.", tenancy);
+            log.info("Tenancy '{}' DB initialization is finished.", tenancy);
 
         } catch (Exception e) {
-            LOGGER.error("Tenancy '{}' DB initialization failed\n" + e.getMessage(), tenancy);
+            log.error("Tenancy '{}' DB initialization failed\n" + e.getMessage(), tenancy);
 
             createDefaultUserMessage.setSuccess(false);
             createDefaultUserMessage.setMessage(e.getMessage());
