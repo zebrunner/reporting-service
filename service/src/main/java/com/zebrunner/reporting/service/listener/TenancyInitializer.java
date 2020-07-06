@@ -64,8 +64,8 @@ public class TenancyInitializer {
     public void initTenancyDb(Message message) {
         EmailEventMessage eventMessage = messageHelper.parse(message, EmailEventMessage.class);
         String tenancy = eventMessage.getTenantName();
-        CreateDefaultUserMessage createDefaultUserMessage = new CreateDefaultUserMessage(tenancy, urlResolver
-                .buildWebURL(),
+        CreateDefaultUserMessage createDefaultUserMessage = new CreateDefaultUserMessage(tenancy,
+                urlResolver.buildWebURL(),
                 eventMessage.getEmail(), true, "");
         try {
             log.info("Tenancy '{}' DB initialization is started.", tenancy);

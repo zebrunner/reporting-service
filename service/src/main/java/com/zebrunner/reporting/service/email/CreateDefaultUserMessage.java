@@ -9,9 +9,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateDefaultUserMessage implements Serializable {
-
-    private static final long serialVersionUID = -2674548665101669940L;
+public class CreateDefaultUserMessage {
 
     private String tenantName;
     private String tenantUrl;
