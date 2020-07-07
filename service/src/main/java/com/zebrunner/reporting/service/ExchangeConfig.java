@@ -1,6 +1,6 @@
 package com.zebrunner.reporting.service;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.UUID;
 
+@Slf4j
 @Configuration
-@RequiredArgsConstructor
 public class ExchangeConfig {
 
     public static final String INTEGRATION_SAVED_EXCHANGE = "integration-saved";
