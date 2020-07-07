@@ -318,7 +318,7 @@ public class IntegrationServiceImpl implements IntegrationService {
     private void notifyToolReInitialized(Integration integration) {
         String tenantName = TenancyContext.getTenantName();
         eventPushService.convertAndSend(EventPushService.Routing.SETTINGS, new ReinitEventMessage(tenantName, integration.getId()));
-//        eventPushService.sendFanout(ExchangeConfig.INTEGRATION_SAVED_EXCHANGE, toIntegrationSavedMessage(tenantName, integration));
+        eventPushService.sendFanout(ExchangeConfig.INTEGRATION_SAVED_EXCHANGE, toIntegrationSavedMessage(tenantName, integration));
         integrationInitializer.initIntegration(integration, tenantName);
     }
 
