@@ -98,7 +98,7 @@ public class WidgetTemplateService {
     private String processParameters(String paramsConfig, Consumer<WidgetTemplateParameter> parameterConsumer) {
         String result = null;
         try {
-            Map<String, WidgetTemplateParameter> params = mapper.readValue(paramsConfig, new TypeReference<Map<String, WidgetTemplateParameter>>() {
+            Map<String, WidgetTemplateParameter> params = mapper.readValue(paramsConfig, new TypeReference<>() {
             });
             params.forEach((name, parameter) -> parameterConsumer.accept(parameter));
             result = mapper.writeValueAsString(params);
