@@ -1,5 +1,6 @@
 package com.zebrunner.reporting.service.integration.core;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
@@ -73,7 +74,8 @@ public class IntegrationTenancyStorage {
     @RabbitListener(queues = "#{settingsQueue.name}")
     public void process(Message message) {
         try {
-            ReinitEventMessage event = messageHelper.parse(message, ReinitEventMessage.class);
+            ReinitEventMessage event = new Gson().fromJson(new String(message.getBody()), ReinitEventMessage.class);
+
             long integrationId = event.getIntegrationId();
             String tenantName = event.getTenantName();
             try {
