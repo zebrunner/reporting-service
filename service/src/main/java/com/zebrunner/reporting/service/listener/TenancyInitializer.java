@@ -46,6 +46,7 @@ public class TenancyInitializer {
     @RabbitListener(queues = "#{tenanciesQueue.name}")
     public void initTenancy(Message message) {
         try {
+            log.error("EVENT_MESSGAGE: " + new String(message.getBody()));
             EventMessage eventMessage = messageHelper.parse(message, EventMessage.class);
             String tenancy = eventMessage.getTenantName();
 
@@ -72,6 +73,7 @@ public class TenancyInitializer {
             processMessage(tenancy, integrationTenancyStorage::encryptIntegrationSettings);
             processMessage(tenancy, scmAccountService::encryptTokens);
 
+            log.error("DATA IS ENCRYPTED\n");
             eventPushService.convertAndSend(TENANCIES, new EventMessage(tenancy));
 
             log.info("Tenancy '{}' DB initialization is finished.", tenancy);
