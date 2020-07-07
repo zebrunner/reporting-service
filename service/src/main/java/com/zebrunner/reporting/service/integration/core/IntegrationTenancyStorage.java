@@ -3,15 +3,18 @@ package com.zebrunner.reporting.service.integration.core;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
+import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.domain.push.events.ReinitEventMessage;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.CryptoService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
 import com.zebrunner.reporting.service.integration.IntegrationSettingService;
 import com.zebrunner.reporting.service.integration.tool.proxy.IntegrationAdapterProxy;
+import com.zebrunner.reporting.service.listener.MessageHelper;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.util.EventPushService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -26,6 +29,7 @@ import java.util.Map;
 
 @Component
 @DependsOn("databaseStateManager")
+@RequiredArgsConstructor
 public class IntegrationTenancyStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTenancyStorage.class);
@@ -34,43 +38,24 @@ public class IntegrationTenancyStorage {
     private final IntegrationService integrationService;
     private final IntegrationInitializer integrationInitializer;
     private final IntegrationSettingService integrationSettingService;
-    private final EventPushService eventPushService;
+    private final EventPushService<EventMessage> eventPushService;
     private final Map<String, IntegrationAdapterProxy> integrationProxies;
     private final CryptoService cryptoService;
-
-    public IntegrationTenancyStorage(
-            TenancyService tenancyService,
-            IntegrationService integrationService,
-            IntegrationInitializer integrationInitializer,
-            IntegrationSettingService integrationSettingService,
-            EventPushService eventPushService,
-            Map<String, IntegrationAdapterProxy> integrationProxies, CryptoService cryptoService) {
-        this.tenancyService = tenancyService;
-        this.integrationService = integrationService;
-        this.integrationInitializer = integrationInitializer;
-        this.integrationSettingService = integrationSettingService;
-        this.eventPushService = eventPushService;
-        this.integrationProxies = integrationProxies;
-        this.cryptoService = cryptoService;
-    }
+    private final MessageHelper messageHelper;
 
     @PostConstruct
     public void post() {
         tenancyService.iterateItems(() -> {
             encryptIntegrationSettings();
-            initIntegrations();
+            initIntegrationProxies();
         });
     }
 
-    public void initIntegrations() {
+    public void initIntegrationProxies() {
         integrationProxies.forEach((name, proxy) -> proxy.init());
     }
 
-    public void onTenancyInitialization() {
-        encryptIntegrationSettings();
-    }
-
-    private void encryptIntegrationSettings() {
+    public void encryptIntegrationSettings() {
         try {
             cryptoService.init();
             List<Integration> integrations = integrationService.retrieveAll();

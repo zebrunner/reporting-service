@@ -1,8 +1,10 @@
 package com.zebrunner.reporting.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -12,32 +14,94 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.UUID;
 
+@Slf4j
 @Configuration
 public class ExchangeConfig {
 
+    public static final String INTEGRATION_SAVED_EXCHANGE = "integration-saved";
+
+    public static final String USER_SAVED_EXCHANGE = "user-saved";
+    public static final String USER_SAVED_REPORTING_SERVICE_QUEUE = "user-saved-reporting-service-queue";
+
+    public static final String CREATE_DEFAULT_USER_EXCHANGE = "create-default-user";
+    public static final String CREATE_DEFAULT_USER_QUEUE = "create-default-user-queue";
+    public static final String CREATE_DEFAULT_USER_ROUTING_KEY = "create-default-user-routing-key";
+
     public static final String MAIL_DATA_EXCHANGE = "mail-data-exchange";
     public static final String MAIL_DATA_ROUTING_KEY = "mail-data";
+    public static final String MAIL_DATA_QUEUE = "mail-data-queue";
 
-    private static final String MAIL_DATA_QUEUE = "mail-data-queue";
-
-    private final String exchangeName;
-
-    public ExchangeConfig(
-            @Value("${spring.rabbitmq.template.exchange}") String exchangeName,
-            RabbitTemplate rabbitTemplate
-    ) {
-        this.exchangeName = exchangeName;
+    public ExchangeConfig(RabbitTemplate rabbitTemplate) {
         rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
     }
 
     @Bean
-    public DirectExchange exchange() {
+    public DirectExchange eventsTopicExchange(@Value("${spring.rabbitmq.template.exchange}") String exchangeName) {
         return new DirectExchange(exchangeName, false, true);
     }
 
     @Bean
     public DirectExchange mailExchange() {
         return new DirectExchange(MAIL_DATA_EXCHANGE, false, false);
+    }
+
+    @Bean
+    public Queue mailQueue() {
+        return new Queue(MAIL_DATA_QUEUE, false);
+    }
+
+    @Bean
+    public Binding mailBinding(DirectExchange mailExchange, Queue mailQueue) {
+        return BindingBuilder.bind(mailQueue).to(mailExchange).with(MAIL_DATA_ROUTING_KEY);
+    }
+
+    //////////////////////////////////////////////////////////
+    //                   Integration Saved
+    //////////////////////////////////////////////////////////
+
+    @Bean
+    public FanoutExchange integrationSavedExchange() {
+        return new FanoutExchange(INTEGRATION_SAVED_EXCHANGE);
+    }
+
+    //////////////////////////////////////////////////////////
+    //                      User Saved
+    //////////////////////////////////////////////////////////
+
+    @Bean
+    public FanoutExchange userSavedExchange() {
+        return new FanoutExchange(USER_SAVED_EXCHANGE);
+    }
+
+    @Bean
+    public Queue userSavedQueue() {
+        return new Queue(USER_SAVED_REPORTING_SERVICE_QUEUE);
+    }
+
+    @Bean
+    public Binding userSavedBinding(FanoutExchange userSavedExchange, Queue userSavedQueue) {
+        return BindingBuilder.bind(userSavedQueue).to(userSavedExchange);
+    }
+
+    //////////////////////////////////////////////////////////
+    //                    Create default user
+    //////////////////////////////////////////////////////////
+
+    @Bean
+    public DirectExchange createDefaultUserExchange() {
+        return new DirectExchange(CREATE_DEFAULT_USER_EXCHANGE);
+    }
+
+    @Bean
+    public Queue createDefaultUserQueue() {
+        return new Queue(CREATE_DEFAULT_USER_QUEUE, false, false, true);
+    }
+
+    @Bean
+    public Binding createDefaultUserBinding(DirectExchange createDefaultUserExchange, Queue createDefaultUserQueue) {
+        return BindingBuilder.bind(createDefaultUserQueue)
+                             .to(createDefaultUserExchange)
+                             .with(CREATE_DEFAULT_USER_ROUTING_KEY);
     }
 
     /**
@@ -48,11 +112,6 @@ public class ExchangeConfig {
     @Bean
     public Queue settingsQueue() {
         return new Queue("settingsQueue", false, false, true);
-    }
-
-    @Bean
-    public Queue mailQueue() {
-        return new Queue(MAIL_DATA_QUEUE, false);
     }
 
     /**
@@ -76,38 +135,23 @@ public class ExchangeConfig {
     }
 
     @Bean
-    public Queue zfrCallbacksQueue() {
-        return new Queue("zfrCallbacksQueue", false, false, true);
+    public Binding settingsBinding(DirectExchange eventsTopicExchange, Queue settingsQueue) {
+        return BindingBuilder.bind(settingsQueue).to(eventsTopicExchange).with("settings");
     }
 
     @Bean
-    public Binding settingsBinding(DirectExchange exchange, Queue settingsQueue) {
-        return BindingBuilder.bind(settingsQueue).to(exchange).with("settings");
+    public Binding tenanciesBinding(DirectExchange eventsTopicExchange, Queue tenanciesQueue) {
+        return BindingBuilder.bind(tenanciesQueue).to(eventsTopicExchange).with("tenancies");
     }
 
     @Bean
-    public Binding mailBinding(DirectExchange mailExchange, Queue mailQueue) {
-        return BindingBuilder.bind(mailQueue).to(mailExchange).with(MAIL_DATA_ROUTING_KEY);
+    public Binding zfrEventsBinding(DirectExchange eventsTopicExchange, Queue zfrEventsQueue) {
+        return BindingBuilder.bind(zfrEventsQueue).to(eventsTopicExchange).with("zfr_events");
     }
 
     @Bean
-    public Binding tenanciesBinding(DirectExchange exchange, Queue tenanciesQueue) {
-        return BindingBuilder.bind(tenanciesQueue).to(exchange).with("tenancies");
-    }
-
-    @Bean
-    public Binding zfrEventsBinding(DirectExchange exchange, Queue zfrEventsQueue) {
-        return BindingBuilder.bind(zfrEventsQueue).to(exchange).with("zfr_events");
-    }
-
-    @Bean
-    public Binding zbrEventsBinding(DirectExchange exchange, Queue zbrEventsQueue) {
-        return BindingBuilder.bind(zbrEventsQueue).to(exchange).with("zbr_events");
-    }
-
-    @Bean
-    public Binding zfrCallbacksBinding(DirectExchange exchange, Queue zfrCallbacksQueue) {
-        return BindingBuilder.bind(zfrCallbacksQueue).to(exchange).with("zfr_callbacks");
+    public Binding zbrEventsBinding(DirectExchange eventsTopicExchange, Queue zbrEventsQueue) {
+        return BindingBuilder.bind(zbrEventsQueue).to(eventsTopicExchange).with("zbr_events");
     }
 
     private String generateQueueName(String prefix) {

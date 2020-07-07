@@ -21,6 +21,7 @@ import com.zebrunner.reporting.service.integration.tool.adapter.AbstractIntegrat
 import com.zebrunner.reporting.service.integration.tool.adapter.AdapterParam;
 import com.zebrunner.reporting.service.util.JenkinsClient;
 import com.zebrunner.reporting.service.util.JenkinsConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 public class JenkinsIntegrationAdapter extends AbstractIntegrationAdapter implements AutomationServerAdapter {
 
     private static final String LAUNCHER_JOB_URL_PATTERN = "%s/job/%s/job/launcher";

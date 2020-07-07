@@ -1,15 +1,19 @@
 package com.zebrunner.reporting.service.integration.impl;
 
-import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
-import com.zebrunner.reporting.persistence.repository.IntegrationRepository;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.domain.db.Job;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationGroup;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationInfo;
+import com.zebrunner.reporting.domain.entity.integration.IntegrationPublicInfo;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationSetting;
 import com.zebrunner.reporting.domain.entity.integration.IntegrationType;
+import com.zebrunner.reporting.domain.push.events.EventMessage;
+import com.zebrunner.reporting.domain.push.events.IntegrationSavedEventMessage;
 import com.zebrunner.reporting.domain.push.events.ReinitEventMessage;
+import com.zebrunner.reporting.persistence.repository.IntegrationRepository;
+import com.zebrunner.reporting.persistence.utils.TenancyContext;
+import com.zebrunner.reporting.service.ExchangeConfig;
+import com.zebrunner.reporting.service.SettingsService;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
 import com.zebrunner.reporting.service.integration.IntegrationGroupService;
@@ -19,7 +23,7 @@ import com.zebrunner.reporting.service.integration.IntegrationTypeService;
 import com.zebrunner.reporting.service.integration.core.IntegrationInitializer;
 import com.zebrunner.reporting.service.integration.tool.AbstractIntegrationService;
 import com.zebrunner.reporting.service.util.EventPushService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -33,6 +37,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class IntegrationServiceImpl implements IntegrationService {
 
     private static final String ERR_MSG_MULTIPLE_INTEGRATIONS_ARE_NOT_ALLOWED = "Multiple integrations of type '%s' are not allowed";
@@ -41,31 +46,14 @@ public class IntegrationServiceImpl implements IntegrationService {
     private static final String ERR_MSG_DEFAULT_VALUE_IS_NOT_PROVIDED_BY_TYPE_ID = "Default value for integration with id '%d' is not provided";
     private static final String ERR_MSG_DEFAULT_VALUE_IS_NOT_PROVIDED_BY_NAME = "Default value for integration with name '%s' is not provided";
 
+    private final SettingsService settingsService;
+    private final TransactionTemplate transactionTemplate;
     private final IntegrationRepository integrationRepository;
     private final IntegrationGroupService integrationGroupService;
     private final IntegrationTypeService integrationTypeService;
     private final IntegrationSettingService integrationSettingService;
-    private final EventPushService<Object> eventPushService;
+    private final EventPushService<EventMessage> eventPushService;
     private final IntegrationInitializer integrationInitializer;
-
-    @Autowired
-    private TransactionTemplate transactionTemplate;
-
-    public IntegrationServiceImpl(
-            IntegrationRepository integrationRepository,
-            IntegrationGroupService integrationGroupService,
-            IntegrationTypeService integrationTypeService,
-            IntegrationSettingService integrationSettingService,
-            EventPushService<Object> eventPushService,
-            IntegrationInitializer integrationInitializer
-    ) {
-        this.integrationRepository = integrationRepository;
-        this.integrationGroupService = integrationGroupService;
-        this.integrationTypeService = integrationTypeService;
-        this.integrationSettingService = integrationSettingService;
-        this.eventPushService = eventPushService;
-        this.integrationInitializer = integrationInitializer;
-    }
 
     @Override
     public Integration create(final Integration integration, Long typeId) {
@@ -330,6 +318,32 @@ public class IntegrationServiceImpl implements IntegrationService {
     private void notifyToolReInitialized(Integration integration) {
         String tenantName = TenancyContext.getTenantName();
         eventPushService.convertAndSend(EventPushService.Routing.SETTINGS, new ReinitEventMessage(tenantName, integration.getId()));
+        eventPushService.sendFanout(ExchangeConfig.INTEGRATION_SAVED_EXCHANGE, toIntegrationSavedMessage(tenantName, integration));
         integrationInitializer.initIntegration(integration, tenantName);
     }
+
+    private IntegrationSavedEventMessage toIntegrationSavedMessage(String tenantName, Integration integration) {
+        String key = settingsService.getSettingByName("KEY").getValue();
+        return IntegrationSavedEventMessage.builder()
+                                           .tenantName(tenantName)
+                                           .id(integration.getId())
+                                           .name(integration.getName())
+                                           .enabled(integration.isEnabled())
+                                           .params(integration.getSettings()
+                                                              .stream()
+                                                              .map(setting -> toParam(setting, key))
+                                                              .collect(Collectors.toList()))
+                                           .build();
+    }
+
+    private IntegrationSavedEventMessage.IntegrationParam toParam(IntegrationSetting setting, String key) {
+        return new IntegrationSavedEventMessage.IntegrationParam(
+                setting.getParam().getId(),
+                setting.getParam().getName(),
+                setting.getValue(),
+                setting.isEncrypted(),
+                setting.isEncrypted() ? key : null
+        );
+    }
+
 }

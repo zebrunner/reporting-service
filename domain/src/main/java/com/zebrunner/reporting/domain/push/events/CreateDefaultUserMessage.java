@@ -5,16 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventMessage implements Serializable {
-
-    private static final long serialVersionUID = 2241656564064701459L;
+public class CreateDefaultUserMessage {
 
     private String tenantName;
+    private String tenantUrl;
+    private String email;
+    private boolean success;
+    private String message;
 
 }

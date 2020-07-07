@@ -4,6 +4,7 @@ import com.zebrunner.reporting.domain.db.Setting;
 import com.zebrunner.reporting.domain.dto.aws.SessionCredentials;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.service.CryptoService;
+import com.zebrunner.reporting.service.ElasticsearchService;
 import com.zebrunner.reporting.service.SettingsService;
 import com.zebrunner.reporting.service.StorageService;
 import com.zebrunner.reporting.service.integration.IntegrationService;
@@ -13,8 +14,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,33 +36,30 @@ public class SettingsController extends AbstractController implements SettingDoc
 
     private final SettingsService settingsService;
     private final CryptoService cryptoService;
+    private final ElasticsearchService elasticsearchService;
     private final IntegrationService integrationService;
     private final StorageService storageService;
     private final RabbitProperties props;
-
-    @Setter(onMethod = @__(@Value("${elasticsearch.url}")))
-    private String elasticSearchUrl;
-
-    @Setter(onMethod = @__(@Value("${elasticsearch.username}")))
-    private String elasticSearchUser;
-
-    @Setter(onMethod = @__(@Value("${elasticsearch.password}")))
-    private String elasticSearchPassword;
 
     @GetMapping("tool/{tool}")
     @Override
     public List<Setting> getSettingsByTool(@PathVariable("tool") String typeName) {
         // TODO by nsidorevich on 2019-10-09: refactor and remove
+        List<Setting> settings;
         switch (typeName.toUpperCase()) {
             case "ELASTICSEARCH":
-                return elasticSearchSettings();
+                settings = elasticsearchService.getSettings();
+                break;
             case "RABBITMQ":
-                return rabbitSettings();
+                settings = buildRabbitMQSettings();
+                break;
             case "ZEBRUNNER":
-                return collectDecryptedIntegrationSettings("ZEBRUNNER");
+                settings = collectDecryptedIntegrationSettings("ZEBRUNNER");
+                break;
             default:
                 throw new RuntimeException(String.format("Unsupported tool %s, this API should not be used for anything but ElasticSearch or Rabbit", typeName));
         }
+        return settings;
     }
 
     private List<Setting> collectDecryptedIntegrationSettings(String integrationTypeName) {
@@ -83,15 +79,7 @@ public class SettingsController extends AbstractController implements SettingDoc
         return settings;
     }
 
-    private List<Setting> elasticSearchSettings() {
-        return List.of(
-                new Setting("URL", elasticSearchUrl),
-                new Setting("user", elasticSearchUser),
-                new Setting("password", elasticSearchPassword)
-        );
-    }
-
-    private List<Setting> rabbitSettings() {
+    private List<Setting> buildRabbitMQSettings() {
         return List.of(
                 new Setting("RABBITMQ_HOST", props.getHost()),
                 new Setting("RABBITMQ_PORT", String.valueOf(props.getPort())),
@@ -103,7 +91,7 @@ public class SettingsController extends AbstractController implements SettingDoc
     @ApiResponseStatuses
     @ApiOperation(value = "Updates a setting", nickname = "setting", httpMethod = "PUT", response = Setting.class)
     @ApiImplicitParams({ @ApiImplicitParam(name = "Authorization", paramType = "header") })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasPermission('UPDATE_SETTINGS')")
     @PutMapping
     public Setting updateSetting(@RequestBody Setting setting) {
         return settingsService.updateSetting(setting);

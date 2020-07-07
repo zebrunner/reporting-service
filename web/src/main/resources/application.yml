@@ -128,3 +128,8 @@ s3:
   bucket: ${S3_BUCKET}
 
 templates-directory: ${TEMPLATES_DIRECTORY:templates}
+
+### IAM service settings
+iam:
+  host: ${iam.host}
+  port: ${iam.port}

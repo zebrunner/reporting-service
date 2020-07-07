@@ -12,15 +12,16 @@ import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.domain.db.launcher.UserLauncherPreference;
 import com.zebrunner.reporting.domain.dto.JobResult;
 import com.zebrunner.reporting.persistence.dao.mysql.application.LauncherMapper;
-import com.zebrunner.reporting.persistence.utils.TenancyContext;
 import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import com.zebrunner.reporting.service.feign.IamAuthClient;
 import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
 import com.zebrunner.reporting.service.integration.tool.impl.TestAutomationToolService;
 import com.zebrunner.reporting.service.scm.GitHubService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
 import com.zebrunner.reporting.service.util.URLResolver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,7 @@ import static com.zebrunner.reporting.service.exception.IllegalOperationExceptio
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.LAUNCHER_NOT_FOUND;
 import static com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail.USER_NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LauncherService {
@@ -50,6 +52,7 @@ public class LauncherService {
 
     private static final Set<String> MANDATORY_ARGUMENTS = Set.of("scmURL", "branch", "zafiraFields");
 
+    private final IamAuthClient iamAuthClient;
     private final LauncherMapper launcherMapper;
     private final LauncherPresetService launcherPresetService;
     private final LauncherCallbackService launcherCallbackService;
@@ -57,7 +60,6 @@ public class LauncherService {
     private final AutomationServerService automationServerService;
     private final ScmAccountService scmAccountService;
     private final JobsService jobsService;
-    private final JWTService jwtService;
     private final GitHubService gitHubService;
     private final TestAutomationToolService testAutomationToolService;
     private final CryptoService cryptoService;
@@ -69,7 +71,7 @@ public class LauncherService {
         launcher.setAutoScan(false);
         if (automationServerService.isEnabledAndConnected(automationServerId)) {
             String launcherJobUrl = automationServerService.buildLauncherJobUrl(automationServerId);
-            // Checks whether job is present om Jenkins. If it is not, exception will be thrown.
+            // Checks whether job is present on Jenkins. If it is not, exception will be thrown.
             automationServerService.getJobByUrl(launcherJobUrl, automationServerId);
             Job job = jobsService.createOrUpdateJobByURL(launcherJobUrl, userId);
             launcher.setJob(job);
@@ -160,14 +162,6 @@ public class LauncherService {
         return launchers;
     }
 
-    private Launcher createLauncherForJenkinsJob(long userId, ScmAccount scmAccount, JenkinsJob jenkinsJob) {
-        String jobUrl = jenkinsJob.getUrl();
-        Job job = jobsService.createOrUpdateJobByURL(jobUrl, userId);
-        Launcher launcher = new Launcher(job.getName(), jenkinsJob.getParameters(), scmAccount, job, jenkinsJob.getType(), true);
-        launcherMapper.createLauncher(launcher);
-        return launcher;
-    }
-
     @Transactional(readOnly = true)
     public List<Launcher> getAutoScannedByScmAccountId(Long scmAccountId) {
         return launcherMapper.getAllAutoScannedByScmAccountId(scmAccountId);
@@ -220,7 +214,7 @@ public class LauncherService {
 
     @Transactional(readOnly = true)
     public String buildLauncherJob(Launcher launcher, Long userId, Long providerId) throws IOException {
-        User user = userService.getNotNullUserById(userId);
+        User user = userService.getNotNullById(userId);
         Long scmAccountId = launcher.getScmAccount().getId();
         ScmAccount scmAccount = scmAccountService.getScmAccountById(scmAccountId);
         Job job = launcher.getJob();
@@ -231,14 +225,15 @@ public class LauncherService {
         // It must be returned with test run on start in testRun.ciRunId field
         String ciRunId = UUID.randomUUID().toString();
 
-        Map<String, String> jobParameters = buildLauncherJobParametersMap(launcher, user, scmAccount, ciRunId, providerId);
+        Map<String, String> jobParameters = buildLauncherJobParametersMap(launcher, scmAccount, ciRunId, providerId);
         automationServerService.buildJob(job, jobParameters);
 
         return ciRunId;
     }
 
-    private Map<String, String> buildLauncherJobParametersMap(Launcher launcher, User user, ScmAccount scmAccount, String ciRunId, Long providerId) throws IOException {
-        Map<String, String> jobParameters = new ObjectMapper().readValue(launcher.getModel(), new TypeReference<Map<String, String>>() {});
+    private Map<String, String> buildLauncherJobParametersMap(Launcher launcher, ScmAccount scmAccount, String ciRunId, Long providerId) throws IOException {
+        Map<String, String> jobParameters = new ObjectMapper().readValue(launcher.getModel(), new TypeReference<>() {
+        });
 
         String decryptedAccessToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String authorizedURL = scmAccount.buildAuthorizedURL(decryptedAccessToken);
@@ -258,7 +253,7 @@ public class LauncherService {
 
         jobParameters.put("zafira_enabled", "true");
         jobParameters.put("zafira_service_url", urlResolver.buildWebserviceUrl());
-        jobParameters.put("zafira_access_token", jwtService.generateAccessToken(user, TenancyContext.getTenantName()));
+        jobParameters.put("zafira_access_token", iamAuthClient.getServiceRefreshToken().getToken());
 
         String args = jobParameters.entrySet().stream()
                                    .filter(param -> !MANDATORY_ARGUMENTS.contains(param.getKey()))
@@ -278,7 +273,7 @@ public class LauncherService {
     @Transactional
     public String buildLauncherJobByPresetRef(String ref, String callbackUrl, Long userId) throws IOException {
         if (userId == 0) {
-            User anonymous = userService.getDefaultUser();
+            User anonymous = userService.getDefault();
             userId = anonymous.getId();
         }
         Launcher launcher = retrieveByPresetReference(ref);
@@ -299,7 +294,7 @@ public class LauncherService {
     @Transactional(readOnly = true)
     public JobResult buildScannerJob(Long userId, String branch, long scmAccountId, boolean rescan, Long automationServerId) {
         ScmAccount scmAccount = scmAccountService.getScmAccountById(scmAccountId);
-        User user = userService.getNotNullUserById(userId);
+        User user = userService.getNotNullById(userId);
         Map<String, String> jobParameters = buildScannerJobParametersMap(automationServerId, user, branch, scmAccount);
         return automationServerService.buildScannerJob(scmAccount.getRepositoryName(), jobParameters, rescan, automationServerId);
     }
@@ -312,7 +307,8 @@ public class LauncherService {
         String scmUser = scmAccount.getLogin() == null ? gitHubService.getLoginName(scmAccount) : scmAccount.getLogin();
         String scmToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String serviceUrl = urlResolver.buildWebserviceUrl();
-        String accessToken = jwtService.generateAccessToken(user, TenancyContext.getTenantName());
+
+        jobParameters.put("zafira_access_token", iamAuthClient.getServiceRefreshToken().getToken());
 
         jobParameters.put("userId", String.valueOf(user.getId()));
         if (StringUtils.isNotEmpty(automationServerService.getFolder(automationServerId))) {
@@ -324,7 +320,7 @@ public class LauncherService {
         jobParameters.put("scmUser", scmUser);
         jobParameters.put("scmToken", scmToken);
         jobParameters.put("zafira_service_url", serviceUrl);
-        jobParameters.put("zafira_access_token", accessToken);
+        jobParameters.put("zafira_access_token", iamAuthClient.getServiceRefreshToken().getToken());
         jobParameters.put("onlyUpdated", String.valueOf(false));
 
         String args = jobParameters.entrySet().stream()
@@ -367,7 +363,7 @@ public class LauncherService {
             throw new ResourceNotFoundException(LAUNCHER_NOT_FOUND, String.format("Unable to locate launcher with id '%d'", id));
         }
 
-        boolean userExists = userService.isExistById(userId);
+        boolean userExists = userService.existsById(userId);
         if (!userExists) {
             throw new ResourceNotFoundException(USER_NOT_FOUND, ERR_MSG_USER_WITH_THIS_ID_DOES_NOT_EXIST, id);
         }

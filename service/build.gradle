@@ -14,6 +14,7 @@ dependencies {
     implementation libraries.boot_starter_data_redis
     implementation libraries.boot_starter_security  // got rid of this
 
+    implementation libraries.cloud_starter_feign
     implementation libraries.spring_security_ldap
     implementation libraries.spring_twitter
     implementation libraries.jaxb

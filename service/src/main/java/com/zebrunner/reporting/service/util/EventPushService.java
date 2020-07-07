@@ -4,6 +4,7 @@ import com.zebrunner.reporting.service.ExchangeConfig;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 public class EventPushService<T> {
 
@@ -37,7 +39,6 @@ public class EventPushService<T> {
     public enum Routing {
 
         SETTINGS("settings"),
-        ZFR_CALLBACKS("zfr_callbacks"),
         ZBR_EVENTS("zbr_events"),
         TENANCIES("tenancies"),
         MAIL,
@@ -82,9 +83,32 @@ public class EventPushService<T> {
         }
     }
 
+    public boolean sendFanout(String exchange, T message) {
+        try {
+            rabbitTemplate.convertAndSend(exchange, "", message);
+            return true;
+        } catch (AmqpException e) {
+            return false;
+        }
+    }
+
+    public boolean send(String exchange, String routingKey, Object message, Map<String, ?> metadata) {
+        try {
+            rabbitTemplate.convertAndSend(exchange, routingKey, message, rabbitmqMessage -> {
+                metadata.forEach((key, value) -> rabbitmqMessage.getMessageProperties().setHeader(key, value));
+                return rabbitmqMessage;
+            });
+            return true;
+        } catch (AmqpException e) {
+            return false;
+        }
+    }
+
     private MessagePostProcessor setSupplierQueueNameHeader() {
         return message -> {
-            message.getMessageProperties().getHeaders().putIfAbsent(SUPPLIER_QUEUE_NAME_HEADER, getSettingQueueName());
+            message.getMessageProperties()
+                   .getHeaders()
+                   .putIfAbsent(SUPPLIER_QUEUE_NAME_HEADER, getSettingQueueName());
             return message;
         };
     }
@@ -95,8 +119,10 @@ public class EventPushService<T> {
     }
 
     private String getSupplierQueueNameHeader(Message message) {
-        Object supplier =  message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER);
-        return supplier != null ? message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER).toString() : null;
+        Object supplier = message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER);
+        return supplier != null
+                ? message.getMessageProperties().getHeaders().get(SUPPLIER_QUEUE_NAME_HEADER).toString()
+                : null;
     }
 
     private String getExchangeName(Exchange exchange) {
@@ -118,7 +144,6 @@ public class EventPushService<T> {
         String key = null;
         switch (routing) {
             case SETTINGS:
-            case ZFR_CALLBACKS:
             case ZBR_EVENTS:
             case TENANCIES:
                 key = routing.key;
