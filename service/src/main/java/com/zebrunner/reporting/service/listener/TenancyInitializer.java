@@ -1,10 +1,9 @@
 package com.zebrunner.reporting.service.listener;
 
-import com.google.gson.Gson;
 import com.zebrunner.reporting.domain.push.events.EmailEventMessage;
 import com.zebrunner.reporting.domain.push.events.EventMessage;
 import com.zebrunner.reporting.persistence.utils.TenancyContext;
-import com.zebrunner.reporting.service.email.CreateDefaultUserMessage;
+import com.zebrunner.reporting.domain.push.events.CreateDefaultUserMessage;
 import com.zebrunner.reporting.service.integration.core.IntegrationTenancyStorage;
 import com.zebrunner.reporting.service.management.TenancyService;
 import com.zebrunner.reporting.service.scm.ScmAccountService;
