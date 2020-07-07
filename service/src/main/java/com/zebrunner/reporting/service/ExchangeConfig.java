@@ -1,12 +1,13 @@
 package com.zebrunner.reporting.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.UUID;
 
 @Configuration
+@RequiredArgsConstructor
 public class ExchangeConfig {
 
     public static final String INTEGRATION_SAVED_EXCHANGE = "integration-saved";
@@ -29,9 +31,8 @@ public class ExchangeConfig {
     public static final String MAIL_DATA_ROUTING_KEY = "mail-data";
     public static final String MAIL_DATA_QUEUE = "mail-data-queue";
 
-    @Bean
-    public MessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
+    public ExchangeConfig(RabbitTemplate rabbitTemplate) {
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
     }
 
     @Bean
