@@ -12,7 +12,6 @@ import lombok.Setter;
 public class CreateDefaultUserMessage {
 
     private String tenantName;
-    private String tenantUrl;
     private String email;
     private boolean success;
     private String message;
