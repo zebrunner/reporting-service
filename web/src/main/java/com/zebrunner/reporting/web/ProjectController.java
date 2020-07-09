@@ -4,6 +4,7 @@ import com.zebrunner.reporting.domain.db.Project;
 import com.zebrunner.reporting.domain.dto.ProjectDTO;
 import com.zebrunner.reporting.service.project.ProjectService;
 import com.zebrunner.reporting.web.documented.ProjectDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,16 +26,11 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/projects", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class ProjectController extends AbstractController implements ProjectDocumentedController {
 
     private final Mapper mapper;
-
     private final ProjectService projectService;
-
-    public ProjectController(Mapper mapper, ProjectService projectService) {
-        this.mapper = mapper;
-        this.projectService = projectService;
-    }
 
     @PreAuthorize("hasPermission('MODIFY_PROJECTS')")
     @PostMapping()

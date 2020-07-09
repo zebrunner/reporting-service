@@ -238,7 +238,8 @@ public class LauncherService {
     }
 
     private Map<String, String> buildLauncherJobParametersMap(Launcher launcher, User user, ScmAccount scmAccount, String ciRunId, Long providerId) throws IOException {
-        Map<String, String> jobParameters = new ObjectMapper().readValue(launcher.getModel(), new TypeReference<Map<String, String>>() {});
+        Map<String, String> jobParameters = new ObjectMapper().readValue(launcher.getModel(), new TypeReference<>() {
+        });
 
         String decryptedAccessToken = cryptoService.decrypt(scmAccount.getAccessToken());
         String authorizedURL = scmAccount.buildAuthorizedURL(decryptedAccessToken);

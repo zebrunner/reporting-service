@@ -4,6 +4,7 @@ import com.zebrunner.reporting.domain.db.launcher.LauncherPreset;
 import com.zebrunner.reporting.domain.dto.LauncherPresetDTO;
 import com.zebrunner.reporting.service.LauncherPresetService;
 import com.zebrunner.reporting.web.documented.LauncherPresetDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -23,15 +23,11 @@ import javax.validation.Valid;
 @CrossOrigin
 @RequestMapping(path = "api/launchers/{launcherId}/presets", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class LauncherPresetAPIController extends AbstractController implements LauncherPresetDocumentedController {
 
     private final LauncherPresetService launcherPresetService;
     private final Mapper mapper;
-
-    public LauncherPresetAPIController(LauncherPresetService launcherPresetService, Mapper mapper) {
-        this.launcherPresetService = launcherPresetService;
-        this.mapper = mapper;
-    }
 
     @PreAuthorize("hasPermission('MODIFY_LAUNCHERS')")
     @PostMapping()
@@ -77,4 +73,5 @@ public class LauncherPresetAPIController extends AbstractController implements L
     public void deleteLauncherPreset(@PathVariable("id") Long id, @PathVariable("launcherId") Long launcherId) {
         launcherPresetService.deleteByIdAndLauncherId(id, launcherId);
     }
+
 }

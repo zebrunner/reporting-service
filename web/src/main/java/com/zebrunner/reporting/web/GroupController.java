@@ -3,6 +3,7 @@ package com.zebrunner.reporting.web;
 import com.zebrunner.reporting.domain.db.Group;
 import com.zebrunner.reporting.service.GroupService;
 import com.zebrunner.reporting.web.documented.GroupDocumentedController;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -21,13 +22,10 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping(path = "api/groups", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class GroupController extends AbstractController implements GroupDocumentedController {
 
     private final GroupService groupService;
-
-    public GroupController(GroupService groupService) {
-        this.groupService = groupService;
-    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasPermission('MODIFY_USER_GROUPS')")
     @PostMapping()

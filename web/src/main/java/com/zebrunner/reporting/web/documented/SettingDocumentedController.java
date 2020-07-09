@@ -16,7 +16,7 @@ public interface SettingDocumentedController {
     @ApiOperation(
             value = "Retrieves default integration settings by integration type name",
             notes = "Will be deprecated soon. Returns integration settings and decrypts encrypted settings. " +
-                    "Works with 'ELASTICSEARCH'(for reporting-ui), 'RABBITMQ'(for zebrunner-client) and 'ZEBRUNNER'(for reporting-ui) types only",
+                    "Works with 'ELASTICSEARCH'(for reporting-ui) and 'ZEBRUNNER'(for reporting-ui) types only",
             nickname = "getSettingsByTool",
             httpMethod = "GET",
             response = List.class

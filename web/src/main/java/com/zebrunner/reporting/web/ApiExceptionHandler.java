@@ -11,8 +11,8 @@ import com.zebrunner.reporting.service.exception.IllegalOperationException;
 import com.zebrunner.reporting.service.exception.IntegrationException;
 import com.zebrunner.reporting.service.exception.ProcessingException;
 import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,10 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class ApiExceptionHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
     private static final String ERR_MSG_METHOD_ARGUMENT_TYPE_MISMATCH = "Request parameter has invalid type.";
     private static final String ERR_MSG_REQUEST_PARAMETER_MISMATCH = "Request parameter %s of type %s is required.";
@@ -46,15 +45,13 @@ public class ApiExceptionHandler {
     private static final String ERR_MSG_INTERNAL_SERVER_ERROR = "Unexpected error has occurred. Please try again later.";
     private static final String ERR_MSG_DEBUG_INFO = "Error message: [%s]. Caused by: [%s]";
 
+    @Setter(onMethod = @__(@Value("${service.debug-enabled:false}")))
     private boolean debugEnabled;
-
-    public void setDebugEnabled(@Value("${service.debug-enabled:false}") boolean debugEnabled) {
-        this.debugEnabled = debugEnabled;
-    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleResourceNotFoundException(ResourceNotFoundException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.RESOURCE_NOT_FOUND, e.getMessage()));
         return response;
@@ -63,6 +60,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(org.springframework.social.ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleSocialResourceNotFoundException(org.springframework.social.ResourceNotFoundException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.RESOURCE_NOT_FOUND, e.getMessage()));
         return response;
@@ -70,6 +68,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(IllegalOperationException.class)
     public ResponseEntity<ErrorResponse> handleIllegalOperationException(IllegalOperationException e) {
+        log.debug(e.getMessage(), e);
         ResponseEntity<ErrorResponse> responseEntity;
         ErrorResponse response = new ErrorResponse();
         // We need to return code 200 for all auth-related operations
@@ -87,6 +86,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(Exception e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         BindingResult bindingResult = null;
 
@@ -143,6 +143,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(AuthException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleAuthException(AuthException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.UNAUTHORIZED));
         return response;
@@ -151,6 +152,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleAccessDeniedException(AccessDeniedException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.FORBIDDEN));
         return response;
@@ -159,6 +161,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ForbiddenOperationException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleForbiddenOperationException(ForbiddenOperationException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.FORBIDDEN, null, e.isShowMessage() ? e.getMessage() : null));
         return response;
@@ -167,6 +170,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ProcessingException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleProcessingException(ProcessingException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.VALIDATION_ERROR, e.getMessage()));
         return response;
@@ -175,7 +179,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(IntegrationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIntegrationException(IntegrationException e) {
-        LOGGER.error("Unable to complete operation against integration", e);
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.INTEGRATION_UNAVAILABLE));
         Map<String, String> additionalErrorInfo = e.getAdditionalInfo();
@@ -191,6 +195,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.INVALID_VALUE, e.getName(), ERR_MSG_METHOD_ARGUMENT_TYPE_MISMATCH));
         return response;
@@ -199,6 +204,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleHttpMediaTypeNotAcceptableException(HttpMediaTypeNotAcceptableException e) {
+        log.error(e.getMessage(), e);
         List<MediaType> mediaTypes = e.getSupportedMediaTypes();
         String supportedTypes = mediaTypes.stream()
                                           .map(MimeType::toString)
@@ -212,6 +218,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBindException(BindException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.INVALID_VALUE, ERR_MSG_METHOD_ARGUMENT_TYPE_MISMATCH));
         return response;
@@ -220,6 +227,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.INVALID_VALUE, String.format(ERR_MSG_REQUEST_PARAMETER_MISMATCH, e.getParameterName(), e.getParameterType())));
         return response;
@@ -232,8 +240,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ApplicationException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleApplicationException(ApplicationException e) {
-        LOGGER.error("Unhandled application exception occured", e);
-
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         response.setError(new Error(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage()));
         return response;
@@ -242,8 +249,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleOtherException(Exception e) {
-        LOGGER.error("Unexpected internal server error", e);
-
+        log.error(e.getMessage(), e);
         ErrorResponse response = new ErrorResponse();
         if (debugEnabled) {
             String errorMessage = e.getMessage();
@@ -255,4 +261,5 @@ public class ApiExceptionHandler {
         }
         return response;
     }
+
 }

@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,15 +30,11 @@ import java.util.stream.Collectors;
 @CrossOrigin
 @RequestMapping(path = "api/filters", produces = MediaType.APPLICATION_JSON_VALUE)
 @RestController
+@RequiredArgsConstructor
 public class FilterController extends AbstractController {
 
     private final FilterService filterService;
     private final Mapper mapper;
-
-    public FilterController(FilterService filterService, Mapper mapper) {
-        this.filterService = filterService;
-        this.mapper = mapper;
-    }
 
     @ApiResponseStatuses
     @ApiOperation(value = "Creates a filter", nickname = "createFilter", httpMethod = "POST", response = FilterDTO.class)

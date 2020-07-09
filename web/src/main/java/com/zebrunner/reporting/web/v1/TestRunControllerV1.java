@@ -55,13 +55,15 @@ public class TestRunControllerV1 extends AbstractController {
             @RequestBody @Validated(TestRunDTO.ValidationGroups.TestRunStartGroup.class) TestRunDTO testRunDTO,
             @RequestParam(name = "projectKey", required = false) String projectKey
     ) {
-        TestRun testRun = mapper.map(testRunDTO, TestRun.class, TestRunDTO.ValidationGroups.TestRunStartGroup.class.getName());
+        TestRun testRun = mapper
+                .map(testRunDTO, TestRun.class, TestRunDTO.ValidationGroups.TestRunStartGroup.class.getName());
         testRun = testRunServiceV1.startRun(testRun, projectKey, getPrincipalId());
 
         com.zebrunner.reporting.domain.db.TestRun fullTestRun = testRunServiceV1.getTestRunFullById(testRun.getId());
         notifyAboutRunByWebsocket(fullTestRun);
 
-        testRunDTO = mapper.map(testRun, TestRunDTO.class, TestRunDTO.ValidationGroups.TestRunStartGroup.class.getName());
+        testRunDTO = mapper
+                .map(testRun, TestRunDTO.class, TestRunDTO.ValidationGroups.TestRunStartGroup.class.getName());
         return testRunDTO;
     }
 
@@ -70,7 +72,8 @@ public class TestRunControllerV1 extends AbstractController {
             @RequestBody @Validated(TestRunDTO.ValidationGroups.TestRunFinishGroup.class) TestRunDTO testRunDTO,
             @PathVariable("id") @NotNull @Positive Long id
     ) {
-        TestRun testRun = mapper.map(testRunDTO, TestRun.class, TestRunDTO.ValidationGroups.TestRunFinishGroup.class.getName());
+        TestRun testRun = mapper
+                .map(testRunDTO, TestRun.class, TestRunDTO.ValidationGroups.TestRunFinishGroup.class.getName());
         testRun.setId(id);
         testRun = testRunServiceV1.finishRun(testRun);
 
@@ -135,7 +138,9 @@ public class TestRunControllerV1 extends AbstractController {
             @RequestParam(name = "tests", required = false) List<Long> testIds
     ) {
         return testRunServiceV1.getTestsByCiRunId(ciRunId, statuses, testIds).stream()
-                               .map(test -> mapper.map(test, TestDTO.class, TestDTO.ValidationGroups.TestStartGroup.class.getName()))
+                               .map(test -> mapper
+                                       .map(test, TestDTO.class, TestDTO.ValidationGroups.TestStartGroup.class
+                                               .getName()))
                                .collect(Collectors.toList());
     }
 
@@ -154,4 +159,5 @@ public class TestRunControllerV1 extends AbstractController {
         TestRunStatistics testRunStatistics = statisticsCacheableService.getTestRunStatistic(runId);
         messagingTemplate.convertAndSend(getStatisticsWebsocketPath(), new TestRunStatisticPush(testRunStatistics));
     }
+
 }
