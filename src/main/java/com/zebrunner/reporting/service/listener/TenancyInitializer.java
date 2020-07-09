@@ -29,9 +29,6 @@ import static com.zebrunner.reporting.service.util.EventPushService.Routing.TENA
 @RequiredArgsConstructor
 public class TenancyInitializer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TenancyInitializer.class);
-
-    private final URLResolver urlResolver;
     private final TenancyService tenancyService;
     private final ScmAccountService scmAccountService;
     private final EventPushService<EventMessage> eventPushService;
@@ -46,7 +43,6 @@ public class TenancyInitializer {
     @RabbitListener(queues = "#{tenanciesQueue.name}")
     public void initTenancy(Message message) {
         try {
-            log.error("EVENT_MESSGAGE: " + new String(message.getBody()));
             EventMessage eventMessage = messageHelper.parse(message, EventMessage.class);
             String tenancy = eventMessage.getTenantName();
 
@@ -64,9 +60,7 @@ public class TenancyInitializer {
     public void initTenancyDb(Message message) {
         EmailEventMessage eventMessage = messageHelper.parse(message, EmailEventMessage.class);
         String tenancy = eventMessage.getTenantName();
-        CreateDefaultUserMessage createDefaultUserMessage = new CreateDefaultUserMessage(tenancy,
-                urlResolver.buildWebURL(),
-                eventMessage.getEmail(), true, "");
+        CreateDefaultUserMessage createDefaultUserMessage = new CreateDefaultUserMessage(tenancy, eventMessage.getEmail(), true, "");
         try {
             log.info("Tenancy '{}' DB initialization is started.", tenancy);
 
