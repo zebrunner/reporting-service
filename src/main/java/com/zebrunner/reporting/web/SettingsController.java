@@ -42,6 +42,9 @@ public class SettingsController extends AbstractController implements SettingDoc
     private final StorageService storageService;
     private final RabbitProperties props;
 
+    @Setter(onMethod = @__(@Value("${rabbitmq-public-endpoint}")))
+    private String rabbitPublicEndpoint;
+
     @Setter(onMethod = @__(@Value("${elasticsearch.url}")))
     private String elasticSearchUrl;
 
@@ -94,7 +97,7 @@ public class SettingsController extends AbstractController implements SettingDoc
 
     private List<Setting> rabbitSettings() {
         return List.of(
-                new Setting("RABBITMQ_HOST", props.getHost()),
+                new Setting("RABBITMQ_HOST", rabbitPublicEndpoint),
                 new Setting("RABBITMQ_PORT", String.valueOf(props.getPort())),
                 new Setting("RABBITMQ_USER", props.getUsername()),
                 new Setting("RABBITMQ_PASSWORD", props.getPassword())

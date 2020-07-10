@@ -32,10 +32,10 @@ spring:
     port: ${redis.port}
     password: ${redis.password}
   rabbitmq:
-    host: ${rabbitmq.host}
-    port: ${rabbitmq.port}
-    username: ${rabbitmq.username}
-    password: ${rabbitmq.password}
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
     virtual-host: /
     stomp:
       host: ${rabbitmq.stomp.host}
@@ -60,6 +60,8 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+rabbitmq-public-endpoint: ${RABBITMQ_PUBLIC_ENDPOINT}
 
 ### Logging configuration. See logback.xml for more
 logging:
