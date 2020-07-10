@@ -340,3 +340,14 @@ databaseChangeLog:
             path: changeset/031_remove_rabbitmq_integration.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 032_set_absent_default_runs_view_preference
+      validCheckSum: ANY
+      labels: stable
+      author: sbrenko
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/032_set_absent_default_runs_view_preference.sql
+            relativeToChangelogFile: true
+            splitStatements: false
