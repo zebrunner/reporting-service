@@ -1,6 +1,8 @@
 package com.zebrunner.reporting.domain.db.reporting;
 
 import com.zebrunner.reporting.domain.db.TestConfig;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,12 +23,14 @@ public class TestRun {
     private TestConfig config;
     private LaunchContext launchContext;
 
-    @Getter
-    @Setter
+    @Data
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class LaunchContext {
 
         private String jobNumber;
         private String upstreamJobNumber;
+
     }
+
 }

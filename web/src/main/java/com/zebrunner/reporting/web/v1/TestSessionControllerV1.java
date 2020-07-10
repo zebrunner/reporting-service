@@ -2,9 +2,11 @@ package com.zebrunner.reporting.web.v1;
 
 import com.zebrunner.reporting.domain.db.reporting.TestSession;
 import com.zebrunner.reporting.service.reporting.TestSessionServiceV1;
-import com.zebrunner.reporting.web.dto.TestSessionDTO;
+import com.zebrunner.reporting.web.request.v1.TestSessionFinishRequest;
+import com.zebrunner.reporting.web.request.v1.TestSessionStartRequest;
+import com.zebrunner.reporting.web.response.v1.TestSessionSaveResponse;
+import com.zebrunner.reporting.web.util.JMapper;
 import lombok.RequiredArgsConstructor;
-import org.dozer.Mapper;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,23 +26,23 @@ import javax.validation.constraints.Positive;
 @RequestMapping(path = "v1/test-sessions", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TestSessionControllerV1 {
 
-    private final Mapper mapper;
+    private final JMapper jMapper;
     private final TestSessionServiceV1 testSessionService;
 
     @PostMapping
-    public TestSessionDTO startSession(@RequestBody @Validated(TestSessionDTO.ValidationGroups.onSessionStart.class) TestSessionDTO testSessionDTO) {
-        TestSession session = mapper.map(testSessionDTO, TestSession.class, TestSessionDTO.ValidationGroups.onSessionStart.class.getName());
+    public TestSessionSaveResponse startSession(@RequestBody @Validated TestSessionStartRequest testSessionStartRequest) {
+        TestSession session = jMapper.map(testSessionStartRequest, TestSession.class);
         session = testSessionService.create(session);
-        return mapper.map(session, TestSessionDTO.class, TestSessionDTO.ValidationGroups.onSessionStart.class.getName());
+        return jMapper.map(session, TestSessionSaveResponse.class);
     }
 
     @PutMapping("/{id}")
-    public TestSessionDTO updateSession(@RequestBody TestSessionDTO testSessionDTO,
-                                        @PathVariable("id") @Positive Long id) {
-        TestSession session = mapper.map(testSessionDTO, TestSession.class, TestSessionDTO.ValidationGroups.onSessionEnd.class.getName());
+    public TestSessionSaveResponse updateSession(@RequestBody @Validated TestSessionFinishRequest testSessionFinishRequest,
+                                                 @PathVariable("id") @Positive Long id) {
+        TestSession session = jMapper.map(testSessionFinishRequest, TestSession.class);
         session.setId(id);
         session = testSessionService.updateAndLinkToTests(session);
-        return mapper.map(session, TestSessionDTO.class, TestSessionDTO.ValidationGroups.onSessionEnd.class.getName());
+        return jMapper.map(session, TestSessionSaveResponse.class);
     }
 
 }

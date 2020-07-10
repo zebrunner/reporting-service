@@ -45,6 +45,7 @@ ext {
         dozer: dependencies.create("net.sf.dozer:dozer:5.5.1") {
             exclude module: "slf4j-log4j12"
         },
+        jmapper: "com.googlecode.jmapper-framework:jmapper-core:1.6.0.1",
 
         jackson_databind : "com.fasterxml.jackson.core:jackson-databind:2.11.0",
 

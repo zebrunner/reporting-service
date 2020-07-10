@@ -20,8 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
-import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,55 +53,54 @@ public class TestRunServiceV1 {
     }
 
     @Transactional
-    public TestRun finishRun(TestRun testRun) {
+    public void finishRun(TestRun testRun) {
         com.zebrunner.reporting.domain.db.TestRun oldTestRun = testRunService.getNotNullTestRunById(testRun.getId());
-        oldTestRun.setEndedAt(Timestamp.valueOf(testRun.getEndedAt().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()));
-        oldTestRun = testRunService.calculateTestRunResult(oldTestRun, true);
-        return testRun;
+        oldTestRun.setEndedAt(new Date(testRun.getEndedAt().toInstant().toEpochMilli()));
+        testRunService.calculateTestRunResult(oldTestRun, true);
     }
 
     @Transactional
     public Test startTest(Test test, Long testRunId, boolean headless, boolean rerun) {
         if (headless) {
-            startHeadlessTest(test);
+            setDefaultHeadlessTestValues(test);
         }
         TestCase testCase = convertToTestCase(test, testRunId);
         testCase = testCaseService.createOrUpdateCase(testCase, testCase.getProject().getName());
 
         com.zebrunner.reporting.domain.db.Test oldTest = convertToOldTest(test, testRunId);
         oldTest.setTestCaseId(testCase.getId());
-        oldTest.setStartTime(Timestamp.valueOf(test.getStartedAt().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()));
+        oldTest.setStartTime(new Date(test.getStartedAt().toInstant().toEpochMilli()));
 
-        com.zebrunner.reporting.domain.db.Test headlessTest = null;
-        if (test.getId() != null) { // headless test override (next headless test or test start)
-            headlessTest = testService.getTestById(test.getId());
-            if (headlessTest != null) {
-                oldTest.setUuid(test.getUuid());
-                oldTest.setStartTime(headlessTest.getStartTime());
-            }
-        }
+//        com.zebrunner.reporting.domain.db.Test headlessTest = null;
+//        if (test.getId() != null) { // headless test override (next headless test or test start)
+//            headlessTest = testService.getTestById(test.getId());
+//            if (headlessTest != null) {
+//                oldTest.setUuid(test.getUuid());
+//                oldTest.setStartTime(headlessTest.getStartTime());
+//            }
+//        }
 
-        boolean updateHeadlessTest = false;
-        com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
-        if (existingTest != null) {
-            oldTest.setId(existingTest.getId());
-            if (headless && !rerun) { // if there are many headless tests in chain
-                oldTest.setStatus(existingTest.getStatus());
-                updateHeadlessTest = true;
-            }
-        }
-
-        if (updateHeadlessTest) {
-            oldTest = testService.updateTest(oldTest);
-        } else {
-            oldTest = testService.startTest(oldTest, null, null, headless, headlessTest != null, rerun);
-        }
+//        boolean updateHeadlessTest = false;
+//        com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
+//        if (existingTest != null) {
+//            oldTest.setId(existingTest.getId());
+//            if (headless && !rerun) { // if there are many headless tests in chain
+//                oldTest.setStatus(existingTest.getStatus());
+//                updateHeadlessTest = true;
+//            }
+//        }
+//
+//        if (updateHeadlessTest) {
+//            oldTest = testService.updateTest(oldTest);
+//        } else {
+        oldTest = testService.startTest(oldTest, null, null, rerun);
+//        }
 
         test.setId(oldTest.getId());
         return test;
     }
 
-    private Test startHeadlessTest(Test test) {
+    private void setDefaultHeadlessTestValues(Test test) {
         if (test.getName() == null) {
             test.setName("system");
         }
@@ -112,20 +110,30 @@ public class TestRunServiceV1 {
         if (test.getMethodName() == null) {
             test.setMethodName("system");
         }
-        return test;
     }
 
     @Transactional
-    public Test finishTest(Test test, Long runId) {
-        Status status = Status.valueOf(test.getResult());
+    public com.zebrunner.reporting.domain.db.Test updateTest(Test test, Long testRunId, boolean headless) {
+        com.zebrunner.reporting.domain.db.Test oldTest = convertToOldTest(test, testRunId);
+        if (headless) {
+            TestCase testCase = convertToTestCase(test, testRunId);
+            testCase = testCaseService.createOrUpdateCase(testCase, testCase.getProject().getName());
 
-        com.zebrunner.reporting.domain.db.Test oldTest = convertToOldTest(test, runId);
-        oldTest.setStatus(status);
-        oldTest.setMessage(test.getReason());
-        oldTest.setFinishTime(Timestamp.valueOf(test.getEndedAt().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()));
-
-        testService.finishTest(oldTest, null, null);
-        return test;
+            com.zebrunner.reporting.domain.db.Test existingTest = testService.getTestById(test.getId());
+            existingTest.setUuid(oldTest.getUuid());
+            existingTest.setName(oldTest.getName());
+            existingTest.setTestClass(oldTest.getTestClass());
+            existingTest.setOwner(oldTest.getOwner());
+            existingTest.setTestCaseId(testCase.getId());
+            existingTest.setTags(oldTest.getTags());
+            return testService.updateTest(existingTest);
+        } else {
+            Status status = Status.valueOf(test.getResult());
+            oldTest.setStatus(status);
+            oldTest.setMessage(test.getReason());
+            oldTest.setFinishTime(new Date(test.getEndedAt().toInstant().toEpochMilli()));
+            return testService.finishTest(oldTest, null, null);
+        }
     }
 
     @Transactional(readOnly = true)

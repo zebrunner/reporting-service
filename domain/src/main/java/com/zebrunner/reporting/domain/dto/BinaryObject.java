@@ -21,7 +21,8 @@ public class BinaryObject {
     public enum Type {
         ORG_ASSET,
         USER_ASSET,
-        APP_PACKAGE
+        APP_PACKAGE,
+        SSO_LOGO
     }
 
 }

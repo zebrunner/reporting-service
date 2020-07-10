@@ -68,7 +68,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(IllegalOperationException.class)
     public ResponseEntity<ErrorResponse> handleIllegalOperationException(IllegalOperationException e) {
-        log.debug(e.getMessage(), e);
+        log.error(e.getMessage(), e);
         ResponseEntity<ErrorResponse> responseEntity;
         ErrorResponse response = new ErrorResponse();
         // We need to return code 200 for all auth-related operations
