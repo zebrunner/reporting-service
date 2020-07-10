@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
@@ -44,6 +43,9 @@ public class SettingsController extends AbstractController implements SettingDoc
 
     @Setter(onMethod = @__(@Value("${rabbitmq-public-endpoint}")))
     private String rabbitPublicEndpoint;
+
+    @Setter(onMethod = @__(@Value("${rabbitmq-public-endpoint-port}")))
+    private String rabbitPublicEndpointPort;
 
     @Setter(onMethod = @__(@Value("${elasticsearch.url}")))
     private String elasticSearchUrl;
@@ -98,7 +100,7 @@ public class SettingsController extends AbstractController implements SettingDoc
     private List<Setting> rabbitSettings() {
         return List.of(
                 new Setting("RABBITMQ_HOST", rabbitPublicEndpoint),
-                new Setting("RABBITMQ_PORT", String.valueOf(props.getPort())),
+                new Setting("RABBITMQ_PORT", rabbitPublicEndpointPort),
                 new Setting("RABBITMQ_USER", props.getUsername()),
                 new Setting("RABBITMQ_PASSWORD", props.getPassword()),
                 new Setting("RABBITMQ_ENABLED", Boolean.TRUE.toString())
