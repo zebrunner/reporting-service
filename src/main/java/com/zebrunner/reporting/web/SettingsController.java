@@ -100,7 +100,8 @@ public class SettingsController extends AbstractController implements SettingDoc
                 new Setting("RABBITMQ_HOST", rabbitPublicEndpoint),
                 new Setting("RABBITMQ_PORT", String.valueOf(props.getPort())),
                 new Setting("RABBITMQ_USER", props.getUsername()),
-                new Setting("RABBITMQ_PASSWORD", props.getPassword())
+                new Setting("RABBITMQ_PASSWORD", props.getPassword()),
+                new Setting("RABBITMQ_ENABLED", Boolean.TRUE.toString())
         );
     }
 
