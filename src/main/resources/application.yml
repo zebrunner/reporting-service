@@ -1,0 +1,138 @@
+### Reprting Service settings
+service:
+  multitenant: ${multitenant}
+  version: ${version}
+  docs-enabled: true
+  debug-enabled: ${debug.enabled}
+  web-url: ${web.host}
+  api-url: ${api.host}/${api.context.path}
+  use-artifact-proxy: ${use.artifact.proxy}
+  admin:
+    username: ${admin.username}
+    password: ${admin.password}
+    group: ${admin.group}
+
+### Embedded Web server configuration
+server:
+  port: 8080
+  shutdown: graceful
+
+### Spring Boot managed beans configuration
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+  cache:
+    cache-names: projects, users, testCases, environments, testRunStatistics, groups
+    redis:
+      use-key-prefix: true
+      time-to-live: 43200000
+    type: redis
+  redis:
+    host: ${redis.host}
+    port: ${redis.port}
+    password: ${redis.password}
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: /
+    stomp:
+      host: ${rabbitmq.stomp.host}
+      port: ${rabbitmq.stomp.port}
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 25
+    template:
+      exchange: events
+  freemarker:
+    template-loader-path: classpath:/templates/
+    suffix: ftl
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+    deserialization:
+      fail-on-unknown-properties: false
+  autoconfigure:
+    # since Boot detects liquibase library on classpath it'll try to supply autoconfigured datasource
+    # however for Zafira we do not use datasource autoconfiguration that's why need to disable this
+    exclude:
+      - org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+rabbitmq-public-endpoint: ${RABBITMQ_PUBLIC_ENDPOINT:localhost}
+rabbitmq-public-endpoint-port: ${RABBITMQ_PUBLIC_ENDPOINT_PORT:localhost}
+
+### Logging configuration. See logback.xml for more
+logging:
+  level:
+#    org.hibernate.SQL: DEBUG
+    org.dozer.DozerBeanMapper: ERROR
+#    liquibase:
+#      # reducing number of logs by liquibase to keep only most relevant ones
+#      executor.jvm.JdbcExecutor: ERROR
+#      changelog: ERROR
+#      lockservice: ERROR
+
+### Datasource settings
+datasource:
+  driver-class: org.postgresql.Driver
+  url: ${database.url}
+  username: ${database.username}
+  password: ${database.password}
+  pool-size: ${database.pool.size}
+  idle-connection-test-period: 30000
+
+### ElasticSearch settings
+elasticsearch:
+  url: ${elasticsearch.url}
+  username: ${elasticsearch.username}
+  password: ${elasticsearch.password}
+
+### GitHub settings
+github:
+  client-id: ${github.client.id}
+  client-secret: ${github.client.secret}
+  host: ${github.client.host}
+
+### Slack Notifications settings
+slack:
+  image-url: https://s3-us-west-1.amazonaws.com/zebrunner/common/zbr-email.png
+  author: zafira notifications
+
+### Auth settings
+auth:
+  token:
+    expiration: 480
+    refresh-expiration: 10080
+    secret: ${auth.token.secret}
+
+### Db management
+db-state-management:
+  # disabled by default
+  enabled: ${database.state.management.enabled}
+
+### Other application settings
+crypto-salt: ${crypto.salt}
+amazon-token-expiration: 43200
+google-token-expiration: 43200
+
+### Twitter settings
+twitter:
+  enabled: ${twitter.enabled:false}
+  consumer-key: ${twitter.consumer.key}
+  consumer-secret: ${twitter.consumer.secret}
+
+s3:
+  access-key-id: ${S3_ACCESS_KEY_ID}
+  secret: ${S3_SECRET}
+  region: ${S3_REGION}
+  bucket: ${S3_BUCKET}
+
+templates-directory: ${TEMPLATES_DIRECTORY:templates}
+
+### IAM service settings
+iam:
+  host: ${iam.host}
+  port: ${iam.port}

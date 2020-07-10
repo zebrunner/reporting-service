@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+        namespace="com.zebrunner.reporting.persistence.dao.mysql.application.UserMapper">
+
+    <insert id="createUser" useGeneratedKeys="true" keyProperty="id">
+		<![CDATA[
+        INSERT INTO USERS (ID, USERNAME, EMAIL)
+        VALUES (
+                   #{id},
+                   #{username},
+                   #{email}
+               )
+        ]]>
+	</insert>
+
+    <sql id="getUser">
+		<![CDATA[
+        SELECT U.ID           AS USER_ID,
+               U.USERNAME     AS USER_USERNAME,
+               U.EMAIL        AS USER_EMAIL,
+               UP.ID          AS USER_PREFERENCE_ID,
+               UP.NAME        AS USER_PREFERENCE_NAME,
+               UP.VALUE       AS USER_PREFERENCE_VALUE,
+               UP.MODIFIED_AT AS USER_PREFERENCE_MODIFIED_AT,
+               UP.CREATED_AT  AS USER_PREFERENCE_CREATED_AT
+        FROM USERS U
+                 LEFT JOIN
+             USER_PREFERENCES UP
+             ON
+                 UP.USER_ID = U.ID
+        ]]>
+	</sql>
+
+    <select id="getUserById" resultMap="UserResultMap">
+        <include refid="getUser"/>
+        <![CDATA[
+			WHERE U.ID = #{id};
+		]]>
+    </select>
+
+    <select id="getUserByUsername" resultMap="UserResultMap">
+        <include refid="getUser"/>
+        <![CDATA[
+			WHERE U.USERNAME = #{username};
+		]]>
+    </select>
+
+    <select id="getUserByEmail" resultMap="UserResultMap">
+        <include refid="getUser" />
+        <![CDATA[
+			WHERE U.EMAIL = #{email};
+		]]>
+    </select>
+
+    <select id="existsById" resultType="java.lang.Boolean">
+        <![CDATA[
+        SELECT EXISTS(SELECT 1 FROM USERS WHERE ID = #{id})
+        ]]>
+    </select>
+
+    <select id="existsByUsername" resultType="java.lang.Boolean">
+        <![CDATA[
+        SELECT EXISTS(SELECT 1 FROM USERS WHERE USERNAME = #{username})
+        ]]>
+    </select>
+
+    <update id="updateUser">
+        <![CDATA[
+			UPDATE
+			    USERS
+		]]>
+        <set>
+            <if test="null != username">
+                <![CDATA[
+		               USERNAME = #{username},	
+		            ]]>
+            </if>
+            <if test="null != email">
+                <![CDATA[
+		               EMAIL = #{email},
+		            ]]>
+            </if>
+        </set>
+        <![CDATA[
+			WHERE
+			    ID = #{id}
+		]]>
+    </update>
+
+    <sql id="deleteUser">
+		<![CDATA[
+        DELETE
+        FROM USERS
+        WHERE ID = #{id}
+        ]]>
+	</sql>
+
+    <delete id="deleteUserById">
+        <include refid="deleteUser"/>
+    </delete>
+
+    <resultMap type="com.zebrunner.reporting.domain.db.User"
+               id="UserResultMap" autoMapping="false">
+        <id column="USER_ID" property="id"/>
+        <result column="USER_USERNAME" property="username"/>
+        <result column="USER_EMAIL" property="email" />
+        <collection property="preferences"
+                    ofType="com.zebrunner.reporting.domain.db.UserPreference"
+                    resultMap="com.zebrunner.reporting.persistence.dao.mysql.application.UserPreferenceMapper.UserPreferenceResultMap"/>
+    </resultMap>
+
+</mapper>
