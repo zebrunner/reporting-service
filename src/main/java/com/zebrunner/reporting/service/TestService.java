@@ -94,20 +94,19 @@ public class TestService {
     public Test startTest(Test test, List<String> jiraIds, String configXML) {
         Test existingTest = getTestById(test.getId());
         boolean rerun = existingTest != null && !Status.QUEUED.equals(test.getStatus());
-        return startTest(test, jiraIds, configXML, rerun);
+        return startTest(test, jiraIds, configXML, true);
     }
 
     @Transactional
     public Test startTest(Test test, List<String> jiraIds, String configXML, boolean rerun) {
-        Test existingTest = getTestById(test.getId());
+        Test existingTest = test.getId() != null ? getTestById(test.getId()) : null;
+        // do rerun only if it was explicitly requested and there is an existing test not in 'QUEUED' status
+        rerun = rerun && existingTest != null && !Status.QUEUED.equals(test.getStatus());
+
         test.setStatus(Status.IN_PROGRESS);
 
-        boolean existingTestIsInProgress = existingTest != null && Status.IN_PROGRESS.equals(existingTest.getStatus());
-        boolean updateStatisticsStatus = rerun || !existingTestIsInProgress;
-        if (updateStatisticsStatus) {
-            Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
-            testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
-        }
+        Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
+        testRunStatisticsService.updateStatistics(test.getTestRunId(), statisticsStatusToUpdate, rerun);
 
         if (rerun) {
             unlinkStatisticsFailureItems(existingTest);

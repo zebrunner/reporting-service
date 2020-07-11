@@ -1,6 +1,7 @@
 package com.zebrunner.reporting.persistence.dao.mysql.application.search;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class TestCaseSearchCriteria extends SearchCriteria implements DateSearchCriteria {
 
     private Long id;
@@ -22,6 +24,10 @@ public class TestCaseSearchCriteria extends SearchCriteria implements DateSearch
     private Date fromDate;
     private Date toDate;
     private String period;
+
+    public TestCaseSearchCriteria(List<Long> ids) {
+        this.ids = ids;
+    }
 
     public void addId(Long id) {
         if (this.ids == null) {

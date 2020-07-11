@@ -1,20 +1,21 @@
 package com.zebrunner.reporting.service.reporting;
 
-import com.zebrunner.reporting.domain.db.Job;
-import com.zebrunner.reporting.domain.db.Project;
 import com.zebrunner.reporting.domain.db.Status;
-import com.zebrunner.reporting.domain.db.Tag;
 import com.zebrunner.reporting.domain.db.TestCase;
 import com.zebrunner.reporting.domain.db.TestSuite;
 import com.zebrunner.reporting.domain.db.User;
 import com.zebrunner.reporting.domain.db.reporting.Test;
 import com.zebrunner.reporting.domain.db.reporting.TestRun;
-import com.zebrunner.reporting.persistence.dao.mysql.application.TestMapper;
+import com.zebrunner.reporting.persistence.dao.mysql.application.search.TestCaseSearchCriteria;
 import com.zebrunner.reporting.service.TestCaseService;
 import com.zebrunner.reporting.service.TestRunService;
 import com.zebrunner.reporting.service.TestService;
 import com.zebrunner.reporting.service.TestSuiteService;
 import com.zebrunner.reporting.service.UserService;
+import com.zebrunner.reporting.service.converter.TestConverter;
+import com.zebrunner.reporting.service.converter.TestRunConverter;
+import com.zebrunner.reporting.service.exception.ResourceNotFoundException;
+import com.zebrunner.reporting.service.exception.ResourceNotFoundException.ResourceNotFoundErrorDetail;
 import com.zebrunner.reporting.service.project.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,33 +23,42 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TestRunServiceV1 {
 
-    private final TestMapper testMapper;
     private final TestService testService;
     private final UserService userService;
+    private final TestConverter testConverter;
     private final ProjectService projectService;
     private final TestRunService testRunService;
     private final TestCaseService testCaseService;
     private final TestSuiteService testSuiteService;
+    private final TestRunConverter testRunConverter;
 
     @Transactional
     public TestRun startRun(TestRun testRun, String projectKey, Long userId) {
-        Project project = projectService.getProjectByNameOrDefault(projectKey);
+        if (projectKey == null) {
+            projectKey = ProjectService.DEFAULT_PROJECT;
+        } else if (projectService.getProjectByName(projectKey) == null) {
+            throw new ResourceNotFoundException(ResourceNotFoundErrorDetail.PROJECT_NOT_FOUND, "Project with name " + projectKey + " does not exists");
+        }
 
-        TestSuite testSuite = convertToSuite(testRun, userId);
+        TestSuite testSuite = testRunConverter.toTestSuite(testRun, userId);
         testSuite = testSuiteService.createOrUpdateTestSuite(testSuite);
 
-        com.zebrunner.reporting.domain.db.TestRun oldTestRun = convertToOldTestRun(testRun, project.getName(), userId);
-        oldTestRun.setTestSuite(testSuite);
-        oldTestRun = testRunService.startTestRun(oldTestRun);
+        com.zebrunner.reporting.domain.db.TestRun legacyTestRun = testRunConverter.toLegacyModel(
+                testRun, projectKey, userId
+        );
+        legacyTestRun.setTestSuite(testSuite);
+        legacyTestRun = testRunService.startTestRun(legacyTestRun);
 
-        testRun.setId(oldTestRun.getId());
+        testRun.setId(legacyTestRun.getId());
+        testRun.setUuid(legacyTestRun.getCiRunId());
         return testRun;
     }
 
@@ -60,14 +70,12 @@ public class TestRunServiceV1 {
     }
 
     @Transactional
-    public Test startTest(Test test, Long testRunId, boolean headless, boolean rerun) {
-        if (headless) {
-            setDefaultHeadlessTestValues(test);
-        }
-        TestCase testCase = convertToTestCase(test, testRunId);
+    public Test startTest(Test test, Long testRunId, boolean rerun) {
+        setDefaultHeadlessTestValues(test);
+        TestCase testCase = buildTestCase(test, testRunId);
         testCase = testCaseService.createOrUpdateCase(testCase, testCase.getProject().getName());
 
-        com.zebrunner.reporting.domain.db.Test oldTest = convertToOldTest(test, testRunId);
+        com.zebrunner.reporting.domain.db.Test oldTest = testConverter.toLegacyModel(test, testRunId);
         oldTest.setTestCaseId(testCase.getId());
         oldTest.setStartTime(new Date(test.getStartedAt().toInstant().toEpochMilli()));
 
@@ -94,7 +102,6 @@ public class TestRunServiceV1 {
 //            oldTest = testService.updateTest(oldTest);
 //        } else {
         oldTest = testService.startTest(oldTest, null, null, rerun);
-//        }
 
         test.setId(oldTest.getId());
         return test;
@@ -113,36 +120,49 @@ public class TestRunServiceV1 {
     }
 
     @Transactional
-    public com.zebrunner.reporting.domain.db.Test updateTest(Test test, Long testRunId, boolean headless) {
-        com.zebrunner.reporting.domain.db.Test oldTest = convertToOldTest(test, testRunId);
-        if (headless) {
-            TestCase testCase = convertToTestCase(test, testRunId);
-            testCase = testCaseService.createOrUpdateCase(testCase, testCase.getProject().getName());
+    public void updateTest(Test test, Long testRunId) {
+        com.zebrunner.reporting.domain.db.Test oldTest = testConverter.toLegacyModel(test, testRunId);
 
-            com.zebrunner.reporting.domain.db.Test existingTest = testService.getTestById(test.getId());
-            existingTest.setUuid(oldTest.getUuid());
-            existingTest.setName(oldTest.getName());
-            existingTest.setTestClass(oldTest.getTestClass());
-            existingTest.setOwner(oldTest.getOwner());
-            existingTest.setTestCaseId(testCase.getId());
-            existingTest.setTags(oldTest.getTags());
-            return testService.updateTest(existingTest);
-        } else {
-            Status status = Status.valueOf(test.getResult());
-            oldTest.setStatus(status);
-            oldTest.setMessage(test.getReason());
-            oldTest.setFinishTime(new Date(test.getEndedAt().toInstant().toEpochMilli()));
-            return testService.finishTest(oldTest, null, null);
-        }
+        TestCase testCase = buildTestCase(test, testRunId);
+        testCase = testCaseService.createOrUpdateCase(testCase, testCase.getProject().getName());
+
+        com.zebrunner.reporting.domain.db.Test existingTest = testService.getTestById(test.getId());
+        existingTest.setUuid(oldTest.getUuid());
+        existingTest.setName(oldTest.getName());
+        existingTest.setOwner(oldTest.getOwner());
+        existingTest.setTestCaseId(testCase.getId());
+        existingTest.setTags(oldTest.getTags());
+
+        testService.updateTest(existingTest);
+    }
+
+    @Transactional
+    public void finishTest(Test test, Long testRunId) {
+        com.zebrunner.reporting.domain.db.Test oldTest = testConverter.toLegacyModel(test, testRunId);
+
+        Status status = Status.valueOf(test.getResult());
+        oldTest.setStatus(status);
+        oldTest.setMessage(test.getReason());
+        oldTest.setFinishTime(new Date(test.getEndedAt().toInstant().toEpochMilli()));
+
+        testService.finishTest(oldTest, null, null);
     }
 
     @Transactional(readOnly = true)
     public List<Test> getTestsByCiRunId(String ciRunId, List<Status> statuses, List<Long> testIds) {
         List<com.zebrunner.reporting.domain.db.Test> oldTests = testService.getTestsByTestRunId(ciRunId);
+        List<Long> testCaseIds = oldTests.stream()
+                                         .map(com.zebrunner.reporting.domain.db.Test::getTestCaseId)
+                                         .collect(Collectors.toList());
+
+        Map<Long, TestCase> idToCase = testCaseService.searchTestCases(new TestCaseSearchCriteria(testCaseIds))
+                                                      .getResults().stream()
+                                                      .collect(Collectors.toMap(TestCase::getId, Function.identity()));
+
         return oldTests.stream()
                        .filter(oldTest -> statuses == null || statuses.contains(oldTest.getStatus()))
                        .filter(oldTest -> testIds == null || testIds.contains(oldTest.getId()))
-                       .map(this::convertToTest)
+                       .map(test -> testConverter.fromLegacyModel(test, idToCase.get(test.getTestCaseId())))
                        .collect(Collectors.toList());
     }
 
@@ -156,101 +176,14 @@ public class TestRunServiceV1 {
         return testService.getTestById(id);
     }
 
-    private TestSuite convertToSuite(TestRun testRun, Long userId) {
-        User user = new User();
-        user.setId(userId);
-
-        TestSuite testSuite = new TestSuite();
-        testSuite.setName(testRun.getName());
-        testSuite.setFileName(testRun.getName());
-        testSuite.setUser(user);
-
-        return testSuite;
-    }
-
-    private com.zebrunner.reporting.domain.db.TestRun convertToOldTestRun(TestRun testRun, String projectKey, Long userId) {
-        User user = new User();
-        user.setId(userId);
-
-        Project project = new Project();
-        project.setName(projectKey);
-
-        com.zebrunner.reporting.domain.db.TestRun oldTestRun = new com.zebrunner.reporting.domain.db.TestRun();
-        oldTestRun.setId(testRun.getId());
-        oldTestRun.setStartedBy(com.zebrunner.reporting.domain.db.TestRun.Initiator.HUMAN);
-        oldTestRun.setBuildNumber(1);
-        oldTestRun.setProject(project);
-        oldTestRun.setFramework(testRun.getFramework());
-        oldTestRun.setConfig(testRun.getConfig());
-        oldTestRun.setUser(user);
-        oldTestRun.setCiRunId(testRun.getUuid());
-
-        if (testRun.getLaunchContext() != null) {
-            Job job = new Job();
-            job.setId(Long.valueOf(testRun.getLaunchContext().getJobNumber()));
-            oldTestRun.setJob(job);
-
-            Job upstreamJob = new Job();
-            upstreamJob.setId(Long.valueOf(testRun.getLaunchContext().getUpstreamJobNumber()));
-            oldTestRun.setUpstreamJob(upstreamJob);
-        }
-
-        return oldTestRun;
-    }
-
-    private TestCase convertToTestCase(Test test, Long testRunId) {
+    private TestCase buildTestCase(Test test, Long testRunId) {
         User caseOwner = userService.getByUsername(test.getMaintainer());
         if (caseOwner == null) {
             caseOwner = userService.getByUsername("anonymous");
         }
 
         com.zebrunner.reporting.domain.db.TestRun testRun = testRunService.getNotNullTestRunById(testRunId);
-
-        TestCase testCase = new TestCase();
-        testCase.setTestClass(test.getClassName());
-        testCase.setTestMethod(test.getMethodName());
-        testCase.setInfo(test.getTestCase()); // for now in info
-        testCase.setPrimaryOwner(caseOwner);
-        testCase.setProject(testRun.getProject());
-        testCase.setTestSuiteId(testRun.getTestSuite().getId());
-
-        return testCase;
+        return testConverter.toTestCase(test, testRun, caseOwner);
     }
 
-    private com.zebrunner.reporting.domain.db.Test convertToOldTest(Test test, Long runId) {
-        com.zebrunner.reporting.domain.db.Test oldTest = new com.zebrunner.reporting.domain.db.Test();
-        oldTest.setId(test.getId() == null ? 0 : test.getId());
-        oldTest.setName(test.getName());
-        oldTest.setTestRunId(runId);
-        oldTest.setOwner(test.getMaintainer());
-        oldTest.setUuid(test.getUuid());
-
-        if (test.getTags() != null) {
-            Set<Tag> tags = test.getTags().stream()
-                                .map(tag -> new Tag(tag, null))
-                                .collect(Collectors.toSet());
-            oldTest.setTags(tags);
-        }
-
-        // TODO: 3/20/20 additional attributes
-
-        return oldTest;
-    }
-
-    private Test convertToTest(com.zebrunner.reporting.domain.db.Test oldTest) {
-        TestCase testCase = testCaseService.getTestCaseById(oldTest.getTestCaseId());
-
-        Test test = new Test();
-        test.setId(oldTest.getId());
-        test.setUuid(oldTest.getUuid());
-        test.setName(oldTest.getName());
-        test.setMaintainer(oldTest.getOwner());
-        test.setResult(oldTest.getStatus().name());
-
-        test.setClassName(testCase.getTestClass());
-        test.setMethodName(testCase.getTestMethod());
-        test.setTestCase(testCase.getInfo());
-
-        return test;
-    }
 }

@@ -93,7 +93,7 @@ public class TestRunControllerV1 extends AbstractController {
         validate(request);
 
         Test test = jMapper.map(testStartRequest, Test.class);
-        test = testRunServiceV1.startTest(test, testRunId, headless, rerun);
+        test = testRunServiceV1.startTest(test, testRunId, rerun);
 
         com.zebrunner.reporting.domain.db.Test oldTest = testRunServiceV1.getTestById(test.getId());
         notifyAboutTestByWebsocket(oldTest);
@@ -114,7 +114,11 @@ public class TestRunControllerV1 extends AbstractController {
         Test test = jMapper.map(request, Test.class);
         test.setId(testId);
 
-        com.zebrunner.reporting.domain.db.Test updateTest = testRunServiceV1.updateTest(test, testRunId, headless);
+        if (headless) {
+            testRunServiceV1.updateTest(test, testRunId);
+        } else {
+            testRunServiceV1.finishTest(test, testRunId);
+        }
 
         com.zebrunner.reporting.domain.db.Test oldTest = testRunServiceV1.getTestById(testId);
         notifyAboutTestByWebsocket(oldTest);
