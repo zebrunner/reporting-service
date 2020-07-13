@@ -4,7 +4,6 @@ import com.zebrunner.reporting.domain.db.TestRun;
 import com.zebrunner.reporting.domain.entity.integration.Integration;
 import com.zebrunner.reporting.service.integration.tool.adapter.AbstractIntegrationAdapter;
 import com.zebrunner.reporting.service.integration.tool.adapter.AdapterParam;
-import com.zebrunner.reporting.service.integration.tool.impl.AutomationServerService;
 import in.ashwanthkumar.slack.webhook.SlackAttachment;
 import in.ashwanthkumar.slack.webhook.SlackMessage;
 import in.ashwanthkumar.slack.webhook.service.SlackService;
