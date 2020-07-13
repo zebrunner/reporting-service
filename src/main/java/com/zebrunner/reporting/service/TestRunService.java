@@ -805,6 +805,7 @@ public class TestRunService implements ProjectReassignable {
 
     public void hideJobUrlsIfNeed(List<TestRun> testRuns) {
         testRuns.stream()
+                .filter(testRun -> testRun.getJob() != null)
                 .filter(testRun -> !automationServerService.jobUrlVisibilityEnabled(testRun.getJob().getAutomationServerId()))
                 .forEach(testRun -> testRun.getJob().setJobURL(null));
     }

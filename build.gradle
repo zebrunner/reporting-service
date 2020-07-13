@@ -7,7 +7,6 @@ buildscript {
     }
 }
 
-group = 'com.zebrunner'
 version = "${version != 'unspecified' ? version : '1.0-SNAPSHOT'}"
 
 apply plugin: 'java'

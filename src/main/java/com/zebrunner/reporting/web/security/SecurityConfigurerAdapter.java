@@ -5,6 +5,9 @@ import com.zebrunner.reporting.web.security.filter.JwtTokenAuthenticationFilter;
 import com.zebrunner.reporting.web.security.filter.RestAccessDeniedHandler;
 import com.zebrunner.reporting.web.security.filter.SecurityAuthenticationEntryPoint;
 import com.zebrunner.reporting.web.security.filter.TenancyFilter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -13,9 +16,10 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
-    private static final String[] PUBLIC_API_PATTERNS = new String[] {
+    private static final String[] PUBLIC_API_PATTERNS = new String[]{
             "/api/config/**",
             "/api/status/**",
             "/api/dashboards/email",
@@ -27,7 +31,7 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/auth/tenant/**"
     };
 
-    private static final String[] AUTHENTICATED_API_PATTERNS = new String[] {
+    private static final String[] AUTHENTICATED_API_PATTERNS = new String[]{
             "/api/users/**",
             "/api/filters/**",
             "/api/profiles/**",
@@ -51,23 +55,11 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/v1/test-sessions/**"
     };
 
-    private final JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
-    private final CORSFilter corsFilter;
-    private final SecurityAuthenticationEntryPoint securityAuthenticationEntryPoint;
-    private final RestAccessDeniedHandler restAccessDeniedHandler;
     private final TenancyFilter tenancyFilter;
-
-    public SecurityConfigurerAdapter(JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter,
-                                     CORSFilter corsFilter,
-                                     SecurityAuthenticationEntryPoint securityAuthenticationEntryPoint,
-                                     RestAccessDeniedHandler restAccessDeniedHandler,
-                                     TenancyFilter tenancyFilter) {
-        this.jwtTokenAuthenticationFilter = jwtTokenAuthenticationFilter;
-        this.corsFilter = corsFilter;
-        this.securityAuthenticationEntryPoint = securityAuthenticationEntryPoint;
-        this.restAccessDeniedHandler = restAccessDeniedHandler;
-        this.tenancyFilter = tenancyFilter;
-    }
+    private final CORSFilter corsFilter = new CORSFilter();
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
+    private final JwtTokenAuthenticationFilter jwtTokenAuthenticationFilter;
+    private final SecurityAuthenticationEntryPoint securityAuthenticationEntryPoint;
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -85,6 +77,20 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(PUBLIC_API_PATTERNS).permitAll();
 //                .antMatchers(AUTHENTICATED_API_PATTERNS).authenticated();
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtTokenAuthenticationFilter> jwtTokenAuthenticationFilterRegistration(JwtTokenAuthenticationFilter filter) {
+        FilterRegistrationBean<JwtTokenAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    @Bean
+    public FilterRegistrationBean<TenancyFilter> tenancyFilterRegistration(TenancyFilter filter) {
+        FilterRegistrationBean<TenancyFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 
 }

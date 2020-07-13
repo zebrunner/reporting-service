@@ -1,12 +1,12 @@
 package com.zebrunner.reporting.web.security.filter;
 
-import com.zebrunner.reporting.domain.dto.auth.AuthenticationTokenContent;
 import com.zebrunner.reporting.domain.dto.auth.AuthenticatedUser;
+import com.zebrunner.reporting.domain.dto.auth.AuthenticationTokenContent;
 import com.zebrunner.reporting.service.JWTService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,16 +28,10 @@ import java.io.IOException;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenAuthenticationFilter extends GenericFilterBean {
 
-    public static final String AUTHENTICATION_TOKEN_CLAIM_USERNAME = "username";
-    public static final String AUTHENTICATION_TOKEN_CLAIM_PERMISSIONS = "permissions";
-    public static final String REFRESH_TOKEN_CLAIM_PASSWORD = "password";
-    public static final String CLAIM_TENANT = "tenant";
-
-    @Autowired
-    private JWTService jwtService;
-
+    private final JWTService jwtService;
     private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/**");
 
     @Override
@@ -75,8 +69,13 @@ public class JwtTokenAuthenticationFilter extends GenericFilterBean {
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             chain.doFilter(request, response);
-        } catch (ExpiredJwtException | MalformedJwtException | SignatureException ex) {
-            throw new BadCredentialsException("Token is expired or malformed");
+        } catch (ExpiredJwtException ex) {
+            logger.warn("Token is expired");
+            // we should not throw exception for expired tokens.
+            // the exception will be thrown by the spring security and only for private endpoints
+            chain.doFilter(request, response);
+        } catch (MalformedJwtException | SignatureException ex) {
+            throw new BadCredentialsException("Token is malformed");
         }
 
         /* SecurityContext is then cleared since we are stateless. */
