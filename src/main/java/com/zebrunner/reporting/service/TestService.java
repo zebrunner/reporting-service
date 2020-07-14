@@ -90,11 +90,18 @@ public class TestService {
     @Autowired
     private TestMetricService testMetricService;
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Test startTest(Test test, List<String> jiraIds, String configXML) {
-
         Test existingTest = getTestById(test.getId());
         boolean rerun = existingTest != null && !Status.QUEUED.equals(test.getStatus());
+        return startTest(test, jiraIds, configXML, true);
+    }
+
+    @Transactional
+    public Test startTest(Test test, List<String> jiraIds, String configXML, boolean rerun) {
+        Test existingTest = test.getId() != null ? getTestById(test.getId()) : null;
+        // do rerun only if it was explicitly requested and there is an existing test not in 'QUEUED' status
+        rerun = rerun && existingTest != null && !Status.QUEUED.equals(test.getStatus());
 
         test.setStatus(Status.IN_PROGRESS);
 
@@ -113,8 +120,7 @@ public class TestService {
             TestConfig config = testConfigService.createTestConfigForTest(test, configXML);
             test.setTestConfig(config);
 
-            boolean isNew = existingTest == null;
-            if (isNew) {
+            if (existingTest == null) {
                 createTest(test);
                 createWorkItems(test, jiraIds);
             } else {
@@ -126,6 +132,24 @@ public class TestService {
         test.setTags(tags);
 
         return test;
+    }
+
+    private void updateStatisticsOnTestStart(Test existingTest, Long testRunId, boolean headless, boolean overrideHeadless, boolean rerun) {
+        boolean testWithoutHeadless;
+        boolean firstHeadless;
+        if (!rerun) {
+            testWithoutHeadless = !headless && !overrideHeadless && existingTest == null;
+            firstHeadless = headless && existingTest == null;
+        } else {
+            boolean existingTestIsFinished = !Status.IN_PROGRESS.equals(existingTest.getStatus());
+            testWithoutHeadless = !headless && !overrideHeadless && existingTestIsFinished;
+            firstHeadless = headless && existingTestIsFinished;
+        }
+
+        if (testWithoutHeadless || firstHeadless) {
+            Status statisticsStatusToUpdate = rerun ? existingTest.getStatus() : Status.IN_PROGRESS;
+            testRunStatisticsService.updateStatistics(testRunId, statisticsStatusToUpdate, rerun);
+        }
     }
 
     private void createWorkItems(Test test, List<String> jiraIds) {
@@ -164,7 +188,8 @@ public class TestService {
         }
         String builtMessage = String.join(", ", messageParts);
         if (!builtMessage.isBlank()) {
-            LOGGER.error(String.format("Test ID: %d, Test name: %s\nFields exceeding 255 symbols restriction: %s", test.getId(), test.getName(), builtMessage));
+            LOGGER.error(String.format("Test ID: %d, Test name: %s\nFields exceeding 255 symbols restriction: %s", test
+                    .getId(), test.getName(), builtMessage));
         }
     }
 
@@ -208,9 +233,11 @@ public class TestService {
             if (Status.FAILED.equals(test.getStatus())) {
                 int testMessageHashCode = getTestMessageHashCode(test.getMessage());
 
-                WorkItem knownIssue = workItemService.getWorkItemByTestCaseIdAndHashCode(testCaseId, testMessageHashCode);
+                WorkItem knownIssue = workItemService
+                        .getWorkItemByTestCaseIdAndHashCode(testCaseId, testMessageHashCode);
                 if (knownIssue != null) {
-                    boolean closed = testCaseManagementService.isEnabledAndConnected(null) && testCaseManagementService.isIssueClosed(knownIssue.getJiraId());
+                    boolean closed = testCaseManagementService.isEnabledAndConnected(null) && testCaseManagementService
+                            .isIssueClosed(knownIssue.getJiraId());
                     if (!closed) {
                         existingTest.setKnownIssue(true);
                         existingTest.setBlocker(knownIssue.isBlocker());
@@ -221,9 +248,11 @@ public class TestService {
                         }
                         existingTest.getWorkItems().add(knownIssue);
 
-                        testRunStatisticsService.updateStatistics(test.getTestRunId(), TestRunStatistics.Action.MARK_AS_KNOWN_ISSUE);
+                        testRunStatisticsService
+                                .updateStatistics(test.getTestRunId(), TestRunStatistics.Action.MARK_AS_KNOWN_ISSUE);
                         if (existingTest.isBlocker()) {
-                            testRunStatisticsService.updateStatistics(test.getTestRunId(), TestRunStatistics.Action.MARK_AS_BLOCKER);
+                            testRunStatisticsService
+                                    .updateStatistics(test.getTestRunId(), TestRunStatistics.Action.MARK_AS_BLOCKER);
                         }
                     }
                 }
@@ -418,7 +447,8 @@ public class TestService {
     @Transactional(readOnly = true)
     public List<TestResult> getLatestTestResultsByTestId(Long testId, Long limit) {
         Test test = getNotNullTestById(testId);
-        List<TestResult> testResults = testMapper.getTestResultsByStartTimeAndTestCaseId(test.getTestCaseId(), test.getStartTime(), limit);
+        List<TestResult> testResults = testMapper
+                .getTestResultsByStartTimeAndTestCaseId(test.getTestCaseId(), test.getStartTime(), limit);
         testResults.forEach(result -> {
             result.setWorkItems(filterBugs(result));
             boolean isDurationAvailable = result.getStartTime() != null && result.getFinishTime() != null;
@@ -453,14 +483,14 @@ public class TestService {
         return workItems;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Test updateTest(Test test) {
         validateTestFieldsLength(test);
         testMapper.updateTest(test);
         return test;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteTestById(long id) {
         testMapper.deleteTestById(id);
     }
@@ -488,7 +518,8 @@ public class TestService {
     @Transactional()
     public List<WorkItemBatch> linkWorkItems(List<WorkItemBatch> workItemBatches, Long testRunId) {
         boolean illegalOperation = workItemBatches.stream()
-                                                  .anyMatch(workItemBatch -> !existsTestByIdAndTestRunId(workItemBatch.getTestId(), testRunId));
+                                                  .anyMatch(workItemBatch -> !existsTestByIdAndTestRunId(workItemBatch
+                                                          .getTestId(), testRunId));
         if (illegalOperation) {
             throw new IllegalOperationException(ILLEGAL_BATCH_OPERATION, ERR_MSG_TESTS_NOT_FOUND);
         }
@@ -525,7 +556,8 @@ public class TestService {
 
         if (WorkItem.Type.BUG.equals(workItem.getType())) {
             if (!Arrays.asList(Status.FAILED, Status.SKIPPED).contains(test.getStatus())) {
-                throw new IllegalOperationException(WORK_ITEM_CAN_NOT_BE_ATTACHED, String.format(ERR_MSG_KNOWN_ISSUE_TEST_STATUS, test.getStatus()));
+                throw new IllegalOperationException(WORK_ITEM_CAN_NOT_BE_ATTACHED, String
+                        .format(ERR_MSG_KNOWN_ISSUE_TEST_STATUS, test.getStatus()));
             }
 
             updateStatisticsOnWorkItemCreate(test, workItem);
@@ -591,7 +623,8 @@ public class TestService {
     }
 
     private void updateSimilarWorkItems(WorkItem workItemToLink) {
-        List<WorkItem> workItems = workItemService.getWorkItemsByJiraIdAndType(workItemToLink.getJiraId(), workItemToLink.getType());
+        List<WorkItem> workItems = workItemService
+                .getWorkItemsByJiraIdAndType(workItemToLink.getJiraId(), workItemToLink.getType());
         workItems.forEach(workItem -> {
             workItem.setBlocker(workItemToLink.isBlocker());
             workItem.setDescription(workItemToLink.getDescription());
@@ -676,7 +709,8 @@ public class TestService {
 
             Set<Long> testCasesToRerun = new HashSet<>();
             for (Test test : tests) {
-                boolean isTestFailed = Arrays.asList(Status.FAILED, Status.SKIPPED).contains(test.getStatus()) && !test.isKnownIssue();
+                boolean isTestFailed = Arrays.asList(Status.FAILED, Status.SKIPPED).contains(test.getStatus()) && !test
+                        .isKnownIssue();
                 boolean isTestAborted = test.getStatus().equals(Status.ABORTED);
                 boolean isTestQueued = test.getStatus().equals(Status.QUEUED);
                 if (isTestFailed || isTestAborted || isTestQueued) {
@@ -756,6 +790,11 @@ public class TestService {
         }
         unlinkWorkItem(workItem);
         deleteTestWorkItemByWorkItemIdAndTest(workItemId, test);
+    }
+
+    @Transactional(readOnly = true)
+    public Set<Long> getExistingIds(Set<Long> ids) {
+        return testMapper.findExistingIds(ids);
     }
 
     public int getTestMessageHashCode(String message) {

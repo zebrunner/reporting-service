@@ -61,8 +61,8 @@ spring:
       - org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
 
-rabbitmq-public-endpoint: ${RABBITMQ_PUBLIC_ENDPOINT}
-rabbitmq-public-endpoint-port: ${RABBITMQ_PUBLIC_ENDPOINT_PORT}
+rabbitmq-public-endpoint: ${RABBITMQ_PUBLIC_ENDPOINT:localhost}
+rabbitmq-public-endpoint-port: ${RABBITMQ_PUBLIC_ENDPOINT_PORT:localhost}
 
 ### Logging configuration. See logback.xml for more
 logging:

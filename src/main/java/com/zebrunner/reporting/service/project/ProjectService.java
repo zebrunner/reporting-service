@@ -21,7 +21,7 @@ public class ProjectService {
     private static final String ERR_MSG_PROJECT_NOT_FOUND_BY_ID = "Requested company can not be found by id '%d'";
     private static final String ERR_MSG_PROJECT_NOT_FOUND_BY_NAME = "Requested company can not be found by name '%s'";
 
-    private static final String DEFAULT_PROJECT = "UNKNOWN";
+    public static final String DEFAULT_PROJECT = "UNKNOWN";
 
     private final ProjectMapper projectMapper;
     private final ProjectRepository projectRepository;

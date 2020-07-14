@@ -351,3 +351,14 @@ databaseChangeLog:
             path: changeset/032_set_absent_default_runs_view_preference.sql
             relativeToChangelogFile: true
             splitStatements: false
+  - changeSet:
+      id: 031_create_test_sessions_table
+      validCheckSum: ANY
+      labels: stable
+      author: brutskov
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changeset/031_create_test_sessions_table.sql
+            relativeToChangelogFile: true
+            splitStatements: false

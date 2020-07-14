@@ -413,6 +413,7 @@ public class TestRunService implements ProjectReassignable {
             existingTestRun.setBuildNumber(testRun.getBuildNumber());
             existingTestRun.setConfigXML(testRun.getConfigXML());
             existingTestRun.setTestSuite(testRun.getTestSuite());
+            existingTestRun.setStartedAt(testRun.getStartedAt());
             testRun = existingTestRun;
             // TODO: investigate if startedBy should be also copied
 
@@ -420,8 +421,7 @@ public class TestRunService implements ProjectReassignable {
             updateTestRun(testRun);
         }
 
-        testRun = getTestRunByIdFull(testRun.getId());
-        return testRun;
+        return getTestRunByIdFull(testRun.getId());
     }
 
     private void setStartTestRunData(TestRun testRun) {
@@ -429,7 +429,9 @@ public class TestRunService implements ProjectReassignable {
 
         Integer eta = testRunMapper.getTestRunEtaByTestSuiteId(testRun.getTestSuite().getId());
         // Initialize starting time
-        testRun.setStartedAt(Calendar.getInstance().getTime());
+        if (testRun.getStartedAt() == null) {
+            testRun.setStartedAt(Calendar.getInstance().getTime());
+        }
         testRun.setReviewed(false);
         testRun.setEta(eta);
         testRun.setStatus(Status.IN_PROGRESS);

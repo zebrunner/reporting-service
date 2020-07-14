@@ -170,10 +170,11 @@ public class LauncherController extends AbstractController implements LauncherDo
     @PatchMapping("/{id}")
     @Override
     public UserLauncherPreference patchUserLauncherPreference(@RequestBody @Valid PatchDescriptor descriptor, @PathVariable("id") Long id) {
-        return PatchDecorator.<UserLauncherPreference, Boolean>descriptor(descriptor)
+        return PatchDecorator.<UserLauncherPreference, PatchOperation>instance()
+                .descriptor(descriptor)
                 .operation(PatchOperation.class)
 
-                .when(PatchOperation.SAVE_FAVORITE)
+                .<Boolean>when(PatchOperation.SAVE_FAVORITE)
                 .withParameter(Boolean::valueOf)
                 .then(favorite -> launcherService.markLauncherAsFavorite(id, Long.valueOf(getPrincipalId()), favorite))
 

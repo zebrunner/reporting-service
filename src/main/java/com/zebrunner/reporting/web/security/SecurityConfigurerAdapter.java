@@ -27,7 +27,8 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/websockets/**",
             "/api/launchers/hooks/*",
             "/api/integrations-info/public",
-            "/api/social/**"
+            "/api/social/**",
+            "/api/auth/tenant/**"
     };
 
     private static final String[] AUTHENTICATED_API_PATTERNS = new String[]{
@@ -50,7 +51,8 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
             "/api/integrations/**",
             "/api/security/**",
             "/api/tests/sessions/**",
-            "/api/v1/reporting/**"
+            "/v1/test-runs/**",
+            "/v1/test-sessions/**"
     };
 
     private final TenancyFilter tenancyFilter;
