@@ -75,8 +75,8 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(tenancyFilter, CORSFilter.class)
                 .addFilterAfter(jwtTokenAuthenticationFilter, ExceptionTranslationFilter.class)
                 .authorizeRequests()
-                .antMatchers(PUBLIC_API_PATTERNS).permitAll();
-//                .antMatchers(AUTHENTICATED_API_PATTERNS).authenticated();
+                .antMatchers(PUBLIC_API_PATTERNS).permitAll()
+                .antMatchers(AUTHENTICATED_API_PATTERNS).authenticated();
     }
 
     @Bean

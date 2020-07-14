@@ -79,28 +79,6 @@ public class TestRunServiceV1 {
         oldTest.setTestCaseId(testCase.getId());
         oldTest.setStartTime(new Date(test.getStartedAt().toInstant().toEpochMilli()));
 
-//        com.zebrunner.reporting.domain.db.Test headlessTest = null;
-//        if (test.getId() != null) { // headless test override (next headless test or test start)
-//            headlessTest = testService.getTestById(test.getId());
-//            if (headlessTest != null) {
-//                oldTest.setUuid(test.getUuid());
-//                oldTest.setStartTime(headlessTest.getStartTime());
-//            }
-//        }
-
-//        boolean updateHeadlessTest = false;
-//        com.zebrunner.reporting.domain.db.Test existingTest = testMapper.getTestByTestRunIdAndUuid(testRunId, test.getUuid());
-//        if (existingTest != null) {
-//            oldTest.setId(existingTest.getId());
-//            if (headless && !rerun) { // if there are many headless tests in chain
-//                oldTest.setStatus(existingTest.getStatus());
-//                updateHeadlessTest = true;
-//            }
-//        }
-//
-//        if (updateHeadlessTest) {
-//            oldTest = testService.updateTest(oldTest);
-//        } else {
         oldTest = testService.startTest(oldTest, null, null, rerun);
 
         test.setId(oldTest.getId());

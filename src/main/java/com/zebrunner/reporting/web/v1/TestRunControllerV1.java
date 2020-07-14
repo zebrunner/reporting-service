@@ -58,7 +58,7 @@ public class TestRunControllerV1 extends AbstractController {
     private final TestRunStatisticsCacheableService statisticsCacheableService;
 
     @PostMapping
-    public TestRunSaveResponse startTestRun(@RequestParam(name = "projectKey", required = false) String projectKey,
+    public TestRunSaveResponse startTestRun(@RequestParam(name = "projectKey") String projectKey,
                                             @RequestBody @Validated TestRunStartRequest testRunStartRequest) {
         TestRun testRun = jMapper.map(testRunStartRequest, TestRun.class);
         testRun = testRunServiceV1.startRun(testRun, projectKey, getPrincipalId().longValue());
